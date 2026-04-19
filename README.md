@@ -21,7 +21,7 @@
   <a href="#-功能模块总览">📦 功能模块</a> •
   <a href="#-技术架构">🏗️ 技术架构</a> •
   <a href="#-快速开始">🚀 快速开始</a> •
-  <a href="#-联系我们">📞 联系我们</a>
+  <a href="#-系统截图">📸 系统截图</a>
 </p>
 
 ---
@@ -390,10 +390,11 @@ MySQL / PostgreSQL / Oracle / 达梦 / 人大金仓 / SQL Server，**全面适�
 
 ### 移动端
 
-| 截图 | 截图 | 截图 |
+| 首页 | 审批 | 工作台 |
 |:---:|:---:|:---:|
-| ![](/.image/admin-uniapp/01.png) | ![](/.image/admin-uniapp/02.png) | ![](/.image/admin-uniapp/03.png) |
-| ![](/.image/admin-uniapp/04.png) | ![](/.image/admin-uniapp/05.png) | ![](/.image/admin-uniapp/06.png) |
+| ![移动端-首页](/.image/admin-uniapp/01.png) | ![移动端-审批](/.image/admin-uniapp/02.png) | ![移动端-工作台](/.image/admin-uniapp/03.png) |
+| 发起申请 | 用车申请列表 | 我的 |
+| ![移动端-发起申请](/.image/admin-uniapp/04.png) | ![移动端-用车申请列表](/.image/admin-uniapp/05.png) | ![移动端-我的](/.image/admin-uniapp/06.png) |
 
 ---
 
@@ -497,76 +498,16 @@ npm run dev:antd
 
 ---
 
-## 📞 联系我们
+## 📚 获取与支持
 
-> 🔥 **想要快速上手？想要定制开发？想要了解更多？** 欢迎随时联系我们！
+> 建议优先通过在线演示、项目文档和源码仓库了解系统能力与部署方式。
 
-### 🤝 合作方式
-
-| 服务类型 | 说明 |
+| 方式 | 说明 |
 |:---|:---|
-| **🆓 开源使用** | 代码完全开源，直接 Fork 使用，社区交流 |
-| **📚 技术支持** | 一对一技术指导，快速解决部署和使用问题 |
-| **🎨 定制开发** | 根据企业需求定制功能模块，快速交付 |
-| **🏢 企业级服务** | 提供企业级部署、运维、培训全套服务 |
-| **💼 项目外包** | 基于本平台快速开发各类企业管理系统 |
-
-### 📱 联系方式
-
-<table>
-<tr>
-<td align="center" width="50%">
-
-**💬 微信咨询**
-
-添加微信好友，备注「**RuoYi Office**」
-
-<!-- 请替换为实际微信二维码图片 -->
-![微信二维码](/.image/readme/wechat.jpg)
-
-微信号：**17156169080**
-
-</td>
-<td align="center" width="50%">
-
-**💬 微信交流群**
-
-扫码加入技术交流群
-
-<!-- 请替换为实际微信群二维码图片 -->
-![微信群二维码](/.image/readme/wechat-group-qr.png)
-
-</td>
-</tr>
-</table>
-
-### 🛒 获取方式
-
-<table>
-<tr>
-<td align="center" width="33%">
-
-#### Step 1️⃣ 体验系统
-访问 [在线演示](http://ruoyioffice.com/web/)
-<br>账号密码：`admin` / `admin123`
-
-</td>
-<td align="center" width="33%">
-
-#### Step 2️⃣ 添加微信
-扫码或搜索微信号 **17156169080**
-<br>备注「**RuoYi Office**」
-
-</td>
-<td align="center" width="33%">
-
-#### Step 3️⃣ 深入沟通
-了解需求，提供定制方案
-<br>选择适合的服务模式
-
-</td>
-</tr>
-</table>
+| **🌐 在线演示** | 访问 [http://ruoyioffice.com/web/](http://ruoyioffice.com/web/) 体验主要功能 |
+| **📖 项目文档** | 查阅仓库内文档与官网指南，了解部署、模块能力、架构设计 |
+| **📦 源码获取** | Fork / Clone 当前仓库，自行部署、二开与集成 |
+| **🛠️ 问题排查** | 优先通过 README、模块文档、提交记录与代码注释定位问题 |
 
 ---
 
@@ -613,8 +554,8 @@ npm run dev:antd
   <sub>一个平台，管好整个企业 —— 让中小企业数字化转型更简单</sub>
   <br><br>
   <a href="http://ruoyioffice.com/web/">🌐 在线演示</a> •
-  <a href="#-联系我们">📞 联系我们</a> •
-  <a href="#-获取方式">🛒 立即获取</a>
+  <a href="#-系统截图">📸 系统截图</a> •
+  <a href="#-快速开始">🚀 快速开始</a>
 </p>
 
 ---
