@@ -2,7 +2,7 @@
  <img src="https://img.shields.io/badge/Spring%20Cloud-2024-blue.svg" alt="Coverage Status">
  <img src="https://img.shields.io/badge/Spring%20Boot-3.4.5-blue.svg" alt="Downloads">
  <img src="https://img.shields.io/badge/Vue-3.2-blue.svg" alt="Downloads">
- <img src="https://img.shields.io/github/license/YunaiV/yudao-cloud" alt="Downloads" />
+ <img src="https://img.shields.io/github/license/YunaiV/dh-cloud" alt="Downloads" />
 </p>
 
 **严肃声明：现在、未来都不会有商业版本，所有代码全部开源!！**
@@ -18,9 +18,9 @@
 
 ## 🐶 新手必读
 
-* 演示地址【Vue3 + element-plus】：<http://dashboard-vue3.yudao.ruoyioffice.com>
-* 演示地址【Vue3 + vben(ant-design-vue)】：<http://dashboard-vben.yudao.ruoyioffice.com>
-* 演示地址【Vue2 + element-ui】：<http://dashboard.yudao.ruoyioffice.com>
+* 演示地址【Vue3 + element-plus】：<http://dashboard-vue3.dh.ruoyioffice.com>
+* 演示地址【Vue3 + vben(ant-design-vue)】：<http://dashboard-vben.dh.ruoyioffice.com>
+* 演示地址【Vue2 + element-ui】：<http://dashboard.dh.ruoyioffice.com>
 * 启动文档：<https://ruoyioffice.com/quick-start/>
 * 视频教程：<https://ruoyioffice.com/video/>
 
@@ -28,8 +28,8 @@
 
 | 版本                                                                    | JDK 8 + Spring Boot 2.7                                                  | JDK 17/21 + Spring Boot 3.2                                                          |
 |-----------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| 【完整版】[yudao-cloud](https://gitee.com/zhijiantianya/yudao-cloud)       | [`master`](https://gitee.com/zhijiantianya/yudao-cloud/tree/master/) 分支  | [`master-jdk17`](https://gitee.com/zhijiantianya/yudao-cloud/tree/master-jdk17/) 分支  |
-| 【精简版】[yudao-cloud-mini](https://gitee.com/yudaocode/yudao-cloud-mini) | [`master`](https://gitee.com/yudaocode/yudao-cloud-mini/tree/master/) 分支 | [`master-jdk17`](https://gitee.com/yudaocode/yudao-cloud-mini/tree/master-jdk17/) 分支 |
+| 【完整版】[dh-cloud](https://gitee.com/zhijiantianya/dh-cloud)       | [`master`](https://gitee.com/zhijiantianya/dh-cloud/tree/master/) 分支  | [`master-jdk17`](https://gitee.com/zhijiantianya/dh-cloud/tree/master-jdk17/) 分支  |
+| 【精简版】[dh-cloud-mini](https://gitee.com/dhcode/dh-cloud-mini) | [`master`](https://gitee.com/dhcode/dh-cloud-mini/tree/master/) 分支 | [`master-jdk17`](https://gitee.com/dhcode/dh-cloud-mini/tree/master-jdk17/) 分支 |
 
 * 【完整版】：包括系统功能、基础设施、会员中心、数据报表、工作流程、商城系统、微信公众号、CRM、ERP 等功能
 * 【精简版】：只包括系统功能、基础设施功能，不包括会员中心、数据报表、工作流程、商城系统、微信公众号、CRM、ERP 等功能
@@ -38,16 +38,16 @@
 
 ## 🐯 平台简介
 
-**宇擎**，以开发者为中心，打造中国第一流的快速开发平台，全部开源，个人与企业可 100% 免费使用。
+**鼎衡**，以开发者为中心，打造中国第一流的快速开发平台，全部开源，个人与企业可 100% 免费使用。
 
 > 有任何问题，或者想要的功能，可以在 _Issues_ 中提给艿艿。
 >
 > 😜 给项目点点 Star 吧，这对我们真的很重要！
 
-![架构图](/.image/common/yudao-cloud-architecture.png)
+![架构图](/.image/common/dh-cloud-architecture.png)
 
 * Java 后端：`master` 分支为 JDK 8 + Spring Boot 2.7，`master-jdk17` 分支为 JDK 17/21 + Spring Boot 3.2
-* 管理后台的电脑端：Vue3 提供 [element-plus](https://gitee.com/yudaocode/yudao-ui-admin-vue3)、[vben(ant-design-vue)](https://gitee.com/yudaocode/yudao-ui-admin-vben) 两个版本，Vue2 提供 [element-ui](https://gitee.com/zhijiantianya/ruoyi-vue-pro/tree/master/yudao-ui-admin) 版本
+* 管理后台的电脑端：Vue3 提供 [element-plus](https://gitee.com/dhcode/dh-ui-admin-vue3)、[vben(ant-design-vue)](https://gitee.com/dhcode/dh-ui-admin-vben) 两个版本，Vue2 提供 [element-ui](https://gitee.com/zhijiantianya/ruoyi-vue-pro/tree/master/dh-ui-admin) 版本
 * 管理后台的移动端：采用 [uni-app](https://github.com/dcloudio/uni-app) 方案，一份代码多终端适配，同时支持 APP、小程序、H5！
 * 后端采用 Spring Cloud Alibaba 微服务架构，注册中心 + 配置中心 Nacos，定时任务 XXL-Job，服务保障 Sentinel，服务网关 Gateway，分布式事务 Seata
 * 数据库可使用 MySQL、Oracle、PostgreSQL、SQL Server、MariaDB、国产达梦 DM、TiDB 等，基于 MyBatis Plus、Redis + Redisson 操作
@@ -64,7 +64,7 @@
 
 ##  🐳 项目关系
 
-![架构演进](/.image/common/yudao-roadmap.png)
+![架构演进](/.image/common/dh-roadmap.png)
 
 三个项目的功能对比，可见社区共同整理的 [国产开源项目对比](https://www.yuque.com/xiatian-bsgny/lm0ec1/wqf8mn) 表格。
 
@@ -73,19 +73,19 @@
 | 项目                                                              | Star                                                                                                                                                                                                                                                                                             | 简介                          |
 |-----------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|
 | [ruoyi-vue-pro](https://gitee.com/zhijiantianya/ruoyi-vue-pro)  | [![Gitee star](https://gitee.com/zhijiantianya/ruoyi-vue-pro/badge/star.svg?theme=white)](https://gitee.com/zhijiantianya/ruoyi-vue-pro) [![GitHub stars](https://img.shields.io/github/stars/YunaiV/ruoyi-vue-pro.svg?style=social&label=Stars)](https://gitcode.com/zhouzhongyan/ruoyi-office.git)       | 基于 Spring Boot 多模块架构        |
-| [yudao-cloud](https://gitee.com/zhijiantianya/yudao-cloud)      | [![Gitee star](https://gitee.com/zhijiantianya/yudao-cloud/badge/star.svg?theme=white)](https://gitee.com/zhijiantianya/yudao-cloud) [![GitHub stars](https://img.shields.io/github/stars/YunaiV/yudao-cloud.svg?style=social&label=Stars)](https://github.com/YunaiV/yudao-cloud)               | 基于 Spring Cloud 微服务架构       |
-| [Spring-Boot-Labs](https://gitee.com/yudaocode/SpringBoot-Labs) | [![Gitee star](https://gitee.com/yudaocode/SpringBoot-Labs/badge/star.svg?theme=white)](https://gitee.com/zhijiantianya/yudao-cloud) [![GitHub stars](https://img.shields.io/github/stars/yudaocode/SpringBoot-Labs.svg?style=social&label=Stars)](https://github.com/yudaocode/SpringBoot-Labs) | 系统学习 Spring Boot & Cloud 专栏 |
+| [dh-cloud](https://gitee.com/zhijiantianya/dh-cloud)      | [![Gitee star](https://gitee.com/zhijiantianya/dh-cloud/badge/star.svg?theme=white)](https://gitee.com/zhijiantianya/dh-cloud) [![GitHub stars](https://img.shields.io/github/stars/YunaiV/dh-cloud.svg?style=social&label=Stars)](https://github.com/YunaiV/dh-cloud)               | 基于 Spring Cloud 微服务架构       |
+| [Spring-Boot-Labs](https://gitee.com/dhcode/SpringBoot-Labs) | [![Gitee star](https://gitee.com/dhcode/SpringBoot-Labs/badge/star.svg?theme=white)](https://gitee.com/zhijiantianya/dh-cloud) [![GitHub stars](https://img.shields.io/github/stars/dhcode/SpringBoot-Labs.svg?style=social&label=Stars)](https://github.com/dhcode/SpringBoot-Labs) | 系统学习 Spring Boot & Cloud 专栏 |
 
 ### 前端项目
 
 | 项目                                                                         | Star                                                                                                                                                                                                                                                                                                                     | 简介                                     |
 |----------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------|
-| [yudao-ui-admin-vue3](https://gitee.com/yudaocode/yudao-ui-admin-vue3)     | [![Gitee star](https://gitee.com/yudaocode/yudao-ui-admin-vue3/badge/star.svg?theme=white)](https://gitee.com/yudaocode/yudao-ui-admin-vue3) [![GitHub stars](https://img.shields.io/github/stars/yudaocode/yudao-ui-admin-vue3.svg?style=social&label=Stars)](https://github.com/yudaocode/yudao-ui-admin-vue3)         | 基于 Vue3 + element-plus 实现的管理后台         |
-| [yudao-ui-admin-vben](https://gitee.com/yudaocode/yudao-ui-admin-vben)     | [![Gitee star](https://gitee.com/yudaocode/yudao-ui-admin-vben/badge/star.svg?theme=white)](https://gitee.com/yudaocode/yudao-ui-admin-vben) [![GitHub stars](https://img.shields.io/github/stars/yudaocode/yudao-ui-admin-vben.svg?style=social&label=Stars)](https://github.com/yudaocode/yudao-ui-admin-vben)         | 基于 Vue3 + vben(ant-design-vue) 实现的管理后台 |
-| [yudao-mall-uniapp](https://gitee.com/yudaocode/yudao-mall-uniapp)         | [![Gitee star](https://gitee.com/yudaocode/yudao-mall-uniapp/badge/star.svg?theme=white)](https://gitee.com/yudaocode/yudao-mall-uniapp) [![GitHub stars](https://img.shields.io/github/stars/yudaocode/yudao-mall-uniapp.svg?style=social&label=Stars)](https://github.com/yudaocode/yudao-mall-uniapp)                 | 基于 uni-app 实现的商城小程序                    |
-| [yudao-ui-admin-vue2](https://gitee.com/yudaocode/yudao-ui-admin-vue2)     | [![Gitee star](https://gitee.com/yudaocode/yudao-ui-admin-vue2/badge/star.svg?theme=white)](https://gitee.com/yudaocode/yudao-ui-admin-vue2) [![GitHub stars](https://img.shields.io/github/stars/yudaocode/yudao-ui-admin-vue2.svg?style=social&label=Stars)](https://github.com/yudaocode/yudao-ui-admin-vue2)         | 基于 Vue2 + element-ui 实现的管理后台           |
-| [yudao-ui-admin-uniapp](https://gitee.com/yudaocode/yudao-ui-admin-uniapp) | [![Gitee star](https://gitee.com/yudaocode/yudao-ui-admin-uniapp/badge/star.svg?theme=white)](https://gitee.com/yudaocode/yudao-ui-admin-uniapp) [![GitHub stars](https://img.shields.io/github/stars/yudaocode/yudao-ui-admin-uniapp.svg?style=social&label=Stars)](https://github.com/yudaocode/yudao-ui-admin-uniapp) | 基于 Vue2 + element-ui 实现的管理后台           |
-| [yudao-ui-go-view](https://gitee.com/yudaocode/yudao-ui-go-view)           | [![Gitee star](https://gitee.com/yudaocode/yudao-ui-go-view/badge/star.svg?theme=white)](https://gitee.com/yudaocode/yudao-ui-go-view) [![GitHub stars](https://img.shields.io/github/stars/yudaocode/yudao-ui-go-view.svg?style=social&label=Stars)](https://github.com/yudaocode/yudao-ui-go-view)                     | 基于 Vue3 + naive-ui 实现的大屏报表             |
+| [dh-ui-admin-vue3](https://gitee.com/dhcode/dh-ui-admin-vue3)     | [![Gitee star](https://gitee.com/dhcode/dh-ui-admin-vue3/badge/star.svg?theme=white)](https://gitee.com/dhcode/dh-ui-admin-vue3) [![GitHub stars](https://img.shields.io/github/stars/dhcode/dh-ui-admin-vue3.svg?style=social&label=Stars)](https://github.com/dhcode/dh-ui-admin-vue3)         | 基于 Vue3 + element-plus 实现的管理后台         |
+| [dh-ui-admin-vben](https://gitee.com/dhcode/dh-ui-admin-vben)     | [![Gitee star](https://gitee.com/dhcode/dh-ui-admin-vben/badge/star.svg?theme=white)](https://gitee.com/dhcode/dh-ui-admin-vben) [![GitHub stars](https://img.shields.io/github/stars/dhcode/dh-ui-admin-vben.svg?style=social&label=Stars)](https://github.com/dhcode/dh-ui-admin-vben)         | 基于 Vue3 + vben(ant-design-vue) 实现的管理后台 |
+| [dh-mall-uniapp](https://gitee.com/dhcode/dh-mall-uniapp)         | [![Gitee star](https://gitee.com/dhcode/dh-mall-uniapp/badge/star.svg?theme=white)](https://gitee.com/dhcode/dh-mall-uniapp) [![GitHub stars](https://img.shields.io/github/stars/dhcode/dh-mall-uniapp.svg?style=social&label=Stars)](https://github.com/dhcode/dh-mall-uniapp)                 | 基于 uni-app 实现的商城小程序                    |
+| [dh-ui-admin-vue2](https://gitee.com/dhcode/dh-ui-admin-vue2)     | [![Gitee star](https://gitee.com/dhcode/dh-ui-admin-vue2/badge/star.svg?theme=white)](https://gitee.com/dhcode/dh-ui-admin-vue2) [![GitHub stars](https://img.shields.io/github/stars/dhcode/dh-ui-admin-vue2.svg?style=social&label=Stars)](https://github.com/dhcode/dh-ui-admin-vue2)         | 基于 Vue2 + element-ui 实现的管理后台           |
+| [dh-ui-admin-uniapp](https://gitee.com/dhcode/dh-ui-admin-uniapp) | [![Gitee star](https://gitee.com/dhcode/dh-ui-admin-uniapp/badge/star.svg?theme=white)](https://gitee.com/dhcode/dh-ui-admin-uniapp) [![GitHub stars](https://img.shields.io/github/stars/dhcode/dh-ui-admin-uniapp.svg?style=social&label=Stars)](https://github.com/dhcode/dh-ui-admin-uniapp) | 基于 Vue2 + element-ui 实现的管理后台           |
+| [dh-ui-go-view](https://gitee.com/dhcode/dh-ui-go-view)           | [![Gitee star](https://gitee.com/dhcode/dh-ui-go-view/badge/star.svg?theme=white)](https://gitee.com/dhcode/dh-ui-go-view) [![GitHub stars](https://img.shields.io/github/stars/dhcode/dh-ui-go-view.svg?style=social&label=Stars)](https://github.com/dhcode/dh-ui-go-view)                     | 基于 Vue3 + naive-ui 实现的大屏报表             |
 
 ## 😎 开源协议
 
@@ -293,48 +293,48 @@
 
 | 项目                    | 说明                 |
 |-----------------------|--------------------|
-| `yudao-dependencies`  | Maven 依赖版本管理       |
-| `yudao-framework`     | Java 框架拓展          |
-| `yudao-server`        | 管理后台 + 用户 APP 的服务端 |
-| `yudao-module-system` | 系统功能的 Module 模块    |
-| `yudao-module-member` | 会员中心的 Module 模块    |
-| `yudao-module-infra`  | 基础设施的 Module 模块    |
-| `yudao-module-bpm`    | 工作流程的 Module 模块    |
-| `yudao-module-pay`    | 支付系统的 Module 模块    |
-| `yudao-module-mall`   | 商城系统的 Module 模块    |
-| `yudao-module-erp`    | ERP 系统的 Module 模块  |
-| `yudao-module-crm`    | CRM 系统的 Module 模块  |
-| `yudao-module-ai`     | AI 大模型的 Module 模块  |
-| `yudao-module-mp`     | 微信公众号的 Module 模块   |
-| `yudao-module-report` | 大屏报表 Module 模块     |
+| `dh-dependencies`  | Maven 依赖版本管理       |
+| `dh-framework`     | Java 框架拓展          |
+| `dh-server`        | 管理后台 + 用户 APP 的服务端 |
+| `dh-module-system` | 系统功能的 Module 模块    |
+| `dh-module-member` | 会员中心的 Module 模块    |
+| `dh-module-infra`  | 基础设施的 Module 模块    |
+| `dh-module-bpm`    | 工作流程的 Module 模块    |
+| `dh-module-pay`    | 支付系统的 Module 模块    |
+| `dh-module-mall`   | 商城系统的 Module 模块    |
+| `dh-module-erp`    | ERP 系统的 Module 模块  |
+| `dh-module-crm`    | CRM 系统的 Module 模块  |
+| `dh-module-ai`     | AI 大模型的 Module 模块  |
+| `dh-module-mp`     | 微信公众号的 Module 模块   |
+| `dh-module-report` | 大屏报表 Module 模块     |
 
 ### 框架
 
 | 框架                                                                                          | 说明               | 版本         | 学习指南                                                                |
 |---------------------------------------------------------------------------------------------|------------------|------------|---------------------------------------------------------------------|
 | [Spring Cloud Alibaba](https://github.com/alibaba/spring-cloud-alibaba)                     | 微服务框架            | 2023.0.1   | [文档](https://github.com/YunaiV/SpringBoot-Labs)                     |
-| [Nacos](https://github.com/alibaba/nacos)                                                   | 配置中心 & 注册中心      | 2.3.2      | [文档](https://www.ruoyioffice.com/categories/Nacos/?yudao)                |
-| [RocketMQ](https://github.com/apache/rocketmq)                                              | 消息队列             | 5.2.0      | [文档](https://www.ruoyioffice.com/categories/RocketMQ/?yudao)             |
-| [Sentinel](https://github.com/alibaba/sentinel)                                             | 服务保障             | 1.8.6      | [文档](https://www.ruoyioffice.com/categories/Sentinel/?yudao)             |
-| [XXL Job](https://github.com/xuxueli/xxl-job)                                               | 定时任务             | 2.4.0      | [文档](https://www.ruoyioffice.com/XXL-JOB/good-collection/?yudao)         |
-| [Spring Cloud Gateway](https://github.com/spring-cloud/spring-cloud-gateway)                | 服务网关             | 4.1.0      | [文档](https://www.ruoyioffice.com/categories/Spring-Cloud-Gateway/?yudao) |
-| [Seata](https://github.com/seata/seata)                                                     | 分布式事务            | 1.6.1      | [文档](https://www.ruoyioffice.com/categories/Seata/?yudao)                |
+| [Nacos](https://github.com/alibaba/nacos)                                                   | 配置中心 & 注册中心      | 2.3.2      | [文档](https://www.ruoyioffice.com/categories/Nacos/?dh)                |
+| [RocketMQ](https://github.com/apache/rocketmq)                                              | 消息队列             | 5.2.0      | [文档](https://www.ruoyioffice.com/categories/RocketMQ/?dh)             |
+| [Sentinel](https://github.com/alibaba/sentinel)                                             | 服务保障             | 1.8.6      | [文档](https://www.ruoyioffice.com/categories/Sentinel/?dh)             |
+| [XXL Job](https://github.com/xuxueli/xxl-job)                                               | 定时任务             | 2.4.0      | [文档](https://www.ruoyioffice.com/XXL-JOB/good-collection/?dh)         |
+| [Spring Cloud Gateway](https://github.com/spring-cloud/spring-cloud-gateway)                | 服务网关             | 4.1.0      | [文档](https://www.ruoyioffice.com/categories/Spring-Cloud-Gateway/?dh) |
+| [Seata](https://github.com/seata/seata)                                                     | 分布式事务            | 1.6.1      | [文档](https://www.ruoyioffice.com/categories/Seata/?dh)                |
 | [MySQL](https://www.mysql.com/cn/)                                                          | 数据库服务器           | 5.7 / 8.0+ |                                                                     |
-| [Druid](https://github.com/alibaba/druid)                                                   | JDBC 连接池、监控组件    | 1.2.23     | [文档](http://www.ruoyioffice.com/Spring-Boot/datasource-pool/?yudao)      |
-| [MyBatis Plus](https://mp.baomidou.com/)                                                    | MyBatis 增强工具包    | 3.5.7      | [文档](http://www.ruoyioffice.com/Spring-Boot/MyBatis/?yudao)              |
-| [Dynamic Datasource](https://dynamic-datasource.com/)                                       | 动态数据源            | 4.3.1      | [文档](http://www.ruoyioffice.com/Spring-Boot/datasource-pool/?yudao)      |
+| [Druid](https://github.com/alibaba/druid)                                                   | JDBC 连接池、监控组件    | 1.2.23     | [文档](http://www.ruoyioffice.com/Spring-Boot/datasource-pool/?dh)      |
+| [MyBatis Plus](https://mp.baomidou.com/)                                                    | MyBatis 增强工具包    | 3.5.7      | [文档](http://www.ruoyioffice.com/Spring-Boot/MyBatis/?dh)              |
+| [Dynamic Datasource](https://dynamic-datasource.com/)                                       | 动态数据源            | 4.3.1      | [文档](http://www.ruoyioffice.com/Spring-Boot/datasource-pool/?dh)      |
 | [Redis](https://redis.io/)                                                                  | key-value 数据库    | 5.0 / 6.0  |                                                                     |
-| [Redisson](https://github.com/redisson/redisson)                                            | Redis 客户端        | 3.32.0     | [文档](http://www.ruoyioffice.com/Spring-Boot/Redis/?yudao)                |
-| [Spring MVC](https://github.com/spring-projects/spring-framework/tree/master/spring-webmvc) | MVC 框架           | 6.1.10     | [文档](http://www.ruoyioffice.com/SpringMVC/MVC/?yudao)                    |
-| [Spring Security](https://github.com/spring-projects/spring-security)                       | Spring 安全框架      | 6.3.1      | [文档](http://www.ruoyioffice.com/Spring-Boot/Spring-Security/?yudao)      |
-| [Hibernate Validator](https://github.com/hibernate/hibernate-validator)                     | 参数校验组件           | 8.0.1      | [文档](http://www.ruoyioffice.com/Spring-Boot/Validation/?yudao)           |
+| [Redisson](https://github.com/redisson/redisson)                                            | Redis 客户端        | 3.32.0     | [文档](http://www.ruoyioffice.com/Spring-Boot/Redis/?dh)                |
+| [Spring MVC](https://github.com/spring-projects/spring-framework/tree/master/spring-webmvc) | MVC 框架           | 6.1.10     | [文档](http://www.ruoyioffice.com/SpringMVC/MVC/?dh)                    |
+| [Spring Security](https://github.com/spring-projects/spring-security)                       | Spring 安全框架      | 6.3.1      | [文档](http://www.ruoyioffice.com/Spring-Boot/Spring-Security/?dh)      |
+| [Hibernate Validator](https://github.com/hibernate/hibernate-validator)                     | 参数校验组件           | 8.0.1      | [文档](http://www.ruoyioffice.com/Spring-Boot/Validation/?dh)           |
 | [Flowable](https://github.com/flowable/flowable-engine)                                     | 工作流引擎            | 7.0.0      | [文档](http://ruoyioffice.com/bpm/)                                   |
-| [Knife4j](https://gitee.com/xiaoym/knife4j)                                                 | Swagger 增强 UI 实现 | 4.5.0      | [文档](http://www.ruoyioffice.com/Spring-Boot/Swagger/?yudao)              |
-| [SkyWalking](https://skywalking.apache.org/)                                                | 分布式应用追踪系统        | 9.0.0      | [文档](http://www.ruoyioffice.com/Spring-Boot/SkyWalking/?yudao)           |
-| [Spring Boot Admin](https://github.com/codecentric/spring-boot-admin)                       | Spring Boot 监控平台 | 3.6.1      | [文档](http://www.ruoyioffice.com/Spring-Boot/Admin/?yudao)                |
+| [Knife4j](https://gitee.com/xiaoym/knife4j)                                                 | Swagger 增强 UI 实现 | 4.5.0      | [文档](http://www.ruoyioffice.com/Spring-Boot/Swagger/?dh)              |
+| [SkyWalking](https://skywalking.apache.org/)                                                | 分布式应用追踪系统        | 9.0.0      | [文档](http://www.ruoyioffice.com/Spring-Boot/SkyWalking/?dh)           |
+| [Spring Boot Admin](https://github.com/codecentric/spring-boot-admin)                       | Spring Boot 监控平台 | 3.6.1      | [文档](http://www.ruoyioffice.com/Spring-Boot/Admin/?dh)                |
 | [Jackson](https://github.com/FasterXML/jackson)                                             | JSON 工具库         | 2.17.1     |                                                                     |
-| [MapStruct](https://mapstruct.org/)                                                         | Java Bean 转换     | 1.6.3      | [文档](http://www.ruoyioffice.com/Spring-Boot/MapStruct/?yudao)            |
-| [Lombok](https://projectlombok.org/)                                                        | 消除冗长的 Java 代码    | 1.18.34    | [文档](http://www.ruoyioffice.com/Spring-Boot/Lombok/?yudao)               |
+| [MapStruct](https://mapstruct.org/)                                                         | Java Bean 转换     | 1.6.3      | [文档](http://www.ruoyioffice.com/Spring-Boot/MapStruct/?dh)            |
+| [Lombok](https://projectlombok.org/)                                                        | 消除冗长的 Java 代码    | 1.18.34    | [文档](http://www.ruoyioffice.com/Spring-Boot/Lombok/?dh)               |
 | [JUnit](https://junit.org/junit5/)                                                          | Java 单元测试框架      | 5.10.1     | -                                                                   |
 | [Mockito](https://github.com/mockito/mockito)                                               | Java Mock 框架     | 5.7.0      | -                                                                   |
 

@@ -23901,7 +23901,7 @@
     },
     {
       "id": "12B9346F-A0B6-4529-B483-060958854567",
-      "defKey": "yudao_demo01_contact",
+      "defKey": "dh_demo01_contact",
       "defName": "示例联系人表",
       "comment": "",
       "properties": {},
@@ -24334,7 +24334,7 @@
     },
     {
       "id": "2E0F5238-C288-4234-8F8A-9E878D7A7BE8",
-      "defKey": "yudao_demo02_category",
+      "defKey": "dh_demo02_category",
       "defName": "示例分类表",
       "comment": "",
       "properties": {},
@@ -24683,7 +24683,7 @@
     },
     {
       "id": "5F99D403-C1B6-4ADF-9DC9-76BAF759AAE2",
-      "defKey": "yudao_demo03_course",
+      "defKey": "dh_demo03_course",
       "defName": "学生课程表",
       "comment": "",
       "properties": {},
@@ -25060,7 +25060,7 @@
     },
     {
       "id": "C3B7D3DB-B3FD-48D5-815A-3A7BFA4A5EC3",
-      "defKey": "yudao_demo03_grade",
+      "defKey": "dh_demo03_grade",
       "defName": "学生班级表",
       "comment": "",
       "properties": {},
@@ -25437,7 +25437,7 @@
     },
     {
       "id": "9CB6F3A3-D6EF-4C79-946B-0C08C5321ADD",
-      "defKey": "yudao_demo03_student",
+      "defKey": "dh_demo03_student",
       "defName": "学生表",
       "comment": "",
       "properties": {},

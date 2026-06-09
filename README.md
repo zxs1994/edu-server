@@ -165,22 +165,22 @@
 
 | 序号 | 子系统 | 模块 | 核心功能 | 状态 |
 |:---:|:---|:---|:---|:---:|
-| 1 | **🏠 OA 协同办公** | `yudao-module-oa` | 用车管理（申请/归还）、印章管理（用印审批）、会议室管理（在线预约）、企业云盘（文件共享/权限管理）、通知公告 | ✅ |
-| 2 | **👥 HRM 人力资源** | `yudao-module-hrm` | 员工档案（教育/工作/家属信息）、入职申请、转正申请、人事调动、离职管理、一键生成系统账号 | ✅ |
-| 3 | **🤝 CRM 客户管理** | `yudao-module-crm` | 线索管理、客户管理、联系人、商机跟进、合同管理、回款管理、产品管理、数据统计分析 | ✅ |
-| 4 | **📊 ERP 进销存** | `yudao-module-erp` | 采购管理（订单/入库/退货）、销售管理（订单/出库/退货）、库存管理、产品管理、财务管理（收付款） | ✅ |
-| 5 | **🏭 EAM 资产管理** | `yudao-module-asset` | 资产分类、资产登记、资产物品管理、资产全生命周期管理（采购→领用→维修→报废） | ✅ |
-| 6 | **📦 WMS 仓储管理** | `yudao-module-wms` | 仓库管理、采购订单、采购入库、出入库操作、库存查询、通用出入库单 | ✅ |
-| 7 | **🛒 MALL 企业商城** | `yudao-module-mall` | 商品管理、订单管理、营销活动（优惠券/秒杀/拼团/砍价/满减）、售后退款、分销裂变 | ✅ |
-| 8 | **🤖 AI 智能助手** | `yudao-module-ai` | AI 对话（多模型切换）、AI 写作、AI 绘图、知识库问答、AI 思维导图 | ✅ |
-| 9 | **⚙️ BPM 流程引擎** | `yudao-module-bpm` | 仿钉钉/飞书可视化设计器 + BPMN 设计器、会签/或签/依次审批、抄送/转办/委派/加减签、父子流程、超时审批、自动提醒 | ✅ |
-| 10 | **💳 支付中心** | `yudao-module-pay` | 微信支付、支付宝、多渠道管理、支付/退款/回调管理 | ✅ |
-| 11 | **📈 数据报表** | `yudao-module-report` | 报表设计器、大屏设计器、数据可视化 | ✅ |
-| 12 | **📡 IoT 物联网** | `yudao-module-iot` | 设备管理、设备数据采集与监控 | ✅ |
-| 13 | **🔧 系统管理** | `yudao-module-system` | 用户/角色/权限/菜单、多租户 SaaS、短信/邮件/站内信、SSO 单点登录、数据权限 | ✅ |
-| 14 | **🌐 微信公众号** | `yudao-module-mp` | 粉丝管理、消息管理、自动回复、模板消息、菜单/素材管理 | ✅ |
-| 15 | **👤 会员中心** | `yudao-module-member` | 会员管理、会员标签/等级/分组、积分签到 | ✅ |
-| 16 | **🔩 基础设施** | `yudao-module-infra` | 代码生成器、API 文档、文件存储、定时任务、日志管理、链路追踪 | ✅ |
+| 1 | **🏠 OA 协同办公** | `dh-module-oa` | 用车管理（申请/归还）、印章管理（用印审批）、会议室管理（在线预约）、企业云盘（文件共享/权限管理）、通知公告 | ✅ |
+| 2 | **👥 HRM 人力资源** | `dh-module-hrm` | 员工档案（教育/工作/家属信息）、入职申请、转正申请、人事调动、离职管理、一键生成系统账号 | ✅ |
+| 3 | **🤝 CRM 客户管理** | `dh-module-crm` | 线索管理、客户管理、联系人、商机跟进、合同管理、回款管理、产品管理、数据统计分析 | ✅ |
+| 4 | **📊 ERP 进销存** | `dh-module-erp` | 采购管理（订单/入库/退货）、销售管理（订单/出库/退货）、库存管理、产品管理、财务管理（收付款） | ✅ |
+| 5 | **🏭 EAM 资产管理** | `dh-module-asset` | 资产分类、资产登记、资产物品管理、资产全生命周期管理（采购→领用→维修→报废） | ✅ |
+| 6 | **📦 WMS 仓储管理** | `dh-module-wms` | 仓库管理、采购订单、采购入库、出入库操作、库存查询、通用出入库单 | ✅ |
+| 7 | **🛒 MALL 企业商城** | `dh-module-mall` | 商品管理、订单管理、营销活动（优惠券/秒杀/拼团/砍价/满减）、售后退款、分销裂变 | ✅ |
+| 8 | **🤖 AI 智能助手** | `dh-module-ai` | AI 对话（多模型切换）、AI 写作、AI 绘图、知识库问答、AI 思维导图 | ✅ |
+| 9 | **⚙️ BPM 流程引擎** | `dh-module-bpm` | 仿钉钉/飞书可视化设计器 + BPMN 设计器、会签/或签/依次审批、抄送/转办/委派/加减签、父子流程、超时审批、自动提醒 | ✅ |
+| 10 | **💳 支付中心** | `dh-module-pay` | 微信支付、支付宝、多渠道管理、支付/退款/回调管理 | ✅ |
+| 11 | **📈 数据报表** | `dh-module-report` | 报表设计器、大屏设计器、数据可视化 | ✅ |
+| 12 | **📡 IoT 物联网** | `dh-module-iot` | 设备管理、设备数据采集与监控 | ✅ |
+| 13 | **🔧 系统管理** | `dh-module-system` | 用户/角色/权限/菜单、多租户 SaaS、短信/邮件/站内信、SSO 单点登录、数据权限 | ✅ |
+| 14 | **🌐 微信公众号** | `dh-module-mp` | 粉丝管理、消息管理、自动回复、模板消息、菜单/素材管理 | ✅ |
+| 15 | **👤 会员中心** | `dh-module-member` | 会员管理、会员标签/等级/分组、积分签到 | ✅ |
+| 16 | **🔩 基础设施** | `dh-module-infra` | 代码生成器、API 文档、文件存储、定时任务、日志管理、链路追踪 | ✅ |
 
 ### 🔵 规划中模块（持续迭代中）
 
@@ -246,7 +246,7 @@
 ---
 
 ## 🏗️ 技术架构
-![技术架构图](/.image/common/yudao-cloud-architecture.png)
+![技术架构图](/.image/common/dh-cloud-architecture.png)
 
 ### 核心技术选型
 
@@ -451,7 +451,7 @@ mysql -u root -p < sql/mysql/dump-ruoyi-office-20260305.sql
 # 3. 启动后端（先启动 Nacos）
 cd ruoyi-office
 mvn clean install -DskipTests
-java -jar yudao-server/target/yudao-server.jar
+java -jar dh-server/target/dh-server.jar
 
 # 4. 启动前端
 cd ruoyi-office-vben
@@ -469,26 +469,26 @@ npm run dev:antd
 
 | 模块 | 说明 |
 |:---|:---|
-| `yudao-dependencies` | Maven 依赖版本管理 |
-| `yudao-framework` | Java 框架核心拓展 |
-| `yudao-gateway` | Spring Cloud 微服务网关 |
-| `yudao-server` | 管理后台 + 用户 APP 服务端 |
-| `yudao-module-system` | 系统管理（用户/角色/权限/租户） |
-| `yudao-module-infra` | 基础设施（代码生成/文件/日志） |
-| `yudao-module-bpm` | 工作流程引擎 |
-| `yudao-module-oa` | OA 协同办公 |
-| `yudao-module-hrm` | HRM 人力资源管理 |
-| `yudao-module-crm` | CRM 客户关系管理 |
-| `yudao-module-erp` | ERP 进销存管理 |
-| `yudao-module-asset` | EAM 资产管理 |
-| `yudao-module-wms` | WMS 仓储管理 |
-| `yudao-module-mall` | MALL 企业商城 |
-| `yudao-module-pay` | 支付系统 |
-| `yudao-module-ai` | AI 大模型 |
-| `yudao-module-iot` | IoT 物联网 |
-| `yudao-module-member` | 会员中心 |
-| `yudao-module-mp` | 微信公众号 |
-| `yudao-module-report` | 数据报表 |
+| `dh-dependencies` | Maven 依赖版本管理 |
+| `dh-framework` | Java 框架核心拓展 |
+| `dh-gateway` | Spring Cloud 微服务网关 |
+| `dh-server` | 管理后台 + 用户 APP 服务端 |
+| `dh-module-system` | 系统管理（用户/角色/权限/租户） |
+| `dh-module-infra` | 基础设施（代码生成/文件/日志） |
+| `dh-module-bpm` | 工作流程引擎 |
+| `dh-module-oa` | OA 协同办公 |
+| `dh-module-hrm` | HRM 人力资源管理 |
+| `dh-module-crm` | CRM 客户关系管理 |
+| `dh-module-erp` | ERP 进销存管理 |
+| `dh-module-asset` | EAM 资产管理 |
+| `dh-module-wms` | WMS 仓储管理 |
+| `dh-module-mall` | MALL 企业商城 |
+| `dh-module-pay` | 支付系统 |
+| `dh-module-ai` | AI 大模型 |
+| `dh-module-iot` | IoT 物联网 |
+| `dh-module-member` | 会员中心 |
+| `dh-module-mp` | 微信公众号 |
+| `dh-module-report` | 数据报表 |
 
 ---
 
@@ -572,7 +572,7 @@ npm run dev:antd
   Spring Cloud微服务, Spring Boot, Vue3前端框架, Vben Admin,
   多租户SaaS平台, 低代码开发平台, 代码生成器,
   开源办公系统, 企业信息化, 数字化转型, 企业数字化,
-  RuoYi, 宇擎, ruoyi-office, 若依办公
+  RuoYi, 鼎衡, ruoyi-office, 若依办公
   
   制造业ERP, 贸易公司管理系统, 中小企业管理软件,
   免费OA系统, 开源ERP, 开源CRM, Java企业管理系统

@@ -3,38 +3,25 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>cn.iocoder.cloud</groupId>
-    <artifactId>yudao</artifactId>
+    <groupId>cn.dh.oa</groupId>
+    <artifactId>dh</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
     <modules>
-        <module>yudao-dependencies</module>
-        <module>yudao-gateway</module>
-        <module>yudao-framework</module>
+        <module>dh-dependencies</module>
+        <module>dh-framework</module>
         <!-- Server 主项目 -->
-        <module>yudao-server</module>
+        <module>dh-server</module>
         <!--  各种 module 拓展 -->
-        <module>yudao-module-system</module>
-        <module>yudao-module-infra</module>
-        <module>yudao-module-oa</module>
-        <module>yudao-module-asset</module>
-        <module>yudao-module-wms</module>
-        <module>yudao-module-hrm</module>
-        <module>yudao-module-member</module>
-        <module>yudao-module-bpm</module>
-        <module>yudao-module-pay</module>
-        <module>yudao-module-report</module>
-        <module>yudao-module-mp</module>
-        <module>yudao-module-mall</module>
-        <module>yudao-module-crm</module>
-        <module>yudao-module-erp</module>
-        <module>yudao-module-ai</module>
-        <module>yudao-module-iot</module>
-
+        <module>dh-module-system</module>
+        <module>dh-module-infra</module>
+        <module>dh-module-oa</module>
+        <module>dh-module-hrm</module>
+        <module>dh-module-bpm</module>
     </modules>
 
     <name>${project.artifactId}</name>
-    <description>宇擎项目基础脚手架</description>
+    <description>鼎衡项目基础脚手架</description>
     <url>https://gitcode.com/zhouzhongyan/ruoyi-office.git</url>
 
     <properties>
@@ -60,18 +47,18 @@
         <!-- boot 单体运行环境 -->
         <profile>
             <id>boot</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <profile.name>boot</profile.name>
                 <skip.repackage>true</skip.repackage>
             </properties>
         </profile>
 
-        <!-- cloud 微服务运行环境（默认） -->
+        <!-- cloud 微服务运行环境 -->
         <profile>
             <id>cloud</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <profile.name>cloud</profile.name>
                 <skip.repackage>false</skip.repackage>
@@ -82,8 +69,8 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>cn.iocoder.cloud</groupId>
-                <artifactId>yudao-dependencies</artifactId>
+                <groupId>cn.dh.oa</groupId>
+                <artifactId>dh-dependencies</artifactId>
                 <version>${revision}</version>
                 <type>pom</type>
                 <scope>import</scope>
