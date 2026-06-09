@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.dh.oa</groupId>
-    <artifactId>dh</artifactId>
+    <artifactId>dh-oa</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
     <modules>
@@ -22,7 +22,7 @@
 
     <name>${project.artifactId}</name>
     <description>鼎衡项目基础脚手架</description>
-    <url>https://gitcode.com/zhouzhongyan/ruoyi-office.git</url>
+    <url>https://www.bing.com/</url>
 
     <properties>
         <revision>2026.01-SNAPSHOT</revision>
