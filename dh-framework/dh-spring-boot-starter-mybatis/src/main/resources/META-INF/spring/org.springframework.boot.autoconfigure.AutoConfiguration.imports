@@ -1,0 +1,3 @@
+cn.dh.oa.framework.datasource.config.DhDataSourceAutoConfiguration
+cn.dh.oa.framework.mybatis.config.DhMybatisAutoConfiguration
+cn.dh.oa.framework.translate.config.DhTranslateAutoConfiguration

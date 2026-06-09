@@ -1,0 +1,3 @@
+cn.dh.oa.framework.datapermission.config.DhDataPermissionAutoConfiguration
+cn.dh.oa.framework.datapermission.config.DhDeptDataPermissionAutoConfiguration
+cn.dh.oa.framework.datapermission.config.DhDataPermissionRpcAutoConfiguration

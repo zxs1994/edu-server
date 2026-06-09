@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>cn.dh.oa</groupId>
+        <artifactId>dh</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>dh-server</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>
+        后端单体应用主项目，整合 system、infra、bpm、oa、hrm 等业务模块，
+        提供 RESTful API 给前端项目。
+    </description>
+    <url>https://gitcode.com/zhouzhongyan/ruoyi-office.git</url>
+
+    <dependencies>
+        <!-- 业务模块 -->
+        <dependency>
+            <groupId>cn.dh.oa</groupId>
+            <artifactId>dh-module-system-server</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.dh.oa</groupId>
+            <artifactId>dh-module-infra-server</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.dh.oa</groupId>
+            <artifactId>dh-module-bpm-server</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.dh.oa</groupId>
+            <artifactId>dh-module-oa-server</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.dh.oa</groupId>
+            <artifactId>dh-module-hrm-server</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <!-- spring boot 配置所需依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- 服务保障相关 -->
+        <dependency>
+            <groupId>cn.dh.oa</groupId>
+            <artifactId>dh-spring-boot-starter-protection</artifactId>
+        </dependency>
+
+        <!-- RPC 远程调用相关（单体模式禁用 openfeign） -->
+        <dependency>
+            <groupId>cn.dh.oa</groupId>
+            <artifactId>dh-spring-boot-starter-rpc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-openfeign</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <!-- 设置构建的 jar 包名 -->
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <!-- 打包 -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal> <!-- 将引入的 jar 打入其中 -->
+                        </goals>
+                    </execution>
+                </executions>
+                <!-- 注意：dh-server 始终需要 repackage，不使用 skip.repackage -->
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

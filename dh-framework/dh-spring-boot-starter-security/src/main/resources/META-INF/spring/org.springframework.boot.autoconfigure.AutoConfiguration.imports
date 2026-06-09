@@ -1,0 +1,5 @@
+cn.dh.oa.framework.security.config.DhSecurityRpcAutoConfiguration
+cn.dh.oa.framework.security.config.DhSecurityAutoConfiguration
+cn.dh.oa.framework.security.config.DhWebSecurityConfigurerAdapter
+cn.dh.oa.framework.operatelog.config.DhOperateLogConfiguration
+cn.dh.oa.framework.operatelog.config.DhOperateLogRpcAutoConfiguration

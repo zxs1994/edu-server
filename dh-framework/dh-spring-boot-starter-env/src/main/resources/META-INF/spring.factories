@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+    cn.dh.oa.framework.env.config.EnvEnvironmentPostProcessor

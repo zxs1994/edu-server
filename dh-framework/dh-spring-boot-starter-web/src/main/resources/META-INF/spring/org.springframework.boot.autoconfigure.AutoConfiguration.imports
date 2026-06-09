@@ -1,0 +1,8 @@
+cn.dh.oa.framework.apilog.config.DhApiLogAutoConfiguration
+cn.dh.oa.framework.jackson.config.DhJacksonAutoConfiguration
+cn.dh.oa.framework.swagger.config.DhSwaggerAutoConfiguration
+cn.dh.oa.framework.web.config.DhWebAutoConfiguration
+cn.dh.oa.framework.apilog.config.DhApiLogRpcAutoConfiguration
+cn.dh.oa.framework.xss.config.DhXssAutoConfiguration
+cn.dh.oa.framework.banner.config.DhBannerAutoConfiguration
+cn.dh.oa.framework.encrypt.config.DhApiEncryptAutoConfiguration

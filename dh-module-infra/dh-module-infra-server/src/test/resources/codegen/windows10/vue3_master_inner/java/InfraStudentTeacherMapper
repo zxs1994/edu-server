@@ -1,0 +1,28 @@
+package dh.oa.module.infra.dal.mysql.demo;
+
+import java.util.*;
+
+import dh.oa.framework.common.pojo.PageResult;
+import dh.oa.framework.common.pojo.PageParam;
+import dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
+import dh.oa.framework.mybatis.core.mapper.BaseMapperX;
+import dh.oa.module.infra.dal.dataobject.demo.InfraStudentTeacherDO;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * 学生班主任 Mapper
+ *
+ * @author 鼎衡
+ */
+@Mapper
+public interface InfraStudentTeacherMapper extends BaseMapperX<InfraStudentTeacherDO> {
+
+    default InfraStudentTeacherDO selectByStudentId(Long studentId) {
+        return selectOne(InfraStudentTeacherDO::getStudentId, studentId);
+    }
+
+    default int deleteByStudentId(Long studentId) {
+        return delete(InfraStudentTeacherDO::getStudentId, studentId);
+    }
+
+}
