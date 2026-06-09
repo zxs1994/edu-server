@@ -27,7 +27,6 @@
         <module>dh-spring-boot-starter-rpc</module>
 
         <module>dh-spring-boot-starter-excel</module>
-        <module>dh-spring-boot-starter-test</module>
 
         <module>dh-spring-boot-starter-biz-tenant</module>
         <module>dh-spring-boot-starter-biz-data-permission</module>

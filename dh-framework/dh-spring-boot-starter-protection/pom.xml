@@ -36,12 +36,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Test 测试相关 -->
-        <dependency>
-            <groupId>cn.dh.oa</groupId>
-            <artifactId>dh-spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
 </project>

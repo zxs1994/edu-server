@@ -80,11 +80,6 @@
         <!--            <artifactId>dh-spring-boot-starter-protection</artifactId>-->
         <!--        </dependency>-->
 
-        <!-- Test 测试相关 -->
-        <dependency>
-            <groupId>cn.dh.oa</groupId>
-            <artifactId>dh-spring-boot-starter-test</artifactId>
-        </dependency>
 
         <!-- 监控相关 -->
         <dependency>
