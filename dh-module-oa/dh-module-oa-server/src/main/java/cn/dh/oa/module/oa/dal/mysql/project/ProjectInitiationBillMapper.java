@@ -1,0 +1,25 @@
+package cn.dh.oa.module.oa.dal.mysql.project;
+
+import cn.dh.oa.framework.common.pojo.PageResult;
+import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
+import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
+import cn.dh.oa.module.oa.dal.dataobject.project.ProjectInitiationBillDO;
+import org.apache.ibatis.annotations.Mapper;
+import cn.dh.oa.module.oa.controller.admin.project.vo.ProjectInitiationBillPageReqVO;
+
+@Mapper
+public interface ProjectInitiationBillMapper extends BaseMapperX<ProjectInitiationBillDO> {
+
+    default PageResult<ProjectInitiationBillDO> selectPage(ProjectInitiationBillPageReqVO reqVO) {
+        return selectPage(reqVO, new LambdaQueryWrapperX<ProjectInitiationBillDO>()
+                .likeIfPresent(ProjectInitiationBillDO::getBillCode, reqVO.getBillCode())
+                .eqIfPresent(ProjectInitiationBillDO::getProcessStatus, reqVO.getProcessStatus())
+                .likeIfPresent(ProjectInitiationBillDO::getProjectName, reqVO.getProjectName())
+                .eqIfPresent(ProjectInitiationBillDO::getProjectType, reqVO.getProjectType())
+                .eqIfPresent(ProjectInitiationBillDO::getIsMajor, reqVO.getIsMajor())
+                .eqIfPresent(ProjectInitiationBillDO::getCreator, reqVO.getCreator())
+                .betweenIfPresent(ProjectInitiationBillDO::getCreateTime, reqVO.getCreateTime())
+                .orderByDesc(ProjectInitiationBillDO::getId));
+    }
+
+}
