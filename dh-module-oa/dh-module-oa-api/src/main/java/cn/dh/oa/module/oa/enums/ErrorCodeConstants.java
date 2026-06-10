@@ -50,4 +50,26 @@ public interface ErrorCodeConstants {
     ErrorCode MEETING_ROOM_BOOKING_TIME_PAST = new ErrorCode(1_101_005_002, "会议开始时间不能是过去时间");
     ErrorCode MEETING_ROOM_BOOKING_TIME_CONFLICT = new ErrorCode(1_101_005_003, "该时间段会议室已被预定，请选择其他时间");
     ErrorCode MEETING_ROOM_BOOKING_CANNOT_DELETE = new ErrorCode(1_101_005_004, "只能删除草稿状态的预定申请单");
+
+    // ========== 合同审批 1-101-006-000 ============
+    ErrorCode CONTRACT_BILL_NOT_EXISTS = new ErrorCode(1_101_006_000, "合同审批单不存在");
+
+    // ========== 公文发文 1-101-007-000 ============
+    ErrorCode DOCUMENT_DISPATCH_BILL_NOT_EXISTS = new ErrorCode(1_101_007_000, "公文发文单不存在");
+
+    // ========== 费用报销 1-101-008-000 ============
+    ErrorCode EXPENSE_REIMBURSE_BILL_NOT_EXISTS = new ErrorCode(1_101_008_000, "费用报销单不存在");
+
+    // ========== 项目立项 1-101-009-000 ============
+    ErrorCode PROJECT_INITIATION_BILL_NOT_EXISTS = new ErrorCode(1_101_009_000, "项目立项单不存在");
+
+    // ========== 收文办理 1-101-010-000 ============
+    ErrorCode INCOMING_DOCUMENT_BILL_NOT_EXISTS = new ErrorCode(1_101_010_000, "收文办理单不存在");
+
+    // ========== 差旅申请 1-101-011-000 ============
+    ErrorCode TRAVEL_APPLY_BILL_NOT_EXISTS = new ErrorCode(1_101_011_000, "差旅申请单不存在");
+
+    // ========== 纠错管理 1-101-012-000 ============
+    ErrorCode CORRECTION_BILL_NOT_EXISTS = new ErrorCode(1_101_012_000, "纠错申请单不存在");
+    ErrorCode CORRECTION_SOURCE_BILL_NOT_EXISTS = new ErrorCode(1_101_012_001, "纠错原单据不存在");
 }
