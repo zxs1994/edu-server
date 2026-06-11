@@ -1,5 +1,5 @@
 server:
-  port: 48080
+  port: 38080
 
 --- #################### 数据库相关配置 ####################
 
@@ -42,17 +42,17 @@ spring:
       primary: master
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/ruoyi-office?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true # MySQL Connector/J 8.X 连接的示例
-          username: root
-          password: root
+          url: ${MYSQL_URL:jdbc:mysql://mysql:3306/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
+          username: ${MYSQL_USERNAME:root}
+          password: ${MYSQL_PASSWORD:root}
 
   # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
   data:
     redis:
-      host: 47.101.43.14 # 地址
-      port: 6379 # 端口
-      database: 1 # 数据库索引
-      password: LGD # 密码，建议生产环境开启
+      host: ${REDIS_HOST:redis} # 地址
+      port: ${REDIS_PORT:6379} # 端口
+      database: ${REDIS_DATABASE:0} # 数据库索引
+      password: ${REDIS_PASSWORD:LGD} # 密码
 
 --- #################### 消息队列相关 ####################
 
@@ -132,3 +132,11 @@ justauth:
     type: REDIS
     prefix: 'social_auth_state:' # 缓存前缀，目前只对 Redis 缓存生效，默认 JUSTAUTH::STATE::
     timeout: 24h # 超时时长，目前只对 Redis 缓存生效，默认 3 分钟
+
+# 微信公众号配置（占位，暂未使用）
+wx:
+  mp:
+    app-id: wx_placeholder_appid
+    secret: wx_placeholder_secret
+    token: wx_placeholder_token
+    aes-key: wx_placeholder_aeskey

@@ -48,7 +48,7 @@ spring:
       datasource:
         master:
           # 生产环境数据库配置 - 请通过环境变量覆盖
-          url: ${MYSQL_URL:jdbc:mysql://192.168.30.130:3306/ruoyi-office?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
+          url: ${MYSQL_URL:jdbc:mysql://192.168.30.130:3306/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
           username: ${MYSQL_USERNAME:root}
           password: ${MYSQL_PASSWORD:Admin$123!}
 

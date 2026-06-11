@@ -2,6 +2,9 @@
 ## 感谢复旦核博士的建议！灰子哥，牛皮！
 FROM eclipse-temurin:21-jre
 
+## 安装 curl（用于 healthcheck）
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 ## 创建目录，并使用它作为工作目录
 RUN mkdir -p /dh-server
 WORKDIR /dh-server
@@ -16,8 +19,8 @@ ENV JAVA_OPTS="-Xms1024m -Xmx4096m -Djava.security.egd=file:/dev/./urandom"
 ## 应用参数
 ENV ARGS=""
 
-## 暴露后端项目的 48080 端口
-EXPOSE 48080
+## 暴露后端项目的 38080 端口
+EXPOSE 38080
 
 ## 启动后端项目
 CMD java ${JAVA_OPTS} -jar app.jar $ARGS
