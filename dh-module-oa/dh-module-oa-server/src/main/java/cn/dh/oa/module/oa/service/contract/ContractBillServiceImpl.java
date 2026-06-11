@@ -14,16 +14,23 @@ import cn.dh.oa.common.server.attachment.controller.vo.AttachmentRespVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import cn.dh.oa.module.oa.controller.admin.contract.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.contract.ContractBillDO;
+import cn.dh.oa.module.oa.dal.dataobject.contract.ContractDetailDO;
+import cn.dh.oa.module.oa.dal.dataobject.contract.ContractPaymentPlanDO;
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.common.util.object.BeanUtils;
 
 import cn.dh.oa.module.oa.dal.mysql.contract.ContractBillMapper;
+import cn.dh.oa.module.oa.dal.mysql.contract.ContractDetailMapper;
+import cn.dh.oa.module.oa.dal.mysql.contract.ContractPaymentPlanMapper;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
@@ -43,12 +50,19 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
     private ContractBillMapper contractBillMapper;
 
     @Resource
+    private ContractDetailMapper contractDetailMapper;
+
+    @Resource
+    private ContractPaymentPlanMapper contractPaymentPlanMapper;
+
+    @Resource
     private AttachmentService attachmentService;
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long saveContractBill(ContractBillSaveReqVO saveReqVO) {
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
@@ -64,11 +78,18 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
             attachmentService.saveAttachmentList(OaBillTypeEnum.OA_CONTRACT_BILL.getTypeCode(), contractBill.getId(), saveReqVO.getAttachments());
         }
 
+        // 保存合同明细（先删后增）
+        saveContractDetails(contractBill.getId(), saveReqVO.getContractDetails());
+
+        // 保存收付款计划（先删后增）
+        savePaymentPlans(contractBill.getId(), saveReqVO.getPaymentPlans());
+
         // 返回
         return contractBill.getId();
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long submitContractBill(ContractBillSaveReqVO saveReqVO) {
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
@@ -82,8 +103,8 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
 
         // 智能提交 BPM 流程
         Map<String, Object> processInstanceVariables = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
-        // 添加合同审批单特有的流程变量
-        processInstanceVariables.put(PV_CONTRACT_IS_MAJOR, saveReqVO.getIsMajor());
+        // 添加合同审批单特有的流程变量（网关条件期望布尔值）
+        processInstanceVariables.put(PV_CONTRACT_IS_MAJOR, saveReqVO.getIsMajor() != null && saveReqVO.getIsMajor() == 1);
         String processInstanceId = processInstanceApi.submitProcessInstance(Long.valueOf(saveReqVO.getCreator()),
                 new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(OaBillTypeEnum.OA_CONTRACT_BILL.getProcessDefinitionKey())
                         .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(contractBill.getId()))
@@ -96,6 +117,12 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
         if (saveReqVO.getAttachments() != null) {
             attachmentService.saveAttachmentList(OaBillTypeEnum.OA_CONTRACT_BILL.getTypeCode(), contractBill.getId(), saveReqVO.getAttachments());
         }
+
+        // 保存合同明细（先删后增）
+        saveContractDetails(contractBill.getId(), saveReqVO.getContractDetails());
+
+        // 保存收付款计划（先删后增）
+        savePaymentPlans(contractBill.getId(), saveReqVO.getPaymentPlans());
 
         // 返回
         return contractBill.getId();
@@ -124,16 +151,26 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteContractBill(Long id) {
         // 校验存在
         validateContractBillExists(id);
-        // 删除
+        // 删除合同明细和收付款计划
+        contractDetailMapper.deleteByBillId(id);
+        contractPaymentPlanMapper.deleteByBillId(id);
+        // 删除主单
         contractBillMapper.deleteById(id);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteContractBillListByIds(List<Long> ids) {
-        // 删除
+        // 删除关联的合同明细和收付款计划
+        for (Long id : ids) {
+            contractDetailMapper.deleteByBillId(id);
+            contractPaymentPlanMapper.deleteByBillId(id);
+        }
+        // 删除主单
         contractBillMapper.deleteByIds(ids);
     }
 
@@ -163,6 +200,18 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
             AttachmentRespVO.class
         ));
 
+        // 获取合同明细
+        respVO.setContractDetails(BeanUtils.toBean(
+            contractDetailMapper.selectListByBillId(id),
+            ContractDetailRespVO.class
+        ));
+
+        // 获取收付款计划
+        respVO.setPaymentPlans(BeanUtils.toBean(
+            contractPaymentPlanMapper.selectListByBillId(id),
+            ContractPaymentPlanRespVO.class
+        ));
+
         return respVO;
     }
 
@@ -174,6 +223,46 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
             pageReqVO.setCreator(String.valueOf(currentUserId));
         }
         return contractBillMapper.selectPage(pageReqVO);
+    }
+
+    // ==================== 合同明细和收付款计划 ====================
+
+    /**
+     * 保存合同明细（先删后增）
+     */
+    private void saveContractDetails(Long billId, List<ContractDetailSaveReqVO> details) {
+        // 删除旧明细
+        contractDetailMapper.deleteByBillId(billId);
+        // 插入新明细
+        if (details != null && !details.isEmpty()) {
+            for (ContractDetailSaveReqVO detail : details) {
+                ContractDetailDO detailDO = BeanUtils.toBean(detail, ContractDetailDO.class);
+                detailDO.setBillId(billId);
+                detailDO.setId(null); // 确保是新插入
+                // 服务端重新计算金额 = 数量 × 单价
+                if (detailDO.getQuantity() != null && detailDO.getUnitPrice() != null) {
+                    detailDO.setAmount(detailDO.getQuantity().multiply(detailDO.getUnitPrice()).setScale(2, RoundingMode.HALF_UP));
+                }
+                contractDetailMapper.insert(detailDO);
+            }
+        }
+    }
+
+    /**
+     * 保存收付款计划（先删后增）
+     */
+    private void savePaymentPlans(Long billId, List<ContractPaymentPlanSaveReqVO> plans) {
+        // 删除旧计划
+        contractPaymentPlanMapper.deleteByBillId(billId);
+        // 插入新计划
+        if (plans != null && !plans.isEmpty()) {
+            for (ContractPaymentPlanSaveReqVO plan : plans) {
+                ContractPaymentPlanDO planDO = BeanUtils.toBean(plan, ContractPaymentPlanDO.class);
+                planDO.setBillId(billId);
+                planDO.setId(null); // 确保是新插入
+                contractPaymentPlanMapper.insert(planDO);
+            }
+        }
     }
 
     // ==================== FlowBillService 接口实现 ====================

@@ -27,7 +27,7 @@ SET @contract_model_uuid = UUID();
 
 INSERT INTO act_re_model (ID_, REV_, NAME_, KEY_, CATEGORY_, VERSION_, META_INFO_, TENANT_ID_, EDITOR_SOURCE_EXTRA_VALUE_ID_, CREATE_TIME_, LAST_UPDATE_TIME_)
 VALUES (@contract_model_uuid, 1, 'OA合同审批单', 'oa_contract_bill', 'OA', 1,
-  '{"icon":null,"description":"合同审批流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/contract/contract-bill-info","formCustomViewPath":"/oa/contract/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000001,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
+  '{"icon":null,"description":"合同审批流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/contract-bill-info","formCustomViewPath":"/oa/contract/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000001,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
   '1', @contract_extra_uuid, NOW(3), NOW(3));
 
 -- ============================================================
@@ -46,7 +46,7 @@ SET @doc_model_uuid = UUID();
 
 INSERT INTO act_re_model (ID_, REV_, NAME_, KEY_, CATEGORY_, VERSION_, META_INFO_, TENANT_ID_, EDITOR_SOURCE_EXTRA_VALUE_ID_, CREATE_TIME_, LAST_UPDATE_TIME_)
 VALUES (@doc_model_uuid, 1, 'OA公文发文单', 'oa_document_dispatch_bill', 'OA', 1,
-  '{"icon":null,"description":"公文发文流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/document/document-dispatch-bill-info","formCustomViewPath":"/oa/document/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000002,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
+  '{"icon":null,"description":"公文发文流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/document-dispatch-info","formCustomViewPath":"/oa/document/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000002,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
   '1', @doc_extra_uuid, NOW(3), NOW(3));
 
 -- ============================================================
@@ -65,7 +65,7 @@ SET @expense_model_uuid = UUID();
 
 INSERT INTO act_re_model (ID_, REV_, NAME_, KEY_, CATEGORY_, VERSION_, META_INFO_, TENANT_ID_, EDITOR_SOURCE_EXTRA_VALUE_ID_, CREATE_TIME_, LAST_UPDATE_TIME_)
 VALUES (@expense_model_uuid, 1, 'OA费用报销单', 'oa_expense_reimburse_bill', 'OA', 1,
-  '{"icon":null,"description":"费用报销流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/expense/expense-reimburse-bill-info","formCustomViewPath":"/oa/expense/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000003,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
+  '{"icon":null,"description":"费用报销流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/expense-reimburse-info","formCustomViewPath":"/oa/expense/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000003,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
   '1', @expense_extra_uuid, NOW(3), NOW(3));
 
 -- ============================================================
@@ -84,7 +84,7 @@ SET @project_model_uuid = UUID();
 
 INSERT INTO act_re_model (ID_, REV_, NAME_, KEY_, CATEGORY_, VERSION_, META_INFO_, TENANT_ID_, EDITOR_SOURCE_EXTRA_VALUE_ID_, CREATE_TIME_, LAST_UPDATE_TIME_)
 VALUES (@project_model_uuid, 1, 'OA项目立项单', 'oa_project_initiation_bill', 'OA', 1,
-  '{"icon":null,"description":"项目立项流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/project/project-initiation-bill-info","formCustomViewPath":"/oa/project/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000004,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
+  '{"icon":null,"description":"项目立项流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/project-initiation-info","formCustomViewPath":"/oa/project/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000004,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
   '1', @project_extra_uuid, NOW(3), NOW(3));
 
 -- ============================================================
@@ -103,7 +103,7 @@ SET @incoming_model_uuid = UUID();
 
 INSERT INTO act_re_model (ID_, REV_, NAME_, KEY_, CATEGORY_, VERSION_, META_INFO_, TENANT_ID_, EDITOR_SOURCE_EXTRA_VALUE_ID_, CREATE_TIME_, LAST_UPDATE_TIME_)
 VALUES (@incoming_model_uuid, 1, 'OA收文办理单', 'oa_incoming_document_bill', 'OA', 1,
-  '{"icon":null,"description":"收文办理流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/incoming/incoming-document-bill-info","formCustomViewPath":"/oa/incoming/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000005,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
+  '{"icon":null,"description":"收文办理流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/incoming-document-info","formCustomViewPath":"/oa/incoming/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000005,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
   '1', @incoming_extra_uuid, NOW(3), NOW(3));
 
 -- ============================================================
@@ -122,7 +122,7 @@ SET @travel_model_uuid = UUID();
 
 INSERT INTO act_re_model (ID_, REV_, NAME_, KEY_, CATEGORY_, VERSION_, META_INFO_, TENANT_ID_, EDITOR_SOURCE_EXTRA_VALUE_ID_, CREATE_TIME_, LAST_UPDATE_TIME_)
 VALUES (@travel_model_uuid, 1, 'OA差旅申请单', 'oa_travel_apply_bill', 'OA', 1,
-  '{"icon":null,"description":"差旅申请流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/travel/travel-apply-bill-info","formCustomViewPath":"/oa/travel/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000006,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
+  '{"icon":null,"description":"差旅申请流程","type":20,"formType":20,"formId":null,"formCustomCreatePath":"/oa/travel-apply-info","formCustomViewPath":"/oa/travel/info/index.vue","visible":true,"startUserIds":[],"startDeptIds":[],"managerUserIds":[1],"sort":1780000000006,"allowCancelRunningProcess":true,"allowWithdrawTask":true,"processIdRule":{"enable":false,"prefix":"","infix":"","postfix":"","length":5},"autoApprovalType":0,"titleSetting":{"enable":false,"title":""},"summarySetting":{"enable":false,"summary":[]},"processBeforeTriggerSetting":null,"processAfterTriggerSetting":null,"taskBeforeTriggerSetting":null,"taskAfterTriggerSetting":null,"printTemplateSetting":null}',
   '1', @travel_extra_uuid, NOW(3), NOW(3));
 
 -- ============================================================

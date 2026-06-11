@@ -7,7 +7,6 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import cn.dh.oa.common.server.attachment.controller.vo.AttachmentSaveReqVO;
-
 @Schema(description = "管理后台 - 合同审批单新增/修改 Request VO")
 @Data
 public class ContractBillSaveReqVO {
@@ -28,16 +27,56 @@ public class ContractBillSaveReqVO {
     @NotEmpty(message = "合同标题不能为空")
     private String contractTitle;
 
+    @Schema(description = "合同编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "HT-2026-001")
+    @NotEmpty(message = "合同编号不能为空")
+    private String contractCode;
+
     @Schema(description = "合同类型（1采购 2销售 3服务 4合作 5其他）", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "合同类型不能为空")
     private Integer contractType;
+
+    @Schema(description = "合同性质")
+    private String contractNature;
+
+    @Schema(description = "合同分类")
+    private String contractCategory;
+
+    @Schema(description = "我方主体")
+    private String ourParty;
+
+    @Schema(description = "我方角色（1甲方 2乙方）", example = "1")
+    private Integer ourRole;
+
+    @Schema(description = "对方类型（1CRM客户 2ERP供应商）", example = "1")
+    private Integer counterpartyType;
 
     @Schema(description = "合同对方", requiredMode = Schema.RequiredMode.REQUIRED, example = "ABC公司")
     @NotEmpty(message = "合同对方不能为空")
     private String contractParty;
 
+    @Schema(description = "对方联系人")
+    private String counterpartyContact;
+
+    @Schema(description = "对方电话")
+    private String counterpartyPhone;
+
     @Schema(description = "合同金额", example = "100000.00")
     private BigDecimal contractAmount;
+
+    @Schema(description = "币种", example = "CNY")
+    private String currency;
+
+    @Schema(description = "签订日期")
+    private LocalDate signDate;
+
+    @Schema(description = "生效日期")
+    private LocalDate effectiveDate;
+
+    @Schema(description = "截止日期")
+    private LocalDate expiryDate;
+
+    @Schema(description = "负责人")
+    private String responsiblePerson;
 
     @Schema(description = "合同开始日期")
     private LocalDate contractStartDate;
@@ -64,12 +103,10 @@ public class ContractBillSaveReqVO {
     @Schema(description = "创建人")
     private String creator;
 
-    @Schema(description = "公司ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "公司ID不能为空")
+    @Schema(description = "公司ID", example = "1")
     private Long companyId;
 
-    @Schema(description = "公司名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "鼎衡科技")
-    @NotEmpty(message = "公司名称不能为空")
+    @Schema(description = "公司名称", example = "鼎衡科技")
     private String companyName;
 
     @Schema(description = "部门ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
@@ -85,5 +122,11 @@ public class ContractBillSaveReqVO {
 
     @Schema(description = "附件列表")
     private List<AttachmentSaveReqVO> attachments;
+
+    @Schema(description = "合同明细列表")
+    private List<ContractDetailSaveReqVO> contractDetails;
+
+    @Schema(description = "收付款计划列表")
+    private List<ContractPaymentPlanSaveReqVO> paymentPlans;
 
 }

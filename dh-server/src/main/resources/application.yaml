@@ -98,15 +98,6 @@ spring:
 easy-trans:
   is-enable-global: false # 【默认禁用，对性能确认压力大】启用全局翻译（拦截所有 SpringMVC ResponseBody 进行自动翻译 )。如果对于性能要求很高可关闭此配置，或通过 @IgnoreTrans 忽略某个接口
 
---- #################### 定时任务相关配置 ####################
-
-xxl:
-  job:
-    executor:
-      appname: ${spring.application.name} # 执行器 AppName
-      logpath: ${user.home}/logs/xxl-job/${spring.application.name} # 执行器运行日志文件存储磁盘路径
-    accessToken: default_token # 执行器通讯TOKEN
-
 --- #################### 验证码相关配置 ####################
 
 aj:
@@ -145,7 +136,7 @@ dh:
   websocket:
     enable: true # websocket的开关
     path: /infra/ws # 路径
-    sender-type: local # 消息发送的类型，可选值为 local、redis、rocketmq、kafka、rabbitmq
+    sender-type: local # 消息发送的类型，可选值为 local、redis、kafka、rabbitmq
   swagger:
     title: 鼎衡快速开发平台
     description: 提供管理后台、用户 App 的所有功能

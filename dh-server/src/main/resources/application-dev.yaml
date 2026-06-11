@@ -54,19 +54,7 @@ spring:
       database: 1 # 数据库索引
       password: LGD # 密码，建议生产环境开启
 
---- #################### 定时任务相关配置 ####################
-
-xxl:
-  job:
-    enabled: false # 是否开启调度中心，默认为 true 开启
-    admin:
-      addresses: http://127.0.0.1:9090/xxl-job-admin # 调度中心部署跟地址
-
 --- #################### 消息队列相关 ####################
-
-# rocketmq 配置项，对应 RocketMQProperties 配置类
-rocketmq:
-  name-server: 127.0.0.1:9876 # RocketMQ Namesrv
 
 spring:
   # RabbitMQ 配置项，对应 RabbitProperties 配置类

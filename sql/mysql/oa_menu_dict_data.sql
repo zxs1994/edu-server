@@ -15,141 +15,147 @@ SELECT 5300, '审批管理', 1, 5, 5013, 'approval', 'ant-design:audit-outlined'
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5300);
 
 -- === 合同管理 ===
+-- 中间目录（隐藏，保持路由兼容性）
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5301, '合同管理', 1, 1, 5300, 'contract', 'ant-design:file-text-outlined', NULL, NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5301, '合同管理', 1, 1, 5300, 'contract', 'ant-design:file-text-outlined', NULL, NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5301);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5302, '合同审批列表', 2, 1, 5301, 'contract-list', NULL, 'oa/contract/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5302, '合同审批列表', 2, 1, 5300, 'contract-bill-list', NULL, 'oa/contract/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5302);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5303, '合同审批详情', 2, 2, 5301, 'contract-info', NULL, 'oa/contract/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5303, '合同审批详情', 2, 2, 5300, 'contract-bill-info', NULL, 'oa/contract/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5303);
 
 INSERT INTO system_menu (id, name, permission, type, sort, parent_id, creator, create_time, updater, update_time, deleted) VALUES
-(5304, '合同查询', 'oa:contract-bill:query', 3, 1, 5301, '1', NOW(), '1', NOW(), 0),
-(5305, '合同新增', 'oa:contract-bill:create', 3, 2, 5301, '1', NOW(), '1', NOW(), 0),
-(5306, '合同修改', 'oa:contract-bill:update', 3, 3, 5301, '1', NOW(), '1', NOW(), 0),
-(5307, '合同删除', 'oa:contract-bill:delete', 3, 4, 5301, '1', NOW(), '1', NOW(), 0),
-(5308, '合同导出', 'oa:contract-bill:export', 3, 5, 5301, '1', NOW(), '1', NOW(), 0),
-(5309, '合同提交', 'oa:contract-bill:submit', 3, 6, 5301, '1', NOW(), '1', NOW(), 0),
-(5310, '合同撤回', 'oa:contract-bill:withdraw', 3, 7, 5301, '1', NOW(), '1', NOW(), 0)
+(5304, '合同查询', 'oa:contract-bill:query', 3, 1, 5302, '1', NOW(), '1', NOW(), 0),
+(5305, '合同新增', 'oa:contract-bill:create', 3, 2, 5302, '1', NOW(), '1', NOW(), 0),
+(5306, '合同修改', 'oa:contract-bill:update', 3, 3, 5302, '1', NOW(), '1', NOW(), 0),
+(5307, '合同删除', 'oa:contract-bill:delete', 3, 4, 5302, '1', NOW(), '1', NOW(), 0),
+(5308, '合同导出', 'oa:contract-bill:export', 3, 5, 5302, '1', NOW(), '1', NOW(), 0),
+(5309, '合同提交', 'oa:contract-bill:submit', 3, 6, 5302, '1', NOW(), '1', NOW(), 0),
+(5310, '合同撤回', 'oa:contract-bill:withdraw', 3, 7, 5302, '1', NOW(), '1', NOW(), 0)
 ON DUPLICATE KEY UPDATE name=VALUES(name), permission=VALUES(permission);
 
 -- === 公文发文 ===
+-- 中间目录（隐藏，保持路由兼容性）
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5311, '公文发文', 1, 2, 5300, 'document', 'ant-design:file-word-outlined', NULL, NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5311, '公文发文', 1, 2, 5300, 'document', 'ant-design:file-word-outlined', NULL, NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5311);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5312, '公文发文列表', 2, 1, 5311, 'document-list', NULL, 'oa/document/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5312, '公文发文列表', 2, 1, 5300, 'document-dispatch-list', NULL, 'oa/document/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5312);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5313, '公文发文详情', 2, 2, 5311, 'document-info', NULL, 'oa/document/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5313, '公文发文详情', 2, 2, 5300, 'document-dispatch-info', NULL, 'oa/document/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5313);
 
 INSERT INTO system_menu (id, name, permission, type, sort, parent_id, creator, create_time, updater, update_time, deleted) VALUES
-(5314, '公文查询', 'oa:document-dispatch-bill:query', 3, 1, 5311, '1', NOW(), '1', NOW(), 0),
-(5315, '公文新增', 'oa:document-dispatch-bill:create', 3, 2, 5311, '1', NOW(), '1', NOW(), 0),
-(5316, '公文修改', 'oa:document-dispatch-bill:update', 3, 3, 5311, '1', NOW(), '1', NOW(), 0),
-(5317, '公文删除', 'oa:document-dispatch-bill:delete', 3, 4, 5311, '1', NOW(), '1', NOW(), 0),
-(5318, '公文导出', 'oa:document-dispatch-bill:export', 3, 5, 5311, '1', NOW(), '1', NOW(), 0),
-(5319, '公文提交', 'oa:document-dispatch-bill:submit', 3, 6, 5311, '1', NOW(), '1', NOW(), 0),
-(5320, '公文撤回', 'oa:document-dispatch-bill:withdraw', 3, 7, 5311, '1', NOW(), '1', NOW(), 0)
+(5314, '公文查询', 'oa:document-dispatch-bill:query', 3, 1, 5312, '1', NOW(), '1', NOW(), 0),
+(5315, '公文新增', 'oa:document-dispatch-bill:create', 3, 2, 5312, '1', NOW(), '1', NOW(), 0),
+(5316, '公文修改', 'oa:document-dispatch-bill:update', 3, 3, 5312, '1', NOW(), '1', NOW(), 0),
+(5317, '公文删除', 'oa:document-dispatch-bill:delete', 3, 4, 5312, '1', NOW(), '1', NOW(), 0),
+(5318, '公文导出', 'oa:document-dispatch-bill:export', 3, 5, 5312, '1', NOW(), '1', NOW(), 0),
+(5319, '公文提交', 'oa:document-dispatch-bill:submit', 3, 6, 5312, '1', NOW(), '1', NOW(), 0),
+(5320, '公文撤回', 'oa:document-dispatch-bill:withdraw', 3, 7, 5312, '1', NOW(), '1', NOW(), 0)
 ON DUPLICATE KEY UPDATE name=VALUES(name), permission=VALUES(permission);
 
 -- === 费用报销 ===
+-- 中间目录（隐藏，保持路由兼容性）
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5321, '费用报销', 1, 3, 5300, 'expense', 'ant-design:money-collect-outlined', NULL, NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5321, '费用报销', 1, 3, 5300, 'expense', 'ant-design:money-collect-outlined', NULL, NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5321);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5322, '费用报销列表', 2, 1, 5321, 'expense-list', NULL, 'oa/expense/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5322, '费用报销列表', 2, 1, 5300, 'expense-reimburse-list', NULL, 'oa/expense/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5322);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5323, '费用报销详情', 2, 2, 5321, 'expense-info', NULL, 'oa/expense/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5323, '费用报销详情', 2, 2, 5300, 'expense-reimburse-info', NULL, 'oa/expense/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5323);
 
 INSERT INTO system_menu (id, name, permission, type, sort, parent_id, creator, create_time, updater, update_time, deleted) VALUES
-(5324, '报销查询', 'oa:expense-reimburse-bill:query', 3, 1, 5321, '1', NOW(), '1', NOW(), 0),
-(5325, '报销新增', 'oa:expense-reimburse-bill:create', 3, 2, 5321, '1', NOW(), '1', NOW(), 0),
-(5326, '报销修改', 'oa:expense-reimburse-bill:update', 3, 3, 5321, '1', NOW(), '1', NOW(), 0),
-(5327, '报销删除', 'oa:expense-reimburse-bill:delete', 3, 4, 5321, '1', NOW(), '1', NOW(), 0),
-(5328, '报销导出', 'oa:expense-reimburse-bill:export', 3, 5, 5321, '1', NOW(), '1', NOW(), 0),
-(5329, '报销提交', 'oa:expense-reimburse-bill:submit', 3, 6, 5321, '1', NOW(), '1', NOW(), 0),
-(5330, '报销撤回', 'oa:expense-reimburse-bill:withdraw', 3, 7, 5321, '1', NOW(), '1', NOW(), 0)
+(5324, '报销查询', 'oa:expense-reimburse-bill:query', 3, 1, 5322, '1', NOW(), '1', NOW(), 0),
+(5325, '报销新增', 'oa:expense-reimburse-bill:create', 3, 2, 5322, '1', NOW(), '1', NOW(), 0),
+(5326, '报销修改', 'oa:expense-reimburse-bill:update', 3, 3, 5322, '1', NOW(), '1', NOW(), 0),
+(5327, '报销删除', 'oa:expense-reimburse-bill:delete', 3, 4, 5322, '1', NOW(), '1', NOW(), 0),
+(5328, '报销导出', 'oa:expense-reimburse-bill:export', 3, 5, 5322, '1', NOW(), '1', NOW(), 0),
+(5329, '报销提交', 'oa:expense-reimburse-bill:submit', 3, 6, 5322, '1', NOW(), '1', NOW(), 0),
+(5330, '报销撤回', 'oa:expense-reimburse-bill:withdraw', 3, 7, 5322, '1', NOW(), '1', NOW(), 0)
 ON DUPLICATE KEY UPDATE name=VALUES(name), permission=VALUES(permission);
 
 -- === 立项管理 ===
+-- 中间目录（隐藏，保持路由兼容性）
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5331, '立项管理', 1, 4, 5300, 'project', 'ant-design:project-outlined', NULL, NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5331, '立项管理', 1, 4, 5300, 'project', 'ant-design:project-outlined', NULL, NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5331);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5332, '立项列表', 2, 1, 5331, 'project-list', NULL, 'oa/project/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5332, '立项列表', 2, 1, 5300, 'project-initiation-list', NULL, 'oa/project/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5332);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5333, '立项详情', 2, 2, 5331, 'project-info', NULL, 'oa/project/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5333, '立项详情', 2, 2, 5300, 'project-initiation-info', NULL, 'oa/project/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5333);
 
 INSERT INTO system_menu (id, name, permission, type, sort, parent_id, creator, create_time, updater, update_time, deleted) VALUES
-(5334, '立项查询', 'oa:project-initiation-bill:query', 3, 1, 5331, '1', NOW(), '1', NOW(), 0),
-(5335, '立项新增', 'oa:project-initiation-bill:create', 3, 2, 5331, '1', NOW(), '1', NOW(), 0),
-(5336, '立项修改', 'oa:project-initiation-bill:update', 3, 3, 5331, '1', NOW(), '1', NOW(), 0),
-(5337, '立项删除', 'oa:project-initiation-bill:delete', 3, 4, 5331, '1', NOW(), '1', NOW(), 0),
-(5338, '立项导出', 'oa:project-initiation-bill:export', 3, 5, 5331, '1', NOW(), '1', NOW(), 0),
-(5339, '立项提交', 'oa:project-initiation-bill:submit', 3, 6, 5331, '1', NOW(), '1', NOW(), 0),
-(5340, '立项撤回', 'oa:project-initiation-bill:withdraw', 3, 7, 5331, '1', NOW(), '1', NOW(), 0)
+(5334, '立项查询', 'oa:project-initiation-bill:query', 3, 1, 5332, '1', NOW(), '1', NOW(), 0),
+(5335, '立项新增', 'oa:project-initiation-bill:create', 3, 2, 5332, '1', NOW(), '1', NOW(), 0),
+(5336, '立项修改', 'oa:project-initiation-bill:update', 3, 3, 5332, '1', NOW(), '1', NOW(), 0),
+(5337, '立项删除', 'oa:project-initiation-bill:delete', 3, 4, 5332, '1', NOW(), '1', NOW(), 0),
+(5338, '立项导出', 'oa:project-initiation-bill:export', 3, 5, 5332, '1', NOW(), '1', NOW(), 0),
+(5339, '立项提交', 'oa:project-initiation-bill:submit', 3, 6, 5332, '1', NOW(), '1', NOW(), 0),
+(5340, '立项撤回', 'oa:project-initiation-bill:withdraw', 3, 7, 5332, '1', NOW(), '1', NOW(), 0)
 ON DUPLICATE KEY UPDATE name=VALUES(name), permission=VALUES(permission);
 
 -- === 收文办理 ===
+-- 中间目录（隐藏，保持路由兼容性）
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5341, '收文办理', 1, 5, 5300, 'incoming', 'ant-design:inbox-outlined', NULL, NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5341, '收文办理', 1, 5, 5300, 'incoming', 'ant-design:inbox-outlined', NULL, NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5341);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5342, '收文办理列表', 2, 1, 5341, 'incoming-list', NULL, 'oa/incoming/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5342, '收文办理列表', 2, 1, 5300, 'incoming-document-list', NULL, 'oa/incoming/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5342);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5343, '收文办理详情', 2, 2, 5341, 'incoming-info', NULL, 'oa/incoming/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5343, '收文办理详情', 2, 2, 5300, 'incoming-document-info', NULL, 'oa/incoming/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5343);
 
 INSERT INTO system_menu (id, name, permission, type, sort, parent_id, creator, create_time, updater, update_time, deleted) VALUES
-(5344, '收文查询', 'oa:incoming-document-bill:query', 3, 1, 5341, '1', NOW(), '1', NOW(), 0),
-(5345, '收文新增', 'oa:incoming-document-bill:create', 3, 2, 5341, '1', NOW(), '1', NOW(), 0),
-(5346, '收文修改', 'oa:incoming-document-bill:update', 3, 3, 5341, '1', NOW(), '1', NOW(), 0),
-(5347, '收文删除', 'oa:incoming-document-bill:delete', 3, 4, 5341, '1', NOW(), '1', NOW(), 0),
-(5348, '收文导出', 'oa:incoming-document-bill:export', 3, 5, 5341, '1', NOW(), '1', NOW(), 0),
-(5349, '收文提交', 'oa:incoming-document-bill:submit', 3, 6, 5341, '1', NOW(), '1', NOW(), 0),
-(5350, '收文撤回', 'oa:incoming-document-bill:withdraw', 3, 7, 5341, '1', NOW(), '1', NOW(), 0)
+(5344, '收文查询', 'oa:incoming-document-bill:query', 3, 1, 5342, '1', NOW(), '1', NOW(), 0),
+(5345, '收文新增', 'oa:incoming-document-bill:create', 3, 2, 5342, '1', NOW(), '1', NOW(), 0),
+(5346, '收文修改', 'oa:incoming-document-bill:update', 3, 3, 5342, '1', NOW(), '1', NOW(), 0),
+(5347, '收文删除', 'oa:incoming-document-bill:delete', 3, 4, 5342, '1', NOW(), '1', NOW(), 0),
+(5348, '收文导出', 'oa:incoming-document-bill:export', 3, 5, 5342, '1', NOW(), '1', NOW(), 0),
+(5349, '收文提交', 'oa:incoming-document-bill:submit', 3, 6, 5342, '1', NOW(), '1', NOW(), 0),
+(5350, '收文撤回', 'oa:incoming-document-bill:withdraw', 3, 7, 5342, '1', NOW(), '1', NOW(), 0)
 ON DUPLICATE KEY UPDATE name=VALUES(name), permission=VALUES(permission);
 
 -- === 差旅申请 ===
+-- 中间目录（隐藏，保持路由兼容性）
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5351, '差旅申请', 1, 6, 5300, 'travel', 'ant-design:plane-outlined', NULL, NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5351, '差旅申请', 1, 6, 5300, 'travel', 'ant-design:plane-outlined', NULL, NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5351);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5352, '差旅申请列表', 2, 1, 5351, 'travel-list', NULL, 'oa/travel/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5352, '差旅申请列表', 2, 1, 5300, 'travel-apply-list', NULL, 'oa/travel/list/index', NULL, 0, 1, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5352);
 
 INSERT INTO system_menu (id, name, type, sort, parent_id, path, icon, component, component_name, status, visible, keep_alive, always_show, creator, create_time, updater, update_time, deleted)
-SELECT 5353, '差旅申请详情', 2, 2, 5351, 'travel-info', NULL, 'oa/travel/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
+SELECT 5353, '差旅申请详情', 2, 2, 5300, 'travel-apply-info', NULL, 'oa/travel/info/index', NULL, 0, 0, 1, 1, '1', NOW(), '1', NOW(), 0
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM system_menu WHERE id = 5353);
 
 INSERT INTO system_menu (id, name, permission, type, sort, parent_id, creator, create_time, updater, update_time, deleted) VALUES
-(5354, '差旅查询', 'oa:travel-apply-bill:query', 3, 1, 5351, '1', NOW(), '1', NOW(), 0),
-(5355, '差旅新增', 'oa:travel-apply-bill:create', 3, 2, 5351, '1', NOW(), '1', NOW(), 0),
-(5356, '差旅修改', 'oa:travel-apply-bill:update', 3, 3, 5351, '1', NOW(), '1', NOW(), 0),
-(5357, '差旅删除', 'oa:travel-apply-bill:delete', 3, 4, 5351, '1', NOW(), '1', NOW(), 0),
-(5358, '差旅导出', 'oa:travel-apply-bill:export', 3, 5, 5351, '1', NOW(), '1', NOW(), 0),
-(5359, '差旅提交', 'oa:travel-apply-bill:submit', 3, 6, 5351, '1', NOW(), '1', NOW(), 0),
-(5360, '差旅撤回', 'oa:travel-apply-bill:withdraw', 3, 7, 5351, '1', NOW(), '1', NOW(), 0)
+(5354, '差旅查询', 'oa:travel-apply-bill:query', 3, 1, 5352, '1', NOW(), '1', NOW(), 0),
+(5355, '差旅新增', 'oa:travel-apply-bill:create', 3, 2, 5352, '1', NOW(), '1', NOW(), 0),
+(5356, '差旅修改', 'oa:travel-apply-bill:update', 3, 3, 5352, '1', NOW(), '1', NOW(), 0),
+(5357, '差旅删除', 'oa:travel-apply-bill:delete', 3, 4, 5352, '1', NOW(), '1', NOW(), 0),
+(5358, '差旅导出', 'oa:travel-apply-bill:export', 3, 5, 5352, '1', NOW(), '1', NOW(), 0),
+(5359, '差旅提交', 'oa:travel-apply-bill:submit', 3, 6, 5352, '1', NOW(), '1', NOW(), 0),
+(5360, '差旅撤回', 'oa:travel-apply-bill:withdraw', 3, 7, 5352, '1', NOW(), '1', NOW(), 0)
 ON DUPLICATE KEY UPDATE name=VALUES(name), permission=VALUES(permission);
 
 -- === 纠错管理 ===

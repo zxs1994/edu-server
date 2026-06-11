@@ -6,6 +6,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
@@ -14,6 +15,7 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
  */
 @AutoConfiguration
 @EnableAsync
+@EnableScheduling // 开启 Spring 定时任务支持（替代 XXL-Job）
 public class DhAsyncAutoConfiguration {
 
     @Bean

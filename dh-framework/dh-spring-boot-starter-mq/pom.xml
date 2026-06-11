@@ -12,7 +12,7 @@
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
-    <description>消息队列，支持 Redis、RocketMQ、RabbitMQ、Kafka 四种</description>
+    <description>消息队列，支持 Redis、RabbitMQ、Kafka 三种</description>
     <url>https://gitcode.com/zhouzhongyan/ruoyi-office.git</url>
 
     <dependencies>
@@ -31,11 +31,6 @@
         <dependency>
             <groupId>org.springframework.amqp</groupId>
             <artifactId>spring-rabbit</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.rocketmq</groupId>
-            <artifactId>rocketmq-spring-boot-starter</artifactId>
             <optional>true</optional>
         </dependency>
     </dependencies>

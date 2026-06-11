@@ -36,11 +36,8 @@
         <opengauss.jdbc.version>5.1.0</opengauss.jdbc.version>
         <taos.version>3.7.9</taos.version>
         <!-- 消息队列 -->
-        <rocketmq-spring.version>2.3.5</rocketmq-spring.version>
         <!-- RPC 相关 -->
         <!-- Config 配置中心相关 -->
-        <!-- Job 定时任务相关 -->
-        <xxl-job.version>2.4.0</xxl-job.version>
         <!-- 服务保障相关 -->
         <lock4j.version>2.2.7</lock4j.version>
         <!-- 监控相关 -->
@@ -321,11 +318,6 @@
 
             <!-- Job 定时任务相关 -->
             <dependency>
-                <groupId>com.xuxueli</groupId>
-                <artifactId>xxl-job-core</artifactId>
-                <version>${xxl-job.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>cn.dh.oa</groupId>
                 <artifactId>dh-spring-boot-starter-job</artifactId>
                 <version>${revision}</version>
@@ -336,11 +328,6 @@
                 <groupId>cn.dh.oa</groupId>
                 <artifactId>dh-spring-boot-starter-mq</artifactId>
                 <version>${revision}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.rocketmq</groupId>
-                <artifactId>rocketmq-spring-boot-starter</artifactId>
-                <version>${rocketmq-spring.version}</version>
             </dependency>
 
             <!-- 服务保障相关 -->

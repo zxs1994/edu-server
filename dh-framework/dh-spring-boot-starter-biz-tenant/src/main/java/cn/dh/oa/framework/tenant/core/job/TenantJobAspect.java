@@ -2,15 +2,11 @@ package cn.dh.oa.framework.tenant.core.job;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.exceptions.ExceptionUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.dh.oa.framework.common.util.json.JsonUtils;
 import cn.dh.oa.framework.tenant.core.service.TenantFrameworkService;
 import cn.dh.oa.framework.tenant.core.util.TenantUtils;
-import com.xxl.job.core.context.XxlJobContext;
-import com.xxl.job.core.context.XxlJobHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -46,29 +42,26 @@ public class TenantJobAspect {
         // 逐个租户，执行 Job
         Map<Long, String> results = new ConcurrentHashMap<>();
         AtomicBoolean success = new AtomicBoolean(true); // 标记，是否存在失败的情况
-        XxlJobContext xxlJobContext = XxlJobContext.getXxlJobContext(); // XXL-Job 上下文
         tenantIds.parallelStream().forEach(tenantId -> {
             // TODO 芋艿：先通过 parallel 实现并行；1）多个租户，是一条执行日志；2）异常的情况
             TenantUtils.execute(tenantId, () -> {
                 try {
-                    XxlJobContext.setXxlJobContext(xxlJobContext);
                     // 执行 Job
                     Object result = joinPoint.proceed();
-                    results.put(tenantId, StrUtil.toStringOrEmpty(result));
+                    results.put(tenantId, result != null ? result.toString() : "");
                 } catch (Throwable e) {
                     results.put(tenantId, ExceptionUtil.getRootCauseMessage(e));
                     success.set(false);
                     // 打印异常
-                    XxlJobHelper.log(StrUtil.format("[多租户({}) 执行任务({})，发生异常：{}]",
-                            tenantId, joinPoint.getSignature(), ExceptionUtils.getStackTrace(e)));
+                    log.error("[多租户({}) 执行任务({})，发生异常]", tenantId, joinPoint.getSignature(), e);
                 }
             });
         });
         // 记录执行结果
         if (success.get()) {
-            XxlJobHelper.handleSuccess(JsonUtils.toJsonString(results));
+            log.info("[任务({}) 执行成功，结果：{}]", joinPoint.getSignature(), JsonUtils.toJsonString(results));
         } else {
-            XxlJobHelper.handleFail(JsonUtils.toJsonString(results));
+            log.error("[任务({}) 执行失败，结果：{}]", joinPoint.getSignature(), JsonUtils.toJsonString(results));
         }
     }
 

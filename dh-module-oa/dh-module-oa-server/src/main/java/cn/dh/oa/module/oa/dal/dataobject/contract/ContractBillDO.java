@@ -45,17 +45,69 @@ public class ContractBillDO extends BaseDO {
      */
     private String contractTitle;
     /**
+     * 合同编号
+     */
+    private String contractCode;
+    /**
      * 合同类型（1采购 2销售 3服务 4合作 5其他）
      */
     private Integer contractType;
     /**
-     * 合同对方
+     * 合同性质
+     */
+    private String contractNature;
+    /**
+     * 合同分类
+     */
+    private String contractCategory;
+    /**
+     * 我方主体
+     */
+    private String ourParty;
+    /**
+     * 我方角色（1甲方 2乙方）
+     */
+    private Integer ourRole;
+    /**
+     * 对方类型（1CRM客户 2ERP供应商）
+     */
+    private Integer counterpartyType;
+    /**
+     * 合同对方（对方单位）
      */
     private String contractParty;
+    /**
+     * 对方联系人
+     */
+    private String counterpartyContact;
+    /**
+     * 对方电话
+     */
+    private String counterpartyPhone;
     /**
      * 合同金额
      */
     private BigDecimal contractAmount;
+    /**
+     * 币种（默认CNY）
+     */
+    private String currency;
+    /**
+     * 签订日期
+     */
+    private LocalDate signDate;
+    /**
+     * 生效日期
+     */
+    private LocalDate effectiveDate;
+    /**
+     * 截止日期
+     */
+    private LocalDate expiryDate;
+    /**
+     * 负责人
+     */
+    private String responsiblePerson;
     /**
      * 合同开始日期
      */

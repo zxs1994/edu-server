@@ -35,17 +35,69 @@ public class ContractBillRespVO {
     @ExcelProperty("合同标题")
     private String contractTitle;
 
+    @Schema(description = "合同编号", example = "HT-2026-001")
+    @ExcelProperty("合同编号")
+    private String contractCode;
+
     @Schema(description = "合同类型（1采购 2销售 3服务 4合作 5其他）", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @ExcelProperty("合同类型")
     private Integer contractType;
+
+    @Schema(description = "合同性质")
+    @ExcelProperty("合同性质")
+    private String contractNature;
+
+    @Schema(description = "合同分类")
+    @ExcelProperty("合同分类")
+    private String contractCategory;
+
+    @Schema(description = "我方主体")
+    @ExcelProperty("我方主体")
+    private String ourParty;
+
+    @Schema(description = "我方角色（1甲方 2乙方）", example = "1")
+    @ExcelProperty("我方角色")
+    private Integer ourRole;
+
+    @Schema(description = "对方类型（1CRM客户 2ERP供应商）", example = "1")
+    @ExcelProperty("对方类型")
+    private Integer counterpartyType;
 
     @Schema(description = "合同对方", requiredMode = Schema.RequiredMode.REQUIRED, example = "ABC公司")
     @ExcelProperty("合同对方")
     private String contractParty;
 
+    @Schema(description = "对方联系人")
+    @ExcelProperty("对方联系人")
+    private String counterpartyContact;
+
+    @Schema(description = "对方电话")
+    @ExcelProperty("对方电话")
+    private String counterpartyPhone;
+
     @Schema(description = "合同金额", example = "100000.00")
     @ExcelProperty("合同金额")
     private BigDecimal contractAmount;
+
+    @Schema(description = "币种", example = "CNY")
+    @ExcelProperty("币种")
+    private String currency;
+
+    @Schema(description = "签订日期")
+    @ExcelProperty("签订日期")
+    private LocalDate signDate;
+
+    @Schema(description = "生效日期")
+    @ExcelProperty("生效日期")
+    private LocalDate effectiveDate;
+
+    @Schema(description = "截止日期")
+    @ExcelProperty("截止日期")
+    private LocalDate expiryDate;
+
+    @Schema(description = "负责人")
+    @ExcelProperty("负责人")
+    private String responsiblePerson;
 
     @Schema(description = "合同开始日期")
     @ExcelProperty("合同开始日期")
@@ -105,5 +157,11 @@ public class ContractBillRespVO {
 
     @Schema(description = "附件列表")
     private List<AttachmentRespVO> attachments;
+
+    @Schema(description = "合同明细列表")
+    private List<ContractDetailRespVO> contractDetails;
+
+    @Schema(description = "收付款计划列表")
+    private List<ContractPaymentPlanRespVO> paymentPlans;
 
 }

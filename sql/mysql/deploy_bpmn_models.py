@@ -406,12 +406,12 @@ def build_car_model():
 # ========== Deployment ==========
 
 MODELS = [
-    ("oa_contract_bill", "OA合同审批单", "/oa/contract/contract-bill-info", "/oa/contract/info/index.vue", build_contract_model),
-    ("oa_document_dispatch_bill", "OA公文发文单", "/oa/document/document-dispatch-bill-info", "/oa/document/info/index.vue", build_document_model),
-    ("oa_expense_reimburse_bill", "OA费用报销单", "/oa/expense/expense-reimburse-bill-info", "/oa/expense/info/index.vue", build_expense_model),
-    ("oa_project_initiation_bill", "OA项目立项单", "/oa/project/project-initiation-bill-info", "/oa/project/info/index.vue", build_project_model),
-    ("oa_incoming_document_bill", "OA收文办理单", "/oa/incoming/incoming-document-bill-info", "/oa/incoming/info/index.vue", build_incoming_model),
-    ("oa_travel_apply_bill", "OA差旅申请单", "/oa/travel/travel-apply-bill-info", "/oa/travel/info/index.vue", build_travel_model),
+    ("oa_contract_bill", "OA合同审批单", "/oa/contract-bill-info", "/oa/contract/info/index.vue", build_contract_model),
+    ("oa_document_dispatch_bill", "OA公文发文单", "/oa/document-dispatch-info", "/oa/document/info/index.vue", build_document_model),
+    ("oa_expense_reimburse_bill", "OA费用报销单", "/oa/expense-reimburse-info", "/oa/expense/info/index.vue", build_expense_model),
+    ("oa_project_initiation_bill", "OA项目立项单", "/oa/project-initiation-info", "/oa/project/info/index.vue", build_project_model),
+    ("oa_incoming_document_bill", "OA收文办理单", "/oa/incoming-document-info", "/oa/incoming/info/index.vue", build_incoming_model),
+    ("oa_travel_apply_bill", "OA差旅申请单", "/oa/travel-apply-info", "/oa/travel/info/index.vue", build_travel_model),
     ("oa_seal_apply_bill", "OA用印申请单", "/oa/seal/seal-apply-info", "/oa/seal/sealapply/info/index.vue", build_seal_model),
     ("oa_car_apply_bill", "OA用车申请单", "/oa/car/car-apply-info", "/oa/car/carapply/info/index.vue", build_car_model),
 ]

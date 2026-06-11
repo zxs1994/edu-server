@@ -12,7 +12,6 @@ import cn.dh.oa.framework.tenant.core.db.TenantDatabaseInterceptor;
 import cn.dh.oa.framework.tenant.core.job.TenantJobAspect;
 import cn.dh.oa.framework.tenant.core.mq.rabbitmq.TenantRabbitMQInitializer;
 import cn.dh.oa.framework.tenant.core.mq.redis.TenantRedisMessageInterceptor;
-import cn.dh.oa.framework.tenant.core.mq.rocketmq.TenantRocketMQInitializer;
 import cn.dh.oa.framework.tenant.core.redis.TenantRedisCacheManager;
 import cn.dh.oa.framework.tenant.core.security.TenantSecurityWebFilter;
 import cn.dh.oa.framework.tenant.core.service.TenantFrameworkService;
@@ -189,16 +188,9 @@ public class DhTenantAutoConfiguration {
         return new TenantRabbitMQInitializer();
     }
 
-    @Bean
-    @ConditionalOnClass(name = "org.apache.rocketmq.spring.core.RocketMQTemplate")
-    public TenantRocketMQInitializer tenantRocketMQInitializer() {
-        return new TenantRocketMQInitializer();
-    }
-
     // ========== Job ==========
 
     @Bean
-    @ConditionalOnClass(name = "com.xxl.job.core.handler.annotation.XxlJob")
     public TenantJobAspect tenantJobAspect(TenantFrameworkService tenantFrameworkService) {
         return new TenantJobAspect(tenantFrameworkService);
     }

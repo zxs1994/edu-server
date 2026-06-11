@@ -2,8 +2,8 @@ package cn.dh.oa.module.infra.job.logger;
 
 import cn.dh.oa.framework.tenant.core.aop.TenantIgnore;
 import cn.dh.oa.module.infra.service.logger.ApiErrorLogService;
-import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.Resource;
@@ -30,7 +30,7 @@ public class ErrorLogCleanJob {
      */
     private static final Integer DELETE_LIMIT = 100;
 
-    @XxlJob("errorLogCleanJob")
+    @Scheduled(cron = "0 0 2 * * ?") // 每天凌晨 2 点执行
     @TenantIgnore
     public void execute() {
         Integer count = apiErrorLogService.cleanErrorLog(JOB_CLEAN_RETAIN_DAY,DELETE_LIMIT);

@@ -13,12 +13,9 @@ import cn.dh.oa.framework.websocket.core.sender.rabbitmq.RabbitMQWebSocketMessag
 import cn.dh.oa.framework.websocket.core.sender.rabbitmq.RabbitMQWebSocketMessageSender;
 import cn.dh.oa.framework.websocket.core.sender.redis.RedisWebSocketMessageConsumer;
 import cn.dh.oa.framework.websocket.core.sender.redis.RedisWebSocketMessageSender;
-import cn.dh.oa.framework.websocket.core.sender.rocketmq.RocketMQWebSocketMessageConsumer;
-import cn.dh.oa.framework.websocket.core.sender.rocketmq.RocketMQWebSocketMessageSender;
 import cn.dh.oa.framework.websocket.core.session.WebSocketSessionHandlerDecorator;
 import cn.dh.oa.framework.websocket.core.session.WebSocketSessionManager;
 import cn.dh.oa.framework.websocket.core.session.WebSocketSessionManagerImpl;
-import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -109,25 +106,6 @@ public class DhWebSocketAutoConfiguration {
         public RedisWebSocketMessageConsumer redisWebSocketMessageConsumer(
                 RedisWebSocketMessageSender redisWebSocketMessageSender) {
             return new RedisWebSocketMessageConsumer(redisWebSocketMessageSender);
-        }
-
-    }
-
-    @Configuration
-    @ConditionalOnProperty(prefix = "dh.websocket", name = "sender-type", havingValue = "rocketmq")
-    public class RocketMQWebSocketMessageSenderConfiguration {
-
-        @Bean
-        public RocketMQWebSocketMessageSender rocketMQWebSocketMessageSender(
-                WebSocketSessionManager sessionManager, RocketMQTemplate rocketMQTemplate,
-                @Value("${dh.websocket.sender-rocketmq.topic}") String topic) {
-            return new RocketMQWebSocketMessageSender(sessionManager, rocketMQTemplate, topic);
-        }
-
-        @Bean
-        public RocketMQWebSocketMessageConsumer rocketMQWebSocketMessageConsumer(
-                RocketMQWebSocketMessageSender rocketMQWebSocketMessageSender) {
-            return new RocketMQWebSocketMessageConsumer(rocketMQWebSocketMessageSender);
         }
 
     }

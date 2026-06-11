@@ -5,9 +5,9 @@ import cn.dh.oa.module.hrm.dal.dataobject.employee.EmployeeResignationBillDO;
 import cn.dh.oa.module.hrm.dal.mysql.employee.EmployeeResignationBillMapper;
 import cn.dh.oa.module.hrm.service.employee.EmployeeResignationBillService;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
-import com.xxl.job.core.handler.annotation.XxlJob;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -31,9 +31,9 @@ public class EmployeeResignationByResignationDateJob {
     @Resource
     private EmployeeResignationBillService employeeResignationBillService;
 
-    @XxlJob("employeeResignationByResignationDateJob")
+    @Scheduled(cron = "0 0 1 * * ?") // 每天凌晨 1 点执行
     @TenantJob // 多租户
-    public String execute() {
+    public void execute() {
         LocalDate today = LocalDate.now();
         List<EmployeeResignationBillDO> bills = employeeResignationBillMapper.selectList(
                 new LambdaQueryWrapperX<EmployeeResignationBillDO>()
@@ -43,7 +43,7 @@ public class EmployeeResignationByResignationDateJob {
         
         if (bills.isEmpty()) {
             log.info("[execute][今天没有需要处理的员工离职申请单]");
-            return "今天没有需要处理的员工离职申请单";
+            return;
         }
 
         log.info("[execute][开始处理员工离职申请单，数量：{}]", bills.size());
@@ -62,9 +62,7 @@ public class EmployeeResignationByResignationDateJob {
             }
         }
         
-        String result = String.format("处理完成：成功 %d 个，失败 %d 个", successCount, failCount);
-        log.info("[execute][{}]", result);
-        return result;
+        log.info("[execute][处理完成：成功 {} 个，失败 {} 个]", successCount, failCount);
     }
 
 }
