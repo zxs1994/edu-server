@@ -2,6 +2,7 @@ server:
   port: 48080
 
 --- #################### 数据库相关配置 ####################
+
 spring:
   # 数据源配置项
   datasource:
@@ -25,8 +26,8 @@ spring:
             multi-statement-allow: true
     dynamic: # 多数据源配置
       druid: # Druid 【连接池】相关的全局配置
-        initial-size: 1 # 初始连接数
-        min-idle: 1 # 最小连接池数量
+        initial-size: 5 # 初始连接数
+        min-idle: 10 # 最小连接池数量
         max-active: 20 # 最大连接池数量
         max-wait: 60000 # 配置获取连接等待超时的时间，单位：毫秒（1 分钟）
         time-between-eviction-runs-millis: 60000 # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位：毫秒（1 分钟）
@@ -41,40 +42,27 @@ spring:
       primary: master
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true # MySQL Connector/J 8.X 连接的示例
-          #          url: jdbc:mysql://127.0.0.1:33061/dh-oa?useSSL=true&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true # MySQL Connector/J 5.X 连接的示例
-          #          url: jdbc:postgresql://127.0.0.1:5432/ruoyi-vue-pro # PostgreSQL 连接的示例
-          #          url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle 连接的示例
-          #          url: jdbc:sqlserver://127.0.0.1:1433;DatabaseName=ruoyi-vue-pro;SelectMethod=cursor;encrypt=false;rewriteBatchedStatements=true;useUnicode=true;characterEncoding=utf-8 # SQLServer 连接的示例
-          #          url: jdbc:dm://127.0.0.1:5236?schema=RUOYI_VUE_PRO # DM 连接的示例
-          #          url: jdbc:kingbase8://127.0.0.1:54321/test  # 人大金仓 KingbaseES 连接的示例
-          #          url: jdbc:postgresql://127.0.0.1:5432/postgres # OpenGauss 连接的示例
-          username: root
-          password: root
-          #          username: sa # SQL Server 连接的示例
-          #          password: Dh@2024 # SQL Server 连接的示例
-          #          username: SYSDBA # DM 连接的示例
-          #          password: SYSDBA001 # DM 连接的示例
-          #          username: root # OpenGauss 连接的示例
-          #          password: Dh@2024 # OpenGauss 连接的示例
+          url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3316/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
+          username: ${MYSQL_USERNAME:root}
+          password: ${MYSQL_PASSWORD:root}
 
   # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
   data:
     redis:
-      port: 6379
-      host: 47.101.43.14
-      password: LGD
-      database: 0 # 数据库索引
+      host: ${REDIS_HOST:127.0.0.1} # 地址
+      port: ${REDIS_PORT:6377} # 端口
+      database: ${REDIS_DATABASE:0} # 数据库索引
+      password: ${REDIS_PASSWORD:LGD} # 密码
 
 --- #################### 消息队列相关 ####################
 
 spring:
   # RabbitMQ 配置项，对应 RabbitProperties 配置类
   rabbitmq:
-    host: 106.14.186.19 # RabbitMQ 服务的地址
+    host: 127.0.0.1 # RabbitMQ 服务的地址
     port: 5672 # RabbitMQ 服务的端口
-    username: dh_user # RabbitMQ 服务的账号
-    password: dh2025@dev # RabbitMQ 服务的密码
+    username: guest # RabbitMQ 服务的账号
+    password: guest # RabbitMQ 服务的密码
   # Kafka 配置项，对应 KafkaProperties 配置类
   kafka:
     bootstrap-servers: 127.0.0.1:9092 # 指定 Kafka Broker 地址，可以设置多个，以逗号分隔
@@ -114,36 +102,12 @@ spring:
 logging:
   file:
     name: ${user.home}/logs/${spring.application.name}.log # 日志文件名，全路径
-  level:
-    # 配置自己写的 MyBatis Mapper 打印日志
-    cn.dh.oa.module.bpm.dal.mysql: debug
-    cn.dh.oa.module.infra.dal.mysql: debug
-    cn.dh.oa.module.infra.dal.mysql.logger.ApiErrorLogMapper: INFO # 配置 ApiErrorLogMapper 的日志级别为 info，避免和 GlobalExceptionHandler 重复打印
-    cn.dh.oa.module.infra.dal.mysql.job.JobLogMapper: INFO # 配置 JobLogMapper 的日志级别为 info
-    cn.dh.oa.module.infra.dal.mysql.file.FileConfigMapper: INFO # 配置 FileConfigMapper 的日志级别为 info
-    cn.dh.oa.module.oa.dal.mysql: debug
-    cn.dh.oa.module.hrm.dal.mysql: debug
-    cn.dh.oa.module.system.dal.mysql: debug
-    cn.dh.oa.module.system.dal.mysql.sms.SmsChannelMapper: INFO # 配置 SmsChannelMapper 的日志级别为 info
-    org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 芋艿：先禁用，Spring Boot 3.X 存在部分错误的 WARN 提示
-
-debug: false
 
 --- #################### 鼎衡相关配置 ####################
 
 # 鼎衡配置项，设置当前项目所有自定义的配置
 dh:
-  captcha:
-    enable: false # 本地环境，暂时关闭图片验证码，方便登录等接口的测试；
-  security:
-    mock-enable: true
-  access-log: # 访问日志的配置项
-    enable: false
-  demo: false # 关闭演示模式
-  wxa-code:
-    env-version: develop # 小程序版本: 正式版为 "release"；体验版为 "trial"；开发版为 "develop"
-  wxa-subscribe-message:
-    miniprogram-state: developer # 跳转小程序类型：开发版为 “developer”；体验版为 “trial”为；正式版为 “formal”
+  demo: false # 开启演示模式
   tencent-lbs-key: TVDBZ-TDILD-4ON4B-PFDZA-RNLKH-VVF6E # QQ 地图的密钥 https://lbs.qq.com/service/staticV2/staticGuide/staticDoc
 
 justauth:
@@ -169,20 +133,10 @@ justauth:
     prefix: 'social_auth_state:' # 缓存前缀，目前只对 Redis 缓存生效，默认 JUSTAUTH::STATE::
     timeout: 24h # 超时时长，目前只对 Redis 缓存生效，默认 3 分钟
 
---- #################### 微信公众号、小程序配置 ####################
-
+# 微信公众号配置（占位，暂未使用）
 wx:
   mp:
-    app-id: wx5b23ba7a5589ecbb
-    secret: 2a7b3b20c537e52e74afd395eb85f61f
-    config-storage:
-      type: RedisTemplate
-      key-prefix: wx
-      http-client-type: HttpClient
-  miniapp:
-    appid: wxc4598c446f8a9cb3
-    secret: 4a1a04e07f6a4a0751b39c3064a92c8b
-    config-storage:
-      type: RedisTemplate
-      key-prefix: wa
-      http-client-type: HttpClient
+    app-id: wx_placeholder_appid
+    secret: wx_placeholder_secret
+    token: wx_placeholder_token
+    aes-key: wx_placeholder_aeskey

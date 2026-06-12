@@ -33,7 +33,7 @@ public interface AdminUserMapper extends BaseMapperX<AdminUserDO> {
                 .betweenIfPresent(AdminUserDO::getCreateTime, reqVO.getCreateTime())
                 .inIfPresent(AdminUserDO::getDeptId, deptIds)
                 .inIfPresent(AdminUserDO::getId, userIds)
-                .orderByDesc(AdminUserDO::getId));
+                .last("ORDER BY (SELECT COALESCE(MIN(p.sort), 999999) FROM system_user_post up JOIN system_post p ON up.post_id = p.id WHERE up.user_id = system_users.id) ASC"));
     }
 
     default List<AdminUserDO> selectListByNickname(String nickname) {

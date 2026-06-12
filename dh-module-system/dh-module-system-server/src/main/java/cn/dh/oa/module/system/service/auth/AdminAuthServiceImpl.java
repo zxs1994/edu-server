@@ -71,9 +71,9 @@ public class AdminAuthServiceImpl implements AdminAuthService {
     private SmsCodeApi smsCodeApi;
 
     /**
-     * 验证码的开关，默认为 true
+     * 验证码的开关，默认为 false
      */
-    @Value("${dh.captcha.enable:true}")
+    @Value("${dh.captcha.enable:false}")
     @Setter // 为了单测：开启或者关闭验证码
     private Boolean captchaEnable;
 

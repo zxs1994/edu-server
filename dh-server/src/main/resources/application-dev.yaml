@@ -107,6 +107,8 @@ logging:
 
 # 鼎衡配置项，设置当前项目所有自定义的配置
 dh:
+  captcha:
+    enable: false # 关闭验证码
   demo: false # 开启演示模式
   tencent-lbs-key: TVDBZ-TDILD-4ON4B-PFDZA-RNLKH-VVF6E # QQ 地图的密钥 https://lbs.qq.com/service/staticV2/staticGuide/staticDoc
 
