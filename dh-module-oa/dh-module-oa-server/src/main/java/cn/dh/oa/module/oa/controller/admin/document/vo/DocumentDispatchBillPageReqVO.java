@@ -27,6 +27,9 @@ public class DocumentDispatchBillPageReqVO extends PageParam {
     @Schema(description = "公文编号", example = "DH-2024-001")
     private String docNumber;
 
+    @Schema(description = "密级（0公开 1内部 2机密 3绝密）", example = "0")
+    private Integer secrecyLevel;
+
     @Schema(description = "公文类型", example = "1")
     private Integer docType;
 

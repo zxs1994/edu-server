@@ -29,12 +29,42 @@ public class DocumentDispatchBillSaveReqVO {
     @Schema(description = "公文编号", example = "DH-2024-001")
     private String docNumber;
 
+    @Schema(description = "密级（0公开 1内部 2机密 3绝密）", example = "0")
+    private Integer secrecyLevel;
+
+    @Schema(description = "套红模板ID", example = "1")
+    private Long templateId;
+
+    @Schema(description = "发文字号前缀（如：无办发）", example = "无办发")
+    private String docNumberPrefix;
+
+    @Schema(description = "发文字号年份（如：2026）", example = "2026")
+    private Integer docNumberYear;
+
+    @Schema(description = "发文字号序号", example = "1")
+    private Integer docNumberSerial;
+
     @Schema(description = "公文类型（1通知 2公告 3报告 4请示 5批复 6函 7纪要 8其他）", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "公文类型不能为空")
     private Integer docType;
 
-    @Schema(description = "紧急程度（0普通 1紧急 2特急）", example = "0")
+    @Schema(description = "紧急程度（0普通 1急件 2特急）", example = "0")
     private Integer urgencyLevel;
+
+    @Schema(description = "公开类别（0主动公开 1依申请公开 2不公开）", example = "0")
+    private Integer disclosureCategory;
+
+    @Schema(description = "发文日期")
+    private java.time.LocalDate issueDate;
+
+    @Schema(description = "主送部门（逗号分隔）")
+    private String mainRecipients;
+
+    @Schema(description = "抄送部门（逗号分隔）")
+    private String ccDepartments;
+
+    @Schema(description = "签发人")
+    private String signer;
 
     @Schema(description = "公文内容")
     private String docContent;

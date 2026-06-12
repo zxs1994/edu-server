@@ -47,13 +47,53 @@ public class DocumentDispatchBillDO extends BaseDO {
      */
     private String docNumber;
     /**
+     * 密级（0公开 1内部 2机密 3绝密）
+     */
+    private Integer secrecyLevel;
+    /**
+     * 套红模板ID
+     */
+    private Long templateId;
+    /**
+     * 发文字号前缀（如：无办发）
+     */
+    private String docNumberPrefix;
+    /**
+     * 发文字号年份（如：2026）
+     */
+    private Integer docNumberYear;
+    /**
+     * 发文字号序号
+     */
+    private Integer docNumberSerial;
+    /**
      * 公文类型（1通知 2公告 3报告 4请示 5批复 6函 7纪要 8其他）
      */
     private Integer docType;
     /**
-     * 紧急程度（0普通 1紧急 2特急）
+     * 紧急程度（0普通 1急件 2特急）
      */
     private Integer urgencyLevel;
+    /**
+     * 公开类别（0主动公开 1依申请公开 2不公开）
+     */
+    private Integer disclosureCategory;
+    /**
+     * 发文日期
+     */
+    private java.time.LocalDate issueDate;
+    /**
+     * 主送部门（逗号分隔）
+     */
+    private String mainRecipients;
+    /**
+     * 抄送部门（逗号分隔）
+     */
+    private String ccDepartments;
+    /**
+     * 签发人
+     */
+    private String signer;
     /**
      * 公文内容
      */

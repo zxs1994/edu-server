@@ -42,7 +42,7 @@ spring:
       primary: master
       datasource:
         master:
-          url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3316/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
+          url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
           username: ${MYSQL_USERNAME:root}
           password: ${MYSQL_PASSWORD:root}
 

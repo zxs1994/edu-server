@@ -72,4 +72,7 @@ public interface ErrorCodeConstants {
     // ========== 纠错管理 1-101-012-000 ============
     ErrorCode CORRECTION_BILL_NOT_EXISTS = new ErrorCode(1_101_012_000, "纠错申请单不存在");
     ErrorCode CORRECTION_SOURCE_BILL_NOT_EXISTS = new ErrorCode(1_101_012_001, "纠错原单据不存在");
+
+    // ========== 套红模板 1-101-013-000 ============
+    ErrorCode RED_TEMPLATE_NOT_EXISTS = new ErrorCode(1_101_013_000, "套红模板不存在");
 }

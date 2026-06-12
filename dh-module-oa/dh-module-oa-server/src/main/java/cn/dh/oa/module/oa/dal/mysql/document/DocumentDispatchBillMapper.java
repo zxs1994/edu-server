@@ -23,6 +23,7 @@ public interface DocumentDispatchBillMapper extends BaseMapperX<DocumentDispatch
                 .eqIfPresent(DocumentDispatchBillDO::getProcessStatus, reqVO.getProcessStatus())
                 .likeIfPresent(DocumentDispatchBillDO::getDocTitle, reqVO.getDocTitle())
                 .likeIfPresent(DocumentDispatchBillDO::getDocNumber, reqVO.getDocNumber())
+                .eqIfPresent(DocumentDispatchBillDO::getSecrecyLevel, reqVO.getSecrecyLevel())
                 .eqIfPresent(DocumentDispatchBillDO::getDocType, reqVO.getDocType())
                 .eqIfPresent(DocumentDispatchBillDO::getUrgencyLevel, reqVO.getUrgencyLevel())
                 .eqIfPresent(DocumentDispatchBillDO::getIsImportant, reqVO.getIsImportant())
