@@ -13,14 +13,6 @@ public class SealSaveReqVO {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "18149")
     private Long id;
 
-    @Schema(description = "公司ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "公司ID不能为空")
-    private Long companyId;
-
-    @Schema(description = "公司名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "公司名称不能为空")
-    private String companyName;
-
     @Schema(description = "印章编号", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "印章编号不能为空")
     private String sealNo;
@@ -60,9 +52,6 @@ public class SealSaveReqVO {
 
     @Schema(description = "停用日期")
     private LocalDate disableDate;
-
-    @Schema(description = "上传照片", example = "https://www.ruoyioffice.com")
-    private String picUrl;
 
     @Schema(description = "显示顺序")
     private Integer sort;

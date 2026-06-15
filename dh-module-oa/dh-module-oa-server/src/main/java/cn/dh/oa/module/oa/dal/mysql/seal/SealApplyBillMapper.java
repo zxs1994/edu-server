@@ -28,8 +28,6 @@ public interface SealApplyBillMapper extends BaseMapperX<SealApplyBillDO> {
                 .eqIfPresent(SealApplyBillDO::getUseMode, reqVO.getUseMode())
                 .eqIfPresent(SealApplyBillDO::getUseStatus, reqVO.getUseStatus())
                 .eqIfPresent(SealApplyBillDO::getIsUrgent, reqVO.getIsUrgent())
-                .eqIfPresent(SealApplyBillDO::getCompanyId, reqVO.getCompanyId())
-                .likeIfPresent(SealApplyBillDO::getCompanyName, reqVO.getCompanyName())
                 .eqIfPresent(SealApplyBillDO::getDeptId, reqVO.getDeptId())
                 .likeIfPresent(SealApplyBillDO::getDeptName, reqVO.getDeptName())
                 .betweenIfPresent(SealApplyBillDO::getExpectedUseTime, reqVO.getExpectedUseTime())

@@ -20,17 +20,8 @@ public class TravelApplyBillPageReqVO extends PageParam {
     @Schema(description = "单据状态")
     private Integer processStatus;
 
-    @Schema(description = "目的地")
-    private String destination;
-
-    @Schema(description = "交通方式：1火车 2飞机 3自驾 4公务用车 5其他")
-    private Integer transportType;
-
-    @Schema(description = "住宿类型：1酒店 2招待所 3其他")
-    private Integer accommodationType;
-
-    @Schema(description = "是否出国：0否 1是")
-    private Integer isOverseas;
+    @Schema(description = "申请部门")
+    private String deptName;
 
     @Schema(description = "创建者")
     private String creator;

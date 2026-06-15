@@ -106,14 +106,6 @@ public class SealApplyBillSaveReqVO {
     @Schema(description = "创建者姓名", example = "芋艿")
     private String creatorName;
 
-    @Schema(description = "公司ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "公司ID不能为空")
-    private Long companyId;
-
-    @Schema(description = "公司名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "鼎衡科技")
-    @NotEmpty(message = "公司名称不能为空")
-    private String companyName;
-
     @Schema(description = "部门ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @NotNull(message = "部门ID不能为空")
     private Long deptId;

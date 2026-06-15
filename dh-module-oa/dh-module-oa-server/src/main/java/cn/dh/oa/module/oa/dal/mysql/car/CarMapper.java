@@ -19,8 +19,6 @@ public interface CarMapper extends BaseMapperX<CarDO> {
 
     default PageResult<CarDO> selectPage(CarPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<CarDO>()
-                .eqIfPresent(CarDO::getCompanyId, reqVO.getCompanyId())
-                .likeIfPresent(CarDO::getCompanyName, reqVO.getCompanyName())
                 .likeIfPresent(CarDO::getCarNo, reqVO.getCarNo())
                 .likeIfPresent(CarDO::getCarName, reqVO.getCarName())
                 .eqIfPresent(CarDO::getStatus, reqVO.getStatus())
@@ -28,11 +26,9 @@ public interface CarMapper extends BaseMapperX<CarDO> {
                 .eqIfPresent(CarDO::getCarCls, reqVO.getCarCls())
                 .eqIfPresent(CarDO::getBrand, reqVO.getBrand())
                 .eqIfPresent(CarDO::getSeatNum, reqVO.getSeatNum())
-                .eqIfPresent(CarDO::getBarePrice, reqVO.getBarePrice())
                 .betweenIfPresent(CarDO::getForceInsuranceDate, reqVO.getForceInsuranceDate())
                 .betweenIfPresent(CarDO::getBusinessInsuranceDate, reqVO.getBusinessInsuranceDate())
                 .betweenIfPresent(CarDO::getYearCheckDate, reqVO.getYearCheckDate())
-                .eqIfPresent(CarDO::getPicUrl, reqVO.getPicUrl())
                 .eqIfPresent(CarDO::getSort, reqVO.getSort())
                 .eqIfPresent(CarDO::getRemark, reqVO.getRemark())
                 .betweenIfPresent(CarDO::getCreateTime, reqVO.getCreateTime())

@@ -5,7 +5,6 @@ import lombok.*;
 import java.time.LocalDate;
 import io.swagger.v3.oas.annotations.media.Schema;
 import cn.dh.oa.framework.common.pojo.PageParam;
-import java.math.BigDecimal;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 
@@ -15,12 +14,6 @@ import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DA
 @Schema(description = "管理后台 - 车辆信息分页 Request VO")
 @Data
 public class CarPageReqVO extends PageParam {
-
-    @Schema(description = "公司ID")
-    private Long companyId;
-
-    @Schema(description = "公司名称")
-    private String companyName;
 
     @Schema(description = "车牌号")
     private String carNo;
@@ -43,9 +36,6 @@ public class CarPageReqVO extends PageParam {
     @Schema(description = "车座")
     private String seatNum;
 
-    @Schema(description = "裸车价", example = "1610")
-    private BigDecimal barePrice;
-
     @Schema(description = "交强险到期日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
     private LocalDate[] forceInsuranceDate;
@@ -57,9 +47,6 @@ public class CarPageReqVO extends PageParam {
     @Schema(description = "年检日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
     private LocalDate[] yearCheckDate;
-
-    @Schema(description = "上传照片", example = "https://www.ruoyioffice.com")
-    private String picUrl;
 
     @Schema(description = "显示顺序")
     private Integer sort;

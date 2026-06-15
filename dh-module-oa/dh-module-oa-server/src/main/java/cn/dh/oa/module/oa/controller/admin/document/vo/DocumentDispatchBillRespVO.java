@@ -56,10 +56,6 @@ public class DocumentDispatchBillRespVO {
     @ExcelProperty("发文字号序号")
     private Integer docNumberSerial;
 
-    @Schema(description = "公文类型（1通知 2公告 3报告 4请示 5批复 6函 7纪要 8其他）", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @ExcelProperty("公文类型")
-    private Integer docType;
-
     @Schema(description = "紧急程度（0普通 1急件 2特急）", example = "0")
     @ExcelProperty("紧急程度")
     private Integer urgencyLevel;
@@ -87,22 +83,6 @@ public class DocumentDispatchBillRespVO {
     @Schema(description = "公文内容")
     @ExcelProperty("公文内容")
     private String docContent;
-
-    @Schema(description = "收文人")
-    @ExcelProperty("收文人")
-    private String recipients;
-
-    @Schema(description = "抄送人")
-    @ExcelProperty("抄送人")
-    private String ccList;
-
-    @Schema(description = "是否重要（0否 1是）", example = "0")
-    @ExcelProperty("是否重要")
-    private Integer isImportant;
-
-    @Schema(description = "申请事由", requiredMode = Schema.RequiredMode.REQUIRED, example = "发布通知")
-    @ExcelProperty("申请事由")
-    private String cause;
 
     @Schema(description = "创建者", example = "1")
     @ExcelProperty("创建者")

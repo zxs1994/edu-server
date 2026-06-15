@@ -284,4 +284,9 @@ public class DeptServiceImpl implements DeptService {
         // 没有找到公司类型的部门
         return null;
     }
+
+    @Override
+    public DeptDO getRootCompany() {
+        return deptMapper.selectRootCompany();
+    }
 }

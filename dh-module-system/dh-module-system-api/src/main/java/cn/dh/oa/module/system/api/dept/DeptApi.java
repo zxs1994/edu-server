@@ -53,4 +53,8 @@ public interface DeptApi {
     @Parameter(name = "id", description = "部门编号", example = "1024", required = true)
     CommonResult<List<DeptRespDTO>> getChildDeptList(@RequestParam("id") Long id);
 
+    @GetMapping(PREFIX + "/root-company")
+    @Operation(summary = "获得顶级组织（根公司）")
+    CommonResult<DeptRespDTO> getRootCompany();
+
 }

@@ -35,4 +35,12 @@ public interface DeptMapper extends BaseMapperX<DeptDO> {
         return selectList(DeptDO::getLeaderUserId, id);
     }
 
+    default DeptDO selectRootCompany() {
+        return selectOne(new LambdaQueryWrapperX<DeptDO>()
+                .eq(DeptDO::getParentId, DeptDO.PARENT_ID_ROOT)
+                .eq(DeptDO::getOrgType, cn.dh.oa.module.system.enums.OrgTypeEnum.COMPANY.getValue())
+                .orderByDesc(DeptDO::getId)
+                .last("LIMIT 1"));
+    }
+
 }

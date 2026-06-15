@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
@@ -23,14 +22,6 @@ public class CarRespVO {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "18149")
     @ExcelProperty("ID")
     private Long id;
-
-    @Schema(description = "公司ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @ExcelProperty("公司ID")
-    private Long companyId;
-
-    @Schema(description = "公司名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @ExcelProperty("公司名称")
-    private String companyName;
 
     @Schema(description = "车牌号", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("车牌号")
@@ -63,10 +54,6 @@ public class CarRespVO {
     @ExcelProperty("车座")
     private String seatNum;
 
-    @Schema(description = "裸车价", example = "1610")
-    @ExcelProperty("裸车价")
-    private BigDecimal barePrice;
-
     @Schema(description = "交强险到期日期")
     @ExcelProperty("交强险到期日期")
     @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY)
@@ -81,10 +68,6 @@ public class CarRespVO {
     @ExcelProperty("年检日期")
     @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY)
     private LocalDate yearCheckDate;
-
-    @Schema(description = "上传照片", example = "https://www.ruoyioffice.com")
-    @ExcelProperty("上传照片")
-    private String picUrl;
 
     @Schema(description = "显示顺序")
     @ExcelProperty("显示顺序")

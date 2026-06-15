@@ -14,10 +14,7 @@ public interface TravelApplyBillMapper extends BaseMapperX<TravelApplyBillDO> {
         return selectPage(reqVO, new LambdaQueryWrapperX<TravelApplyBillDO>()
                 .likeIfPresent(TravelApplyBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(TravelApplyBillDO::getProcessStatus, reqVO.getProcessStatus())
-                .likeIfPresent(TravelApplyBillDO::getDestination, reqVO.getDestination())
-                .eqIfPresent(TravelApplyBillDO::getTransportType, reqVO.getTransportType())
-                .eqIfPresent(TravelApplyBillDO::getAccommodationType, reqVO.getAccommodationType())
-                .eqIfPresent(TravelApplyBillDO::getIsOverseas, reqVO.getIsOverseas())
+                .likeIfPresent(TravelApplyBillDO::getDeptName, reqVO.getDeptName())
                 .eqIfPresent(TravelApplyBillDO::getCreator, reqVO.getCreator())
                 .betweenIfPresent(TravelApplyBillDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(TravelApplyBillDO::getId));

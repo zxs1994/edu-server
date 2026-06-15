@@ -37,8 +37,23 @@ public class ProjectInitiationBillRespVO {
     private String projectName;
 
     @ExcelProperty("项目类型")
-    @Schema(description = "项目类型：1活动 2项目 3课题 4其他")
+    @Schema(description = "项目类型：1研发型 2交付实施型 3工程建造型")
     private Integer projectType;
+
+    @ExcelProperty("优先级")
+    @Schema(description = "优先级：1高 2中 3低")
+    private Integer priority;
+
+    @ExcelProperty("项目分类")
+    @Schema(description = "项目分类：1研发项目 2交付项目 3运维项目")
+    private Integer projectCategory;
+
+    @Schema(description = "所属项目集ID")
+    private Long projectSetId;
+
+    @ExcelProperty("所属项目集")
+    @Schema(description = "所属项目集名称")
+    private String projectSetName;
 
     @ExcelProperty("项目描述")
     @Schema(description = "项目描述")
@@ -56,21 +71,42 @@ public class ProjectInitiationBillRespVO {
     @Schema(description = "结束日期")
     private LocalDate endDate;
 
-    @ExcelProperty("预期成果")
-    @Schema(description = "预期成果")
-    private String expectedOutcome;
+    @Schema(description = "关联合同ID")
+    private Long relatedContractId;
 
-    @ExcelProperty("是否重大")
-    @Schema(description = "是否重大：0否 1是")
-    private Integer isMajor;
+    @ExcelProperty("合同编号")
+    @Schema(description = "合同编号")
+    private String contractCode;
 
-    @ExcelProperty("重大备注")
-    @Schema(description = "重大备注")
-    private String majorRemark;
+    @ExcelProperty("合同名称")
+    @Schema(description = "合同名称")
+    private String contractName;
 
-    @ExcelProperty("事由")
-    @Schema(description = "事由")
-    private String cause;
+    @Schema(description = "项目经理ID")
+    private Long projectManagerId;
+
+    @ExcelProperty("项目经理")
+    @Schema(description = "项目经理名称")
+    private String projectManagerName;
+
+    @ExcelProperty("对方类型")
+    @Schema(description = "对方类型：1CRM客户 2ERP供应商")
+    private Integer counterpartyType;
+
+    @Schema(description = "对方单位ID")
+    private Long counterpartyId;
+
+    @ExcelProperty("对方单位")
+    @Schema(description = "对方单位名称")
+    private String counterpartyName;
+
+    @ExcelProperty("对方联系人")
+    @Schema(description = "对方联系人")
+    private String counterpartyContact;
+
+    @ExcelProperty("对方电话")
+    @Schema(description = "对方联系电话")
+    private String counterpartyPhone;
 
     // ========== 公共字段 ==========
 

@@ -30,14 +30,8 @@ public class DocumentDispatchBillPageReqVO extends PageParam {
     @Schema(description = "密级（0公开 1内部 2机密 3绝密）", example = "0")
     private Integer secrecyLevel;
 
-    @Schema(description = "公文类型", example = "1")
-    private Integer docType;
-
     @Schema(description = "紧急程度", example = "0")
     private Integer urgencyLevel;
-
-    @Schema(description = "是否重要", example = "0")
-    private Integer isImportant;
 
     @Schema(description = "公司ID", example = "1")
     private Long companyId;

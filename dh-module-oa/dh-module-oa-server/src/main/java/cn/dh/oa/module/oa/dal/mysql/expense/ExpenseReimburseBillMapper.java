@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.*;
 
 /**
- * 费用报销单 Mapper
+ * 差旅报销单 Mapper
  *
  * @author 鼎衡
  */
@@ -21,12 +21,6 @@ public interface ExpenseReimburseBillMapper extends BaseMapperX<ExpenseReimburse
         return selectPage(reqVO, new LambdaQueryWrapperX<ExpenseReimburseBillDO>()
                 .likeIfPresent(ExpenseReimburseBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(ExpenseReimburseBillDO::getProcessStatus, reqVO.getProcessStatus())
-                .eqIfPresent(ExpenseReimburseBillDO::getExpenseType, reqVO.getExpenseType())
-                .eqIfPresent(ExpenseReimburseBillDO::getPaymentMethod, reqVO.getPaymentMethod())
-                .eqIfPresent(ExpenseReimburseBillDO::getIsLargeAmount, reqVO.getIsLargeAmount())
-                .eqIfPresent(ExpenseReimburseBillDO::getCompanyId, reqVO.getCompanyId())
-                .likeIfPresent(ExpenseReimburseBillDO::getCompanyName, reqVO.getCompanyName())
-                .eqIfPresent(ExpenseReimburseBillDO::getDeptId, reqVO.getDeptId())
                 .likeIfPresent(ExpenseReimburseBillDO::getDeptName, reqVO.getDeptName())
                 .eqIfPresent(ExpenseReimburseBillDO::getCreator, reqVO.getCreator())
                 .betweenIfPresent(ExpenseReimburseBillDO::getCreateTime, reqVO.getCreateTime())

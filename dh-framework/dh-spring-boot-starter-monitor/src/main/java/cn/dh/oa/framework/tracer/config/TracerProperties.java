@@ -6,7 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * BizTracer配置类
  *
- * @author 麻薯
  */
 @ConfigurationProperties("dh.tracer")
 @Data

@@ -49,14 +49,14 @@ public enum OaBillTypeEnum implements BillTypeEnum {
     OA_PROJECT_INITIATION_BILL("108", "项目立项单", "oa_project_initiation_bill"),
 
     /**
-     * 收文办理单
-     */
-    OA_INCOMING_DOCUMENT_BILL("109", "收文办理单", "oa_incoming_document_bill"),
-
-    /**
      * 差旅申请单
      */
-    OA_TRAVEL_APPLY_BILL("110", "差旅申请单", "oa_travel_apply_bill"),
+    OA_TRAVEL_APPLY_BILL("109", "差旅申请单", "oa_travel_apply_bill"),
+
+    /**
+     * 收文办理单
+     */
+    OA_INCOMING_DOCUMENT_BILL("110", "收文办理单", "oa_incoming_document_bill"),
 
     /**
      * 纠错申请单

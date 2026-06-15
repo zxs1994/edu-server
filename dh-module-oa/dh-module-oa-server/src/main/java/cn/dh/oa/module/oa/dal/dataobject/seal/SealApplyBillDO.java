@@ -141,14 +141,6 @@ public class SealApplyBillDO extends BaseDO {
      */
     private String creatorName;
     /**
-     * 公司ID
-     */
-    private Long companyId;
-    /**
-     * 公司名称
-     */
-    private String companyName;
-    /**
      * 部门ID
      */
     private Long deptId;

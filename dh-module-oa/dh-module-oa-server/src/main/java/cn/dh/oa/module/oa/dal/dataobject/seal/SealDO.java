@@ -28,16 +28,6 @@ public class SealDO extends BaseDO {
     private Long id;
     
     /**
-     * 公司ID
-     */
-    private Long companyId;
-    
-    /**
-     * 公司名称
-     */
-    private String companyName;
-    
-    /**
      * 印章编号
      */
     private String sealNo;
@@ -95,11 +85,6 @@ public class SealDO extends BaseDO {
      * 停用日期
      */
     private LocalDate disableDate;
-    
-    /**
-     * 上传照片
-     */
-    private String picUrl;
     
     /**
      * 显示顺序

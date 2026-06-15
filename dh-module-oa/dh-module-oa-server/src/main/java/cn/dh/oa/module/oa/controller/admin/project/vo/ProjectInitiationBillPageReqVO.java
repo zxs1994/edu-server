@@ -14,20 +14,17 @@ import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DA
 @ToString(callSuper = true)
 public class ProjectInitiationBillPageReqVO extends PageParam {
 
-    @Schema(description = "单据编号")
+    @Schema(description = "项目编号")
     private String billCode;
-
-    @Schema(description = "单据状态")
-    private Integer processStatus;
 
     @Schema(description = "项目名称")
     private String projectName;
 
-    @Schema(description = "项目类型：1活动 2项目 3课题 4其他")
+    @Schema(description = "项目类型：1研发型 2交付实施型 3工程建造型")
     private Integer projectType;
 
-    @Schema(description = "是否重大：0否 1是")
-    private Integer isMajor;
+    @Schema(description = "立项状态")
+    private Integer processStatus;
 
     @Schema(description = "创建者")
     private String creator;

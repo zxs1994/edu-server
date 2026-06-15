@@ -80,4 +80,15 @@ public class SystemServiceImpl implements SystemService {
         return deptIds;
     }
 
+    @Override
+    public DeptRespDTO getRootCompany() {
+        try {
+            CommonResult<DeptRespDTO> result = deptApi.getRootCompany();
+            return result != null && result.isSuccess() ? result.getData() : null;
+        } catch (Exception e) {
+            log.error("获取顶级组织失败", e);
+            return null;
+        }
+    }
+
 }

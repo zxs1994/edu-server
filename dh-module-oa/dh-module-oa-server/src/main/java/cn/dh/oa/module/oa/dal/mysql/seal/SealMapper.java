@@ -19,8 +19,6 @@ public interface SealMapper extends BaseMapperX<SealDO> {
 
     default PageResult<SealDO> selectPage(SealPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<SealDO>()
-                .eqIfPresent(SealDO::getCompanyId, reqVO.getCompanyId())
-                .likeIfPresent(SealDO::getCompanyName, reqVO.getCompanyName())
                 .likeIfPresent(SealDO::getSealNo, reqVO.getSealNo())
                 .likeIfPresent(SealDO::getSealName, reqVO.getSealName())
                 .eqIfPresent(SealDO::getSealType, reqVO.getSealType())
@@ -30,10 +28,10 @@ public interface SealMapper extends BaseMapperX<SealDO> {
                 .eqIfPresent(SealDO::getKeeperDeptId, reqVO.getKeeperDeptId())
                 .likeIfPresent(SealDO::getKeeperDeptName, reqVO.getKeeperDeptName())
                 .eqIfPresent(SealDO::getStatus, reqVO.getStatus())
+                .neIfPresent(SealDO::getStatus, reqVO.getStatusNe())
                 .betweenIfPresent(SealDO::getPurchaseDate, reqVO.getPurchaseDate())
                 .betweenIfPresent(SealDO::getEnableDate, reqVO.getEnableDate())
                 .betweenIfPresent(SealDO::getDisableDate, reqVO.getDisableDate())
-                .eqIfPresent(SealDO::getPicUrl, reqVO.getPicUrl())
                 .eqIfPresent(SealDO::getSort, reqVO.getSort())
                 .eqIfPresent(SealDO::getRemark, reqVO.getRemark())
                 .betweenIfPresent(SealDO::getCreateTime, reqVO.getCreateTime())

@@ -29,25 +29,25 @@ public class RedTemplateDO extends BaseDO {
      */
     private String templateName;
     /**
-     * 机关名称（红头大字）
+     * 机关/公司名称（红头大字）
      */
     private String orgName;
     /**
-     * 文件类型标签（如：文 件、通 知）
+     * 名称字号（红头大字字号，默认36）
      */
-    private String docTypeLabel;
+    private Integer nameFontSize;
     /**
-     * 红头颜色
+     * 字号前缀（如：无办发）
      */
-    private String headerColor;
+    private String docNumberPrefix;
     /**
-     * 模板HTML内容
+     * 印章图片URL
      */
-    private String templateContent;
+    private String sealImage;
     /**
-     * 预览图片URL
+     * 分隔线样式（single=单线 double=双线）
      */
-    private String previewImage;
+    private String separatorStyle;
     /**
      * 状态（0正常 1停用）
      */

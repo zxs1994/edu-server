@@ -67,10 +67,6 @@ public class DocumentDispatchBillDO extends BaseDO {
      */
     private Integer docNumberSerial;
     /**
-     * 公文类型（1通知 2公告 3报告 4请示 5批复 6函 7纪要 8其他）
-     */
-    private Integer docType;
-    /**
      * 紧急程度（0普通 1急件 2特急）
      */
     private Integer urgencyLevel;
@@ -98,22 +94,6 @@ public class DocumentDispatchBillDO extends BaseDO {
      * 公文内容
      */
     private String docContent;
-    /**
-     * 收文人
-     */
-    private String recipients;
-    /**
-     * 抄送人
-     */
-    private String ccList;
-    /**
-     * 是否重要（0否 1是）
-     */
-    private Integer isImportant;
-    /**
-     * 申请事由
-     */
-    private String cause;
 
     // ========== 基础字段 ==========
     /**

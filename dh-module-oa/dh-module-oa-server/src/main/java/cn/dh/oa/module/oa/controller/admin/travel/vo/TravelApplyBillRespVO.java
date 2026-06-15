@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
 import java.util.List;
@@ -31,53 +32,35 @@ public class TravelApplyBillRespVO {
 
     // ========== 业务字段 ==========
 
-    @ExcelProperty("目的地")
-    @Schema(description = "目的地")
-    private String destination;
+    @ExcelProperty("出差事由")
+    @Schema(description = "出差事由")
+    private String cause;
 
-    @ExcelProperty("出差开始时间")
+    @ExcelProperty("开始日期")
     @Schema(description = "出差开始时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime travelStartDate;
 
-    @ExcelProperty("出差结束时间")
+    @ExcelProperty("结束日期")
     @Schema(description = "出差结束时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime travelEndDate;
 
-    @ExcelProperty("出差天数")
-    @Schema(description = "出差天数")
-    private Integer travelDays;
+    @ExcelProperty("天数")
+    @Schema(description = "出差天数（支持1位小数）", example = "3.5")
+    private BigDecimal travelDays;
 
-    @ExcelProperty("交通方式")
-    @Schema(description = "交通方式：1火车 2飞机 3自驾 4公务用车 5其他")
-    private Integer transportType;
+    @ExcelProperty("同行人")
+    @Schema(description = "同行人")
+    private String companion;
 
-    @ExcelProperty("住宿类型")
-    @Schema(description = "住宿类型：1酒店 2招待所 3其他")
-    private Integer accommodationType;
+    @ExcelProperty("预计费用")
+    @Schema(description = "预计费用")
+    private BigDecimal estimatedCost;
 
-    @ExcelProperty("预算金额")
-    @Schema(description = "预算金额")
-    private BigDecimal budgetAmount;
-
-    @ExcelProperty("预算明细")
-    @Schema(description = "预算明细")
-    private String budgetDetail;
-
-    @ExcelProperty("出差人员")
-    @Schema(description = "出差人员")
-    private String travelMembers;
-
-    @ExcelProperty("是否出国")
-    @Schema(description = "是否出国：0否 1是")
-    private Integer isOverseas;
-
-    @ExcelProperty("出国备注")
-    @Schema(description = "出国备注")
-    private String overseasRemark;
-
-    @ExcelProperty("事由")
-    @Schema(description = "事由")
-    private String cause;
+    @ExcelProperty("报销状态")
+    @Schema(description = "报销状态（0未报销 1已报销）")
+    private Integer reimbursementStatus;
 
     // ========== 公共字段 ==========
 
@@ -108,6 +91,9 @@ public class TravelApplyBillRespVO {
 
     @Schema(description = "备注")
     private String remark;
+
+    @Schema(description = "行程明细列表")
+    private List<TravelItineraryRespVO> itineraries;
 
     @Schema(description = "附件列表")
     private List<AttachmentRespVO> attachments;

@@ -68,6 +68,7 @@ public interface ErrorCodeConstants {
 
     // ========== 差旅申请 1-101-011-000 ============
     ErrorCode TRAVEL_APPLY_BILL_NOT_EXISTS = new ErrorCode(1_101_011_000, "差旅申请单不存在");
+    ErrorCode TRAVEL_END_DATE_INVALID = new ErrorCode(1_101_011_001, "结束日期必须晚于开始日期");
 
     // ========== 纠错管理 1-101-012-000 ============
     ErrorCode CORRECTION_BILL_NOT_EXISTS = new ErrorCode(1_101_012_000, "纠错申请单不存在");

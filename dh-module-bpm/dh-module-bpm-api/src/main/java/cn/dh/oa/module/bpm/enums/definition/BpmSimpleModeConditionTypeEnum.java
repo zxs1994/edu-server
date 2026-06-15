@@ -10,7 +10,6 @@ import java.util.Arrays;
 /**
  * 仿钉钉的流程器设计器条件节点的条件类型
  *
- * @author jason
  */
 @Getter
 @AllArgsConstructor

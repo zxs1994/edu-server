@@ -14,23 +14,31 @@ import cn.dh.oa.common.server.attachment.controller.vo.AttachmentRespVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.expense.ExpenseReimburseBillDO;
+import cn.dh.oa.module.oa.dal.dataobject.expense.ExpenseReimburseDetailDO;
+import cn.dh.oa.module.oa.dal.dataobject.travel.TravelApplyBillDO;
+import cn.dh.oa.module.oa.controller.admin.travel.vo.TravelApplyBillRespVO;
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.common.util.object.BeanUtils;
 
 import cn.dh.oa.module.oa.dal.mysql.expense.ExpenseReimburseBillMapper;
+import cn.dh.oa.module.oa.dal.mysql.expense.ExpenseReimburseDetailMapper;
+import cn.dh.oa.module.oa.dal.mysql.travel.TravelApplyBillMapper;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
-import static cn.dh.oa.module.oa.enums.OaProcessVariableConstants.*;
 
 /**
- * 费用报销单 Service 实现类
+ * 差旅报销单 Service 实现类
  *
  * @author 鼎衡
  */
@@ -43,12 +51,19 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     private ExpenseReimburseBillMapper expenseReimburseBillMapper;
 
     @Resource
+    private ExpenseReimburseDetailMapper expenseReimburseDetailMapper;
+
+    @Resource
+    private TravelApplyBillMapper travelApplyBillMapper;
+
+    @Resource
     private AttachmentService attachmentService;
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long saveExpenseReimburseBill(ExpenseReimburseBillSaveReqVO saveReqVO) {
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
@@ -64,11 +79,15 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
             attachmentService.saveAttachmentList(OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getTypeCode(), expenseReimburseBill.getId(), saveReqVO.getAttachments());
         }
 
+        // 保存费用明细（先删后增）
+        saveExpenseDetails(expenseReimburseBill.getId(), saveReqVO.getDetails());
+
         // 返回
         return expenseReimburseBill.getId();
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long submitExpenseReimburseBill(ExpenseReimburseBillSaveReqVO saveReqVO) {
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
@@ -82,8 +101,6 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
 
         // 智能提交 BPM 流程
         Map<String, Object> processInstanceVariables = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
-        // 添加费用报销单特有的流程变量
-        processInstanceVariables.put(PV_EXPENSE_IS_LARGE_AMOUNT, saveReqVO.getIsLargeAmount());
         String processInstanceId = processInstanceApi.submitProcessInstance(Long.valueOf(saveReqVO.getCreator()),
                 new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getProcessDefinitionKey())
                         .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(expenseReimburseBill.getId()))
@@ -96,6 +113,9 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
         if (saveReqVO.getAttachments() != null) {
             attachmentService.saveAttachmentList(OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getTypeCode(), expenseReimburseBill.getId(), saveReqVO.getAttachments());
         }
+
+        // 保存费用明细（先删后增）
+        saveExpenseDetails(expenseReimburseBill.getId(), saveReqVO.getDetails());
 
         // 返回
         return expenseReimburseBill.getId();
@@ -124,16 +144,24 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteExpenseReimburseBill(Long id) {
         // 校验存在
         validateExpenseReimburseBillExists(id);
-        // 删除
+        // 删除费用明细
+        expenseReimburseDetailMapper.deleteByBillId(id);
+        // 删除主单
         expenseReimburseBillMapper.deleteById(id);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteExpenseReimburseBillListByIds(List<Long> ids) {
-        // 删除
+        // 删除关联的费用明细
+        for (Long id : ids) {
+            expenseReimburseDetailMapper.deleteByBillId(id);
+        }
+        // 删除主单
         expenseReimburseBillMapper.deleteByIds(ids);
     }
 
@@ -163,6 +191,37 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
             AttachmentRespVO.class
         ));
 
+        // 获取费用明细
+        respVO.setDetails(BeanUtils.toBean(
+            expenseReimburseDetailMapper.selectListByBillId(id),
+            ExpenseReimburseDetailRespVO.class
+        ));
+
+        // 获取关联的差旅申请单列表
+        if (StringUtils.isNotBlank(expenseReimburseBill.getTravelBillCode())) {
+            String[] codes = expenseReimburseBill.getTravelBillCode().split(",");
+            List<String> codeList = Arrays.stream(codes)
+                    .map(String::trim)
+                    .filter(StringUtils::isNotBlank)
+                    .collect(Collectors.toList());
+
+            if (!codeList.isEmpty()) {
+                List<TravelApplyBillDO> travelBills = travelApplyBillMapper.selectList(
+                    new LambdaQueryWrapperX<TravelApplyBillDO>()
+                        .in(TravelApplyBillDO::getBillCode, codeList)
+                );
+                List<TravelApplyBillRespVO> travelBillVOs = BeanUtils.toBean(travelBills, TravelApplyBillRespVO.class);
+                respVO.setTravelBills(travelBillVOs);
+                // 出差事由不落库，查询时从关联差旅申请单拼接
+                String travelCause = travelBillVOs.stream()
+                        .map(TravelApplyBillRespVO::getCause)
+                        .filter(StringUtils::isNotBlank)
+                        .distinct()
+                        .collect(Collectors.joining("；"));
+                respVO.setTravelCause(travelCause);
+            }
+        }
+
         return respVO;
     }
 
@@ -176,6 +235,25 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
         return expenseReimburseBillMapper.selectPage(pageReqVO);
     }
 
+    // ==================== 费用明细 ====================
+
+    /**
+     * 保存费用明细（先删后增）
+     */
+    private void saveExpenseDetails(Long billId, List<ExpenseReimburseDetailSaveReqVO> details) {
+        // 删除旧明细
+        expenseReimburseDetailMapper.deleteByBillId(billId);
+        // 插入新明细
+        if (details != null && !details.isEmpty()) {
+            for (ExpenseReimburseDetailSaveReqVO detail : details) {
+                ExpenseReimburseDetailDO detailDO = BeanUtils.toBean(detail, ExpenseReimburseDetailDO.class);
+                detailDO.setBillId(billId);
+                detailDO.setId(null); // 确保是新插入
+                expenseReimburseDetailMapper.insert(detailDO);
+            }
+        }
+    }
+
     // ==================== FlowBillService 接口实现 ====================
 
     @Override
@@ -186,9 +264,9 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     @Override
     public void updateProcessStatus(String businessKey, Integer status) {
         Long id = Long.parseLong(businessKey);
-        log.info("[updateProcessStatus] 更新费用报销单流程状态，id: {}, status: {}", id, status);
+        log.info("[updateProcessStatus] 更新差旅报销单流程状态，id: {}, status: {}", id, status);
 
-        // 校验费用报销单存在
+        // 校验差旅报销单存在
         validateExpenseReimburseBillExists(id);
 
         // 更新流程状态
@@ -197,7 +275,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
         updateObj.setProcessStatus(status);
         expenseReimburseBillMapper.updateById(updateObj);
 
-        log.info("[updateProcessStatus] 费用报销单流程状态更新成功，id: {}, status: {}", id, status);
+        log.info("[updateProcessStatus] 差旅报销单流程状态更新成功，id: {}, status: {}", id, status);
     }
 
 }

@@ -10,7 +10,6 @@ import java.util.Arrays;
 /**
  * BPM 子流程多实例来源类型枚举
  *
- * @author Lesan
  */
 @Getter
 @AllArgsConstructor

@@ -1,6 +1,8 @@
 package cn.dh.oa.framework.jackson.config;
 
 import cn.dh.oa.framework.common.util.json.JsonUtils;
+import cn.dh.oa.framework.common.util.json.databind.LocalDateIsoSerializer;
+import cn.dh.oa.framework.common.util.json.databind.LocalTimeIsoSerializer;
 import cn.dh.oa.framework.common.util.json.databind.NumberSerializer;
 import cn.dh.oa.framework.common.util.json.databind.TimestampLocalDateTimeDeserializer;
 import cn.dh.oa.framework.common.util.json.databind.TimestampLocalDateTimeSerializer;
@@ -9,8 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -34,10 +34,10 @@ public class DhJacksonAutoConfiguration {
                 // Long -> Number
                 .serializerByType(Long.class, NumberSerializer.INSTANCE)
                 .serializerByType(Long.TYPE, NumberSerializer.INSTANCE)
-                // LocalDate / LocalTime
-                .serializerByType(LocalDate.class, LocalDateSerializer.INSTANCE)
+                // LocalDate / LocalTime（输出 ISO 字符串，支持 @JsonFormat）
+                .serializerByType(LocalDate.class, LocalDateIsoSerializer.INSTANCE)
                 .deserializerByType(LocalDate.class, LocalDateDeserializer.INSTANCE)
-                .serializerByType(LocalTime.class, LocalTimeSerializer.INSTANCE)
+                .serializerByType(LocalTime.class, LocalTimeIsoSerializer.INSTANCE)
                 .deserializerByType(LocalTime.class, LocalTimeDeserializer.INSTANCE)
                 // LocalDateTime < - > EpochMillis
                 .serializerByType(LocalDateTime.class, TimestampLocalDateTimeSerializer.INSTANCE)
@@ -53,10 +53,10 @@ public class DhJacksonAutoConfiguration {
         // Long -> Number，避免前端精度丢失
         m.addSerializer(Long.class, NumberSerializer.INSTANCE);
         m.addSerializer(Long.TYPE, NumberSerializer.INSTANCE);
-        // LocalDate / LocalTime
-        m.addSerializer(LocalDate.class, LocalDateSerializer.INSTANCE);
+        // LocalDate / LocalTime（输出 ISO 字符串，支持 @JsonFormat）
+        m.addSerializer(LocalDate.class, LocalDateIsoSerializer.INSTANCE);
         m.addDeserializer(LocalDate.class, LocalDateDeserializer.INSTANCE);
-        m.addSerializer(LocalTime.class, LocalTimeSerializer.INSTANCE);
+        m.addSerializer(LocalTime.class, LocalTimeIsoSerializer.INSTANCE);
         m.addDeserializer(LocalTime.class, LocalTimeDeserializer.INSTANCE);
         // LocalDateTime < - > EpochMillis
         m.addSerializer(LocalDateTime.class, TimestampLocalDateTimeSerializer.INSTANCE);

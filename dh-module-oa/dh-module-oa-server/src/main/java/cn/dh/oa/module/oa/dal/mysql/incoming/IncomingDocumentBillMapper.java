@@ -16,11 +16,9 @@ public interface IncomingDocumentBillMapper extends BaseMapperX<IncomingDocument
                 .eqIfPresent(IncomingDocumentBillDO::getProcessStatus, reqVO.getProcessStatus())
                 .likeIfPresent(IncomingDocumentBillDO::getDocTitle, reqVO.getDocTitle())
                 .likeIfPresent(IncomingDocumentBillDO::getDocNumber, reqVO.getDocNumber())
-                .likeIfPresent(IncomingDocumentBillDO::getSender, reqVO.getSender())
                 .eqIfPresent(IncomingDocumentBillDO::getDocType, reqVO.getDocType())
                 .eqIfPresent(IncomingDocumentBillDO::getUrgencyLevel, reqVO.getUrgencyLevel())
                 .eqIfPresent(IncomingDocumentBillDO::getHandlingStatus, reqVO.getHandlingStatus())
-                .eqIfPresent(IncomingDocumentBillDO::getIsImportant, reqVO.getIsImportant())
                 .eqIfPresent(IncomingDocumentBillDO::getCreator, reqVO.getCreator())
                 .betweenIfPresent(IncomingDocumentBillDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(IncomingDocumentBillDO::getId));

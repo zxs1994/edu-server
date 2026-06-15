@@ -49,16 +49,6 @@ public interface OaProcessVariableConstants {
      */
     String PV_DOC_IS_IMPORTANT = "docIsImportant";
 
-    // ========== 费用报销单流程变量 ==========
-
-    /**
-     * 费用是否大额变量名
-     *
-     * 用于在费用报销单流程中传递是否为大额费用信息
-     * true-大额费用，false-普通费用
-     */
-    String PV_EXPENSE_IS_LARGE_AMOUNT = "expenseIsLargeAmount";
-
     // ========== 项目立项单流程变量 ==========
 
     /**

@@ -46,4 +46,10 @@ public class DeptApiImpl implements DeptApi {
         return success(BeanUtils.toBean(depts, DeptRespDTO.class));
     }
 
+    @Override
+    public CommonResult<DeptRespDTO> getRootCompany() {
+        DeptDO rootCompany = deptService.getRootCompany();
+        return success(BeanUtils.toBean(rootCompany, DeptRespDTO.class));
+    }
+
 }

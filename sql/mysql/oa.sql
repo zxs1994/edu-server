@@ -6351,8 +6351,6 @@ CREATE TABLE `oa_car`  (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
   `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
-  `company_id` bigint NOT NULL COMMENT '公司ID',
-  `company_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公司名称',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '车辆信息表' ROW_FORMAT = DYNAMIC;
 
@@ -6388,13 +6386,10 @@ CREATE TABLE `oa_car_apply_bill`  (
   `parent_id` bigint NOT NULL DEFAULT 0 COMMENT '父级ID',
   `dept_id` bigint NULL DEFAULT NULL COMMENT '部门ID',
   `dept_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '部门名称',
-  `company_id` bigint NULL DEFAULT NULL COMMENT '公司ID',
-  `company_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '公司名称',
   `return_status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '还车状态，0-未还车，1-还车中，2-已还车',
   `car_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '车牌号码',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_oa_car_apply_bill_is_returned`(`return_status` ASC) USING BTREE,
-  INDEX `idx_oa_car_apply_bill_company_returned`(`company_id` ASC, `return_status` ASC) USING BTREE
+  INDEX `idx_oa_car_apply_bill_is_returned`(`return_status` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '用车申请单' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -6431,8 +6426,6 @@ CREATE TABLE `oa_car_return_bill`  (
   `parent_id` bigint NOT NULL DEFAULT 0 COMMENT '父级ID',
   `dept_id` bigint NULL DEFAULT NULL COMMENT '部门ID',
   `dept_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '部门名称',
-  `company_id` bigint NULL DEFAULT NULL COMMENT '公司ID',
-  `company_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '公司名称',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '还车申请单' ROW_FORMAT = DYNAMIC;
 
@@ -6662,16 +6655,13 @@ CREATE TABLE `oa_expense_reimburse_bill`  (
   `bill_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '单据编号',
   `process_instance_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '流程实例ID',
   `process_status` tinyint NULL DEFAULT 0 COMMENT '流程状态（0草稿 1审批中 2已通过 3已拒绝 4已取消）',
-  `expense_type` tinyint NOT NULL COMMENT '费用类型（1办公用品 2交通 3餐饮 4通讯 5差旅 6会议 7招待 8其他）',
+  `travel_bill_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '关联出差申请单号',
+  `travel_cause` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '出差事由',
+  `start_date` date NULL DEFAULT NULL COMMENT '开始日期',
+  `end_date` date NULL DEFAULT NULL COMMENT '结束日期',
+  `travel_days` decimal(5, 1) NULL DEFAULT NULL COMMENT '出差天数',
   `total_amount` decimal(15, 2) NOT NULL COMMENT '报销总金额（元）',
-  `expense_date` date NULL DEFAULT NULL COMMENT '费用发生日期',
-  `expense_description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '费用明细说明',
-  `payment_method` tinyint NULL DEFAULT 1 COMMENT '付款方式（1银行转账 2现金 3支票）',
-  `bank_account` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '收款银行账号',
-  `bank_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '收款银行名称',
-  `is_large_amount` tinyint NULL DEFAULT 0 COMMENT '是否大额支出（0否 1是）',
-  `large_amount_remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '大额支出说明',
-  `cause` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '申请事由',
+  `payment_status` tinyint NULL DEFAULT 0 COMMENT '支付状态（0未支付 1已支付）',
   `creator_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '申请人姓名',
   `company_id` bigint NULL DEFAULT NULL COMMENT '公司ID',
   `company_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '公司名称',
@@ -6687,11 +6677,9 @@ CREATE TABLE `oa_expense_reimburse_bill`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_bill_code`(`bill_code` ASC) USING BTREE,
   INDEX `idx_process_status`(`process_status` ASC) USING BTREE,
-  INDEX `idx_expense_type`(`expense_type` ASC) USING BTREE,
-  INDEX `idx_is_large_amount`(`is_large_amount` ASC) USING BTREE,
   INDEX `idx_create_time`(`create_time` ASC) USING BTREE,
   INDEX `idx_creator`(`creator` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '费用报销单' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '差旅报销单' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of oa_expense_reimburse_bill
@@ -6704,12 +6692,13 @@ DROP TABLE IF EXISTS `oa_expense_reimburse_detail`;
 CREATE TABLE `oa_expense_reimburse_detail`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `bill_id` bigint NOT NULL COMMENT '报销单ID',
-  `expense_item` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '费用项目',
-  `amount` decimal(15, 2) NOT NULL COMMENT '金额（元）',
-  `invoice_no` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '发票号码',
-  `invoice_date` date NULL DEFAULT NULL COMMENT '发票日期',
-  `expense_date` date NULL DEFAULT NULL COMMENT '费用发生日期',
+  `expense_type` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '费用类型（交通费/住宿费等）',
+  `expense_date` date NULL DEFAULT NULL COMMENT '费用日期',
+  `departure` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '出发地',
+  `destination` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '到达地',
+  `amount` decimal(15, 2) NOT NULL COMMENT '金额',
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '说明',
+  `sort_order` int NULL DEFAULT 0 COMMENT '排序',
   `creator` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '创建者',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updater` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT '' COMMENT '更新者',
@@ -6718,7 +6707,7 @@ CREATE TABLE `oa_expense_reimburse_detail`  (
   `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_bill_id`(`bill_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '报销费用明细' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '差旅报销费用明细' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of oa_expense_reimburse_detail
@@ -7141,8 +7130,6 @@ CREATE TABLE `oa_project_initiation_bill`  (
 DROP TABLE IF EXISTS `oa_seal`;
 CREATE TABLE `oa_seal`  (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `company_id` bigint NOT NULL COMMENT '公司ID',
-  `company_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '公司名称',
   `seal_no` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '印章编号',
   `seal_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '印章名称',
   `seal_type` bigint NOT NULL COMMENT '印章类型',
@@ -7154,7 +7141,6 @@ CREATE TABLE `oa_seal`  (
   `purchase_date` date NULL DEFAULT NULL COMMENT '购买日期',
   `enable_date` date NULL DEFAULT NULL COMMENT '启用日期',
   `disable_date` date NULL DEFAULT NULL COMMENT '停用日期',
-  `pic_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '上传照片',
   `sort` int NULL DEFAULT 0 COMMENT '显示顺序',
   `status` int NOT NULL DEFAULT 0 COMMENT '状态（0在库 1停用 2使用中）',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
@@ -7165,7 +7151,6 @@ CREATE TABLE `oa_seal`  (
   `deleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否删除',
   `tenant_id` bigint NOT NULL DEFAULT 0 COMMENT '租户编号',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_company_id`(`company_id` ASC) USING BTREE,
   INDEX `idx_seal_no`(`seal_no` ASC) USING BTREE,
   INDEX `idx_seal_cls`(`seal_cls` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
@@ -7207,8 +7192,6 @@ CREATE TABLE `oa_seal_apply_bill`  (
   `use_status` tinyint NULL DEFAULT 0 COMMENT '用章状态（0待处理 1已完成 2外借中 3已归还 4已逾期）',
   `is_urgent` tinyint NULL DEFAULT 0 COMMENT '是否紧急（0否 1是）',
   `creator_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '申请人姓名',
-  `company_id` bigint NOT NULL COMMENT '公司ID',
-  `company_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '公司名称',
   `dept_id` bigint NOT NULL COMMENT '部门ID',
   `dept_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '部门名称',
   `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
@@ -7221,7 +7204,6 @@ CREATE TABLE `oa_seal_apply_bill`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_bill_code`(`bill_code` ASC) USING BTREE,
   INDEX `idx_seal_id`(`seal_id` ASC) USING BTREE,
-  INDEX `idx_company_id`(`company_id` ASC) USING BTREE,
   INDEX `idx_creator_id`(`creator` ASC) USING BTREE,
   INDEX `idx_process_status`(`process_status` ASC) USING BTREE,
   INDEX `idx_use_status`(`use_status` ASC) USING BTREE,

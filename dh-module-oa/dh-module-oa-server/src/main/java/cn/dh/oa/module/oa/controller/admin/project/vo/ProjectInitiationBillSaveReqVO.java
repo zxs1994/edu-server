@@ -30,9 +30,21 @@ public class ProjectInitiationBillSaveReqVO {
     @NotEmpty(message = "项目名称不能为空")
     private String projectName;
 
-    @Schema(description = "项目类型：1活动 2项目 3课题 4其他", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目类型：1研发型 2交付实施型 3工程建造型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "项目类型不能为空")
     private Integer projectType;
+
+    @Schema(description = "优先级：1高 2中 3低")
+    private Integer priority;
+
+    @Schema(description = "项目分类：1研发项目 2交付项目 3运维项目")
+    private Integer projectCategory;
+
+    @Schema(description = "所属项目集ID")
+    private Long projectSetId;
+
+    @Schema(description = "所属项目集名称")
+    private String projectSetName;
 
     @Schema(description = "项目描述")
     private String projectDescription;
@@ -46,18 +58,35 @@ public class ProjectInitiationBillSaveReqVO {
     @Schema(description = "结束日期")
     private LocalDate endDate;
 
-    @Schema(description = "预期成果")
-    private String expectedOutcome;
+    @Schema(description = "关联合同ID")
+    private Long relatedContractId;
 
-    @Schema(description = "是否重大：0否 1是")
-    private Integer isMajor;
+    @Schema(description = "合同编号")
+    private String contractCode;
 
-    @Schema(description = "重大备注")
-    private String majorRemark;
+    @Schema(description = "合同名称")
+    private String contractName;
 
-    @Schema(description = "事由", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "事由不能为空")
-    private String cause;
+    @Schema(description = "项目经理ID")
+    private Long projectManagerId;
+
+    @Schema(description = "项目经理名称")
+    private String projectManagerName;
+
+    @Schema(description = "对方类型：1CRM客户 2ERP供应商")
+    private Integer counterpartyType;
+
+    @Schema(description = "对方单位ID")
+    private Long counterpartyId;
+
+    @Schema(description = "对方单位名称")
+    private String counterpartyName;
+
+    @Schema(description = "对方联系人")
+    private String counterpartyContact;
+
+    @Schema(description = "对方联系电话")
+    private String counterpartyPhone;
 
     // ========== 公共字段 ==========
 

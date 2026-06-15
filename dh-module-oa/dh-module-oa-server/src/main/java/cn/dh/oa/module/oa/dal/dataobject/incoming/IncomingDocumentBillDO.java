@@ -36,23 +36,23 @@ public class IncomingDocumentBillDO extends BaseDO {
     // ========== 业务字段 ==========
 
     /**
-     * 文件标题
+     * 公文标题
      */
     private String docTitle;
     /**
-     * 文件编号
+     * 来文字号
      */
     private String docNumber;
     /**
-     * 来文单位
+     * 密级：0公开 1内部 2机密 3绝密
      */
-    private String sender;
+    private Integer secrecyLevel;
     /**
      * 收文日期
      */
     private LocalDate receiveDate;
     /**
-     * 文件类型：1上级文件 2平级文件 3下级文件 4群众来信 5其他
+     * 收文类型：1上级文件 2平级文件 3下级文件 4群众来信 5其他
      */
     private Integer docType;
     /**
@@ -60,33 +60,37 @@ public class IncomingDocumentBillDO extends BaseDO {
      */
     private Integer urgencyLevel;
     /**
-     * 文件摘要
-     */
-    private String docSummary;
-    /**
-     * 承办部门编号
+     * 收文部门编号
      */
     private Long handlingDeptId;
     /**
-     * 承办部门名称
+     * 收文部门名称
      */
     private String handlingDeptName;
+    /**
+     * 主办人
+     */
+    private String hostPerson;
+    /**
+     * 领导批示
+     */
+    private String leaderInstruction;
     /**
      * 办理结果
      */
     private String handlingResult;
     /**
+     * 办理期限
+     */
+    private String handlingDeadline;
+    /**
+     * 内容摘要
+     */
+    private String contentSummary;
+    /**
      * 办理状态：0待办理 1办理中 2已办结
      */
     private Integer handlingStatus;
-    /**
-     * 是否重要：0否 1是
-     */
-    private Integer isImportant;
-    /**
-     * 事由
-     */
-    private String cause;
 
     // ========== 公共字段 ==========
 

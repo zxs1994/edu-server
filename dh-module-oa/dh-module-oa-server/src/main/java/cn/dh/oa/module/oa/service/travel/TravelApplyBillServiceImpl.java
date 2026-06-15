@@ -16,6 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
 import java.util.*;
 
 import cn.dh.oa.module.oa.controller.admin.travel.vo.*;
@@ -23,10 +26,12 @@ import cn.dh.oa.module.oa.dal.dataobject.travel.TravelApplyBillDO;
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.common.util.object.BeanUtils;
 import cn.dh.oa.module.oa.dal.mysql.travel.TravelApplyBillMapper;
+import cn.dh.oa.module.oa.dal.mysql.travel.TravelItineraryMapper;
+import cn.dh.oa.module.oa.dal.dataobject.travel.TravelItineraryDO;
+import org.springframework.transaction.annotation.Transactional;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
-import static cn.dh.oa.module.oa.enums.OaProcessVariableConstants.*;
 
 @Slf4j
 @Service
@@ -37,34 +42,41 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
     private TravelApplyBillMapper travelApplyBillMapper;
 
     @Resource
+    private TravelItineraryMapper travelItineraryMapper;
+
+    @Resource
     private AttachmentService attachmentService;
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long saveTravelApplyBill(TravelApplyBillSaveReqVO saveReqVO) {
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_TRAVEL_APPLY_BILL));
         }
+        validateAndFillTravelDays(saveReqVO);
         TravelApplyBillDO bill = BeanUtils.toBean(saveReqVO, TravelApplyBillDO.class);
         travelApplyBillMapper.insertOrUpdate(bill);
         if (saveReqVO.getAttachments() != null) {
             attachmentService.saveAttachmentList(OaBillTypeEnum.OA_TRAVEL_APPLY_BILL.getTypeCode(), bill.getId(), saveReqVO.getAttachments());
         }
+        // 保存行程明细（先删后增）
+        saveItineraries(bill.getId(), saveReqVO.getItineraries());
         return bill.getId();
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long submitTravelApplyBill(TravelApplyBillSaveReqVO saveReqVO) {
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_TRAVEL_APPLY_BILL));
         }
+        validateAndFillTravelDays(saveReqVO);
         TravelApplyBillDO bill = BeanUtils.toBean(saveReqVO, TravelApplyBillDO.class).setProcessStatus(BpmTaskStatusEnum.RUNNING.getStatus());
         travelApplyBillMapper.insertOrUpdate(bill);
         Map<String, Object> vars = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
-        // 差旅申请单特有流程变量：是否出国
-        vars.put(PV_TRAVEL_IS_OVERSEAS, saveReqVO.getIsOverseas());
         String processInstanceId = processInstanceApi.submitProcessInstance(Long.valueOf(saveReqVO.getCreator()),
                 new BpmProcessInstanceCreateReqDTO()
                         .setProcessDefinitionKey(OaBillTypeEnum.OA_TRAVEL_APPLY_BILL.getProcessDefinitionKey())
@@ -75,6 +87,8 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
         if (saveReqVO.getAttachments() != null) {
             attachmentService.saveAttachmentList(OaBillTypeEnum.OA_TRAVEL_APPLY_BILL.getTypeCode(), bill.getId(), saveReqVO.getAttachments());
         }
+        // 保存行程明细（先删后增）
+        saveItineraries(bill.getId(), saveReqVO.getItineraries());
         return bill.getId();
     }
 
@@ -93,14 +107,20 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteTravelApplyBill(Long id) {
         validateTravelApplyBillExists(id);
+        travelItineraryMapper.deleteByBillId(id);
         travelApplyBillMapper.deleteById(id);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteTravelApplyBillListByIds(List<Long> ids) {
         ids.forEach(this::validateTravelApplyBillExists);
+        for (Long id : ids) {
+            travelItineraryMapper.deleteByBillId(id);
+        }
         travelApplyBillMapper.deleteByIds(ids);
     }
 
@@ -119,6 +139,11 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
         respVO.setAttachments(BeanUtils.toBean(
             attachmentService.getAttachmentListByBusiness(OaBillTypeEnum.OA_TRAVEL_APPLY_BILL.getTypeCode(), id),
             AttachmentRespVO.class
+        ));
+        // 获取行程明细
+        respVO.setItineraries(BeanUtils.toBean(
+            travelItineraryMapper.selectListByBillId(id),
+            TravelItineraryRespVO.class
         ));
         return respVO;
     }
@@ -142,6 +167,34 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
     private void validateTravelApplyBillExists(Long id) {
         if (travelApplyBillMapper.selectById(id) == null) {
             throw exception(TRAVEL_APPLY_BILL_NOT_EXISTS);
+        }
+    }
+
+    /** 校验日期顺序并由后端重新计算出差天数 */
+    private void validateAndFillTravelDays(TravelApplyBillSaveReqVO saveReqVO) {
+        if (saveReqVO.getTravelStartDate() == null || saveReqVO.getTravelEndDate() == null) {
+            return;
+        }
+        if (!saveReqVO.getTravelEndDate().isAfter(saveReqVO.getTravelStartDate())) {
+            throw exception(TRAVEL_END_DATE_INVALID);
+        }
+        long diffMs = Duration.between(saveReqVO.getTravelStartDate(), saveReqVO.getTravelEndDate()).toMillis();
+        saveReqVO.setTravelDays(BigDecimal.valueOf(diffMs)
+                .divide(BigDecimal.valueOf(86_400_000L), 1, RoundingMode.HALF_UP));
+    }
+
+    /**
+     * 保存行程明细（先删后增）
+     */
+    private void saveItineraries(Long billId, List<TravelItinerarySaveReqVO> itineraries) {
+        travelItineraryMapper.deleteByBillId(billId);
+        if (itineraries != null && !itineraries.isEmpty()) {
+            for (TravelItinerarySaveReqVO item : itineraries) {
+                TravelItineraryDO itineraryDO = BeanUtils.toBean(item, TravelItineraryDO.class);
+                itineraryDO.setBillId(billId);
+                itineraryDO.setId(null);
+                travelItineraryMapper.insert(itineraryDO);
+            }
         }
     }
 

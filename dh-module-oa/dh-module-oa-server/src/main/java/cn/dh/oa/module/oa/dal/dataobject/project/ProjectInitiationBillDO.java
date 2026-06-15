@@ -41,9 +41,25 @@ public class ProjectInitiationBillDO extends BaseDO {
      */
     private String projectName;
     /**
-     * 项目类型：1活动 2项目 3课题 4其他
+     * 项目类型：1研发型 2交付实施型 3工程建造型
      */
     private Integer projectType;
+    /**
+     * 优先级：1高 2中 3低
+     */
+    private Integer priority;
+    /**
+     * 项目分类：1研发项目 2交付项目 3运维项目
+     */
+    private Integer projectCategory;
+    /**
+     * 所属项目集ID
+     */
+    private Long projectSetId;
+    /**
+     * 所属项目集名称
+     */
+    private String projectSetName;
     /**
      * 项目描述
      */
@@ -61,21 +77,45 @@ public class ProjectInitiationBillDO extends BaseDO {
      */
     private LocalDate endDate;
     /**
-     * 预期成果
+     * 关联合同ID
      */
-    private String expectedOutcome;
+    private Long relatedContractId;
     /**
-     * 是否重大：0否 1是
+     * 合同编号
      */
-    private Integer isMajor;
+    private String contractCode;
     /**
-     * 重大备注
+     * 合同名称
      */
-    private String majorRemark;
+    private String contractName;
     /**
-     * 事由
+     * 项目经理ID
      */
-    private String cause;
+    private Long projectManagerId;
+    /**
+     * 项目经理名称
+     */
+    private String projectManagerName;
+    /**
+     * 对方类型：1CRM客户 2ERP供应商
+     */
+    private Integer counterpartyType;
+    /**
+     * 对方单位ID
+     */
+    private Long counterpartyId;
+    /**
+     * 对方单位名称
+     */
+    private String counterpartyName;
+    /**
+     * 对方联系人
+     */
+    private String counterpartyContact;
+    /**
+     * 对方联系电话
+     */
+    private String counterpartyPhone;
 
     // ========== 公共字段 ==========
 

@@ -22,14 +22,6 @@ public class SealRespVO {
     @ExcelProperty("ID")
     private Long id;
 
-    @Schema(description = "公司ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @ExcelProperty("公司ID")
-    private Long companyId;
-
-    @Schema(description = "公司名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @ExcelProperty("公司名称")
-    private String companyName;
-
     @Schema(description = "印章编号", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("印章编号")
     private String sealNo;
@@ -83,10 +75,6 @@ public class SealRespVO {
     @ExcelProperty("停用日期")
     @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY)
     private LocalDate disableDate;
-
-    @Schema(description = "上传照片", example = "https://www.ruoyioffice.com")
-    @ExcelProperty("上传照片")
-    private String picUrl;
 
     @Schema(description = "显示顺序")
     @ExcelProperty("显示顺序")

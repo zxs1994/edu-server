@@ -13,10 +13,9 @@ public interface ProjectInitiationBillMapper extends BaseMapperX<ProjectInitiati
     default PageResult<ProjectInitiationBillDO> selectPage(ProjectInitiationBillPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<ProjectInitiationBillDO>()
                 .likeIfPresent(ProjectInitiationBillDO::getBillCode, reqVO.getBillCode())
-                .eqIfPresent(ProjectInitiationBillDO::getProcessStatus, reqVO.getProcessStatus())
                 .likeIfPresent(ProjectInitiationBillDO::getProjectName, reqVO.getProjectName())
                 .eqIfPresent(ProjectInitiationBillDO::getProjectType, reqVO.getProjectType())
-                .eqIfPresent(ProjectInitiationBillDO::getIsMajor, reqVO.getIsMajor())
+                .eqIfPresent(ProjectInitiationBillDO::getProcessStatus, reqVO.getProcessStatus())
                 .eqIfPresent(ProjectInitiationBillDO::getCreator, reqVO.getCreator())
                 .betweenIfPresent(ProjectInitiationBillDO::getCreateTime, reqVO.getCreateTime())
                 .orderByDesc(ProjectInitiationBillDO::getId));

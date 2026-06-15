@@ -51,4 +51,11 @@ public interface SystemService {
      */
     java.util.List<Long> getUserDeptIds(Long userId);
 
+    /**
+     * 获取顶级组织（根公司）
+     *
+     * @return 顶级组织信息，如果找不到则返回 null
+     */
+    DeptRespDTO getRootCompany();
+
 }

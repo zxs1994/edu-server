@@ -2,12 +2,11 @@ package cn.dh.oa.module.oa.dal.dataobject.expense;
 
 import lombok.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.dh.oa.framework.mybatis.core.dataobject.BaseDO;
 
 /**
- * 费用报销单 DO
+ * 差旅报销单 DO
  *
  * @author 鼎衡
  */
@@ -39,47 +38,21 @@ public class ExpenseReimburseBillDO extends BaseDO {
      */
     private Integer processStatus;
 
-    // ========== 费用信息 ==========
+    // ========== 差旅关联信息 ==========
     /**
-     * 费用类型（1办公用品 2交通 3餐饮 4通讯 5差旅 6会议 7招待 8其他）
+     * 关联出差单号（多个用逗号分隔）
      */
-    private Integer expenseType;
+    private String travelBillCode;
+
+    // ========== 报销信息 ==========
     /**
      * 报销总金额
      */
     private BigDecimal totalAmount;
     /**
-     * 费用发生日期
+     * 支付状态（0未支付 1已支付）
      */
-    private LocalDate expenseDate;
-    /**
-     * 费用说明
-     */
-    private String expenseDescription;
-    /**
-     * 支付方式（1银行转账 2现金 3支票）
-     */
-    private Integer paymentMethod;
-    /**
-     * 银行账号
-     */
-    private String bankAccount;
-    /**
-     * 开户行
-     */
-    private String bankName;
-    /**
-     * 是否大额（0否 1是）
-     */
-    private Integer isLargeAmount;
-    /**
-     * 大额备注
-     */
-    private String largeAmountRemark;
-    /**
-     * 申请事由
-     */
-    private String cause;
+    private Integer paymentStatus;
 
     // ========== 基础字段 ==========
     /**

@@ -19,24 +19,24 @@ public class RedTemplateRespVO {
     @ExcelProperty("模板名称")
     private String templateName;
 
-    @Schema(description = "机关名称（红头大字）")
-    @ExcelProperty("机关名称")
+    @Schema(description = "机关/公司名称（红头大字）")
+    @ExcelProperty("机关/公司名称")
     private String orgName;
 
-    @Schema(description = "文件类型标签")
-    @ExcelProperty("文件类型标签")
-    private String docTypeLabel;
+    @Schema(description = "名称字号（红头大字字号）", example = "36")
+    @ExcelProperty("名称字号")
+    private Integer nameFontSize;
 
-    @Schema(description = "红头颜色")
-    @ExcelProperty("红头颜色")
-    private String headerColor;
+    @Schema(description = "字号前缀（如：无办发）", example = "无办发")
+    @ExcelProperty("字号前缀")
+    private String docNumberPrefix;
 
-    @Schema(description = "模板HTML内容")
-    private String templateContent;
+    @Schema(description = "印章图片URL")
+    private String sealImage;
 
-    @Schema(description = "预览图片URL")
-    @ExcelProperty("预览图片")
-    private String previewImage;
+    @Schema(description = "分隔线样式（single=单线 double=双线）", example = "single")
+    @ExcelProperty("分隔线样式")
+    private String separatorStyle;
 
     @Schema(description = "状态（0正常 1停用）", example = "0")
     @ExcelProperty("状态")

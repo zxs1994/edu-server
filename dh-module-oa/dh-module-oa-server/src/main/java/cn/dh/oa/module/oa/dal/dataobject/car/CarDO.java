@@ -3,7 +3,6 @@ package cn.dh.oa.module.oa.dal.dataobject.car;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.dh.oa.framework.mybatis.core.dataobject.BaseDO;
 
@@ -27,16 +26,6 @@ public class CarDO extends BaseDO {
      */
     @TableId
     private Long id;
-    
-    /**
-     * 公司ID
-     */
-    private Long companyId;
-    
-    /**
-     * 公司名称
-     */
-    private String companyName;
     
     /**
      * 车牌号
@@ -67,10 +56,6 @@ public class CarDO extends BaseDO {
      */
     private String seatNum;
     /**
-     * 裸车价
-     */
-    private BigDecimal barePrice;
-    /**
      * 交强险到期日期
      */
     private LocalDate forceInsuranceDate;
@@ -82,10 +67,6 @@ public class CarDO extends BaseDO {
      * 年检日期
      */
     private LocalDate yearCheckDate;
-    /**
-     * 上传照片
-     */
-    private String picUrl;
     /**
      * 显示顺序
      */

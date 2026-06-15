@@ -15,12 +15,6 @@ import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DA
 @Data
 public class SealPageReqVO extends PageParam {
 
-    @Schema(description = "公司ID")
-    private Long companyId;
-
-    @Schema(description = "公司名称")
-    private String companyName;
-
     @Schema(description = "印章编号")
     private String sealNo;
 
@@ -48,6 +42,9 @@ public class SealPageReqVO extends PageParam {
     @Schema(description = "状态（0在库 1停用 2使用中）")
     private Integer status;
 
+    @Schema(description = "状态不等于（用于排除，如排除停用传1）")
+    private Integer statusNe;
+
     @Schema(description = "购买日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
     private LocalDate[] purchaseDate;
@@ -59,9 +56,6 @@ public class SealPageReqVO extends PageParam {
     @Schema(description = "停用日期")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
     private LocalDate[] disableDate;
-
-    @Schema(description = "上传照片", example = "https://www.ruoyioffice.com")
-    private String picUrl;
 
     @Schema(description = "显示顺序")
     private Integer sort;

@@ -82,8 +82,6 @@ public class DocumentDispatchBillServiceImpl implements DocumentDispatchBillServ
 
         // 智能提交 BPM 流程
         Map<String, Object> processInstanceVariables = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
-        // 添加公文发文单特有的流程变量
-        processInstanceVariables.put(PV_DOC_IS_IMPORTANT, saveReqVO.getIsImportant());
         String processInstanceId = processInstanceApi.submitProcessInstance(Long.valueOf(saveReqVO.getCreator()),
                 new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(OaBillTypeEnum.OA_DOCUMENT_DISPATCH_BILL.getProcessDefinitionKey())
                         .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(documentDispatchBill.getId()))

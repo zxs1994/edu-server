@@ -26,7 +26,6 @@ import cn.dh.oa.module.oa.dal.mysql.project.ProjectInitiationBillMapper;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
-import static cn.dh.oa.module.oa.enums.OaProcessVariableConstants.*;
 
 @Slf4j
 @Service
@@ -63,8 +62,6 @@ public class ProjectInitiationBillServiceImpl implements ProjectInitiationBillSe
         ProjectInitiationBillDO bill = BeanUtils.toBean(saveReqVO, ProjectInitiationBillDO.class).setProcessStatus(BpmTaskStatusEnum.RUNNING.getStatus());
         projectInitiationBillMapper.insertOrUpdate(bill);
         Map<String, Object> vars = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
-        // 项目立项单特有流程变量：是否重大
-        vars.put(PV_PROJECT_IS_MAJOR, saveReqVO.getIsMajor());
         String processInstanceId = processInstanceApi.submitProcessInstance(Long.valueOf(saveReqVO.getCreator()),
                 new BpmProcessInstanceCreateReqDTO()
                         .setProcessDefinitionKey(OaBillTypeEnum.OA_PROJECT_INITIATION_BILL.getProcessDefinitionKey())

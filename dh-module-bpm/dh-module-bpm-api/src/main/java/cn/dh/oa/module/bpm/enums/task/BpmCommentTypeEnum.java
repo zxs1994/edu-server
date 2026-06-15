@@ -7,7 +7,6 @@ import lombok.Getter;
 /**
  * 流程任务的 Comment 评论类型枚举
  *
- * @author kehaiyou
  */
 @Getter
 @AllArgsConstructor

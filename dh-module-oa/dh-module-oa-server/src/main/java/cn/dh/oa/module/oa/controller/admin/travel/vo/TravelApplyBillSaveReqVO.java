@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import cn.dh.oa.common.server.attachment.controller.vo.AttachmentSaveReqVO;
 
 @Schema(description = "管理后台 - 差旅申请单新增/修改 Request VO")
@@ -26,43 +27,29 @@ public class TravelApplyBillSaveReqVO {
 
     // ========== 业务字段 ==========
 
-    @Schema(description = "目的地", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "目的地不能为空")
-    private String destination;
+    @Schema(description = "出差事由", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "出差事由不能为空")
+    private String cause;
 
     @Schema(description = "出差开始时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime travelStartDate;
 
     @Schema(description = "出差结束时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime travelEndDate;
 
-    @Schema(description = "出差天数")
-    private Integer travelDays;
+    @Schema(description = "出差天数（支持1位小数）", example = "3.5")
+    private BigDecimal travelDays;
 
-    @Schema(description = "交通方式：1火车 2飞机 3自驾 4公务用车 5其他")
-    private Integer transportType;
+    @Schema(description = "同行人")
+    private String companion;
 
-    @Schema(description = "住宿类型：1酒店 2招待所 3其他")
-    private Integer accommodationType;
+    @Schema(description = "预计费用")
+    private BigDecimal estimatedCost;
 
-    @Schema(description = "预算金额")
-    private BigDecimal budgetAmount;
-
-    @Schema(description = "预算明细")
-    private String budgetDetail;
-
-    @Schema(description = "出差人员")
-    private String travelMembers;
-
-    @Schema(description = "是否出国：0否 1是")
-    private Integer isOverseas;
-
-    @Schema(description = "出国备注")
-    private String overseasRemark;
-
-    @Schema(description = "事由", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "事由不能为空")
-    private String cause;
+    @Schema(description = "报销状态（0未报销 1已报销）")
+    private Integer reimbursementStatus;
 
     // ========== 公共字段 ==========
 
@@ -86,6 +73,9 @@ public class TravelApplyBillSaveReqVO {
 
     @Schema(description = "备注")
     private String remark;
+
+    @Schema(description = "行程明细列表")
+    private List<TravelItinerarySaveReqVO> itineraries;
 
     @Schema(description = "附件列表")
     private List<AttachmentSaveReqVO> attachments;

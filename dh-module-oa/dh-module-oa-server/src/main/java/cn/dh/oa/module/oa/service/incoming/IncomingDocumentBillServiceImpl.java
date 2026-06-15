@@ -63,8 +63,8 @@ public class IncomingDocumentBillServiceImpl implements IncomingDocumentBillServ
         IncomingDocumentBillDO bill = BeanUtils.toBean(saveReqVO, IncomingDocumentBillDO.class).setProcessStatus(BpmTaskStatusEnum.RUNNING.getStatus());
         incomingDocumentBillMapper.insertOrUpdate(bill);
         Map<String, Object> vars = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
-        // 收文办理单特有流程变量：是否重要
-        vars.put(PV_INCOMING_IS_IMPORTANT, saveReqVO.getIsImportant());
+        // 收文特有流程变量：紧急程度
+        vars.put("incomingUrgencyLevel", saveReqVO.getUrgencyLevel());
         String processInstanceId = processInstanceApi.submitProcessInstance(Long.valueOf(saveReqVO.getCreator()),
                 new BpmProcessInstanceCreateReqDTO()
                         .setProcessDefinitionKey(OaBillTypeEnum.OA_INCOMING_DOCUMENT_BILL.getProcessDefinitionKey())

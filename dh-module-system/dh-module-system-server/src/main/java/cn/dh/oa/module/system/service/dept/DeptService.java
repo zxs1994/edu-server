@@ -138,4 +138,11 @@ public interface DeptService {
      */
     DeptDO getUserCompany(Long deptId);
 
+    /**
+     * 获得顶级组织（根公司）
+     *
+     * @return 顶级组织信息，如果找不到则返回 null
+     */
+    DeptDO getRootCompany();
+
 }

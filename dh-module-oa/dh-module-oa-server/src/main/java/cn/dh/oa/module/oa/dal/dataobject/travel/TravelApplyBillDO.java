@@ -37,9 +37,9 @@ public class TravelApplyBillDO extends BaseDO {
     // ========== 业务字段 ==========
 
     /**
-     * 目的地
+     * 出差事由
      */
-    private String destination;
+    private String cause;
     /**
      * 出差开始时间
      */
@@ -49,41 +49,21 @@ public class TravelApplyBillDO extends BaseDO {
      */
     private LocalDateTime travelEndDate;
     /**
-     * 出差天数
+     * 出差天数（支持1位小数）
      */
-    private Integer travelDays;
+    private BigDecimal travelDays;
     /**
-     * 交通方式：1火车 2飞机 3自驾 4公务用车 5其他
+     * 同行人
      */
-    private Integer transportType;
+    private String companion;
     /**
-     * 住宿类型：1酒店 2招待所 3其他
+     * 预计费用
      */
-    private Integer accommodationType;
+    private BigDecimal estimatedCost;
     /**
-     * 预算金额
+     * 报销状态（0未报销 1已报销）
      */
-    private BigDecimal budgetAmount;
-    /**
-     * 预算明细
-     */
-    private String budgetDetail;
-    /**
-     * 出差人员
-     */
-    private String travelMembers;
-    /**
-     * 是否出国：0否 1是
-     */
-    private Integer isOverseas;
-    /**
-     * 出国备注
-     */
-    private String overseasRemark;
-    /**
-     * 事由
-     */
-    private String cause;
+    private Integer reimbursementStatus;
 
     // ========== 公共字段 ==========
 
