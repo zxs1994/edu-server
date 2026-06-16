@@ -16,24 +16,37 @@ import cn.dh.oa.module.system.dal.dataobject.user.AdminUserDO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Mapper
 public interface UserConvert {
 
     UserConvert INSTANCE = Mappers.getMapper(UserConvert.class);
 
-    default List<UserRespVO> convertList(List<AdminUserDO> list, Map<Long, DeptDO> deptMap) {
-        return CollectionUtils.convertList(list, user -> convert(user, deptMap.get(user.getDeptId())));
+    default List<UserRespVO> convertList(List<AdminUserDO> list, Map<Long, DeptDO> deptMap,
+                                         Map<Long, Set<Long>> userRoleMap) {
+        return CollectionUtils.convertList(list, user -> convert(user, deptMap.get(user.getDeptId()),
+                userRoleMap != null ? userRoleMap.getOrDefault(user.getId(), Collections.emptySet()) : Collections.emptySet()));
     }
 
-    default UserRespVO convert(AdminUserDO user, DeptDO dept) {
+    default List<UserRespVO> convertList(List<AdminUserDO> list, Map<Long, DeptDO> deptMap) {
+        return convertList(list, deptMap, null);
+    }
+
+    default UserRespVO convert(AdminUserDO user, DeptDO dept, Set<Long> roleIds) {
         UserRespVO userVO = BeanUtils.toBean(user, UserRespVO.class);
         if (dept != null) {
             userVO.setDeptName(dept.getName());
         }
+        userVO.setRoleIds(roleIds);
         return userVO;
+    }
+
+    default UserRespVO convert(AdminUserDO user, DeptDO dept) {
+        return convert(user, dept, Collections.emptySet());
     }
 
     default List<UserSimpleRespVO> convertSimpleList(List<AdminUserDO> list, Map<Long, DeptDO> deptMap) {

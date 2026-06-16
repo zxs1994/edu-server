@@ -66,12 +66,6 @@ public class CarApplyBillSaveReqVO {
     @Schema(description = "部门名称", example = "张三")
     private String deptName;
 
-    @Schema(description = "公司ID", example = "1109")
-    private Long companyId;
-
-    @Schema(description = "公司名称", example = "张三")
-    private String companyName;
-
     @Schema(description = "附件列表")
     private List<AttachmentSaveReqVO> attachments;
 

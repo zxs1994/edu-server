@@ -78,7 +78,8 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
                 .setProcessInstanceId(processInstanceId).setProcessInstanceName(processInstance.getName())
                 .setCategory(processDefinition.getCategory()).setTaskId(taskId)
                 .setActivityId(activityId).setActivityName(activityName)
-                .setProcessDefinitionId(processInstance.getProcessDefinitionId()));
+                .setProcessDefinitionId(processInstance.getProcessDefinitionId())
+                .setReadStatus(0));
         processInstanceCopyMapper.insertBatch(copyList);
     }
 
@@ -91,6 +92,16 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
     @Override
     public void deleteProcessInstanceCopy(String processInstanceId) {
         processInstanceCopyMapper.deleteByProcessInstanceId(processInstanceId);
+    }
+
+    @Override
+    public Long getUnreadCopyCount(Long userId) {
+        return processInstanceCopyMapper.selectUnreadCount(userId);
+    }
+
+    @Override
+    public void markAllCopyAsRead(Long userId) {
+        processInstanceCopyMapper.markAllAsRead(userId);
     }
 
 }

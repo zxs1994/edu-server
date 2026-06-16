@@ -3,6 +3,7 @@ package cn.dh.oa.module.system.service.permission;
 import cn.dh.oa.framework.common.biz.system.permission.dto.DeptDataPermissionRespDTO;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import static java.util.Collections.singleton;
@@ -115,6 +116,14 @@ public interface PermissionService {
      * @return 角色编号集合
      */
     Set<Long> getUserRoleIdListByUserId(Long userId);
+
+    /**
+     * 批量获得多个用户拥有的角色编号映射
+     *
+     * @param userIds 用户编号集合
+     * @return 用户编号 -> 角色编号集合 的映射
+     */
+    Map<Long, Set<Long>> getUserRoleIdMapByUserIds(Collection<Long> userIds);
 
     /**
      * 获得用户拥有的角色编号集合，从缓存中获取

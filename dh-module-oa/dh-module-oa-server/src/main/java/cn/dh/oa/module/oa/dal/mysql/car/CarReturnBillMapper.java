@@ -39,8 +39,6 @@ public interface CarReturnBillMapper extends BaseMapperX<CarReturnBillDO> {
                 .eqIfPresent(CarReturnBillDO::getParentId, reqVO.getParentId())
                 .eqIfPresent(CarReturnBillDO::getDeptId, reqVO.getDeptId())
                 .likeIfPresent(CarReturnBillDO::getDeptName, reqVO.getDeptName())
-                .eqIfPresent(CarReturnBillDO::getCompanyId, reqVO.getCompanyId())
-                .likeIfPresent(CarReturnBillDO::getCompanyName, reqVO.getCompanyName())
                 .orderByDesc(CarReturnBillDO::getId));
     }
 

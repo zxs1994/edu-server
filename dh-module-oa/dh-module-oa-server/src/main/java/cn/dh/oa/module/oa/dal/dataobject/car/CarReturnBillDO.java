@@ -101,14 +101,6 @@ public class CarReturnBillDO extends BaseDO {
      * 部门名称
      */
     private String deptName;
-    /**
-     * 公司ID
-     */
-    private Long companyId;
-    /**
-     * 公司名称
-     */
-    private String companyName;
 
 
 }

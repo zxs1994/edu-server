@@ -25,6 +25,7 @@ import org.flowable.engine.history.HistoricProcessInstance;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -84,6 +85,21 @@ public class BpmProcessInstanceCopyController {
                     });
             return copyVO;
         }));
+    }
+
+    @GetMapping("/unread-count")
+    @Operation(summary = "获取当前用户的未读抄送数量")
+    @PreAuthorize("@ss.hasPermission('bpm:process-instance-cc:query')")
+    public CommonResult<Long> getUnreadCopyCount() {
+        return success(processInstanceCopyService.getUnreadCopyCount(getLoginUserId()));
+    }
+
+    @PutMapping("/mark-all-read")
+    @Operation(summary = "将当前用户的所有未读抄送标记为已读")
+    @PreAuthorize("@ss.hasPermission('bpm:process-instance-cc:query')")
+    public CommonResult<Boolean> markAllCopyAsRead() {
+        processInstanceCopyService.markAllCopyAsRead(getLoginUserId());
+        return success(true);
     }
 
 }

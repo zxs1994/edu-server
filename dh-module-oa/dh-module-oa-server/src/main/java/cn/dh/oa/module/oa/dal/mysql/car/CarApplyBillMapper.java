@@ -36,8 +36,6 @@ public interface CarApplyBillMapper extends BaseMapperX<CarApplyBillDO> {
                 .betweenIfPresent(CarApplyBillDO::getCreateTime, reqVO.getCreateTime())
                 .eqIfPresent(CarApplyBillDO::getDeptId, reqVO.getDeptId())
                 .likeIfPresent(CarApplyBillDO::getDeptName, reqVO.getDeptName())
-                .eqIfPresent(CarApplyBillDO::getCompanyId, reqVO.getCompanyId())
-                .likeIfPresent(CarApplyBillDO::getCompanyName, reqVO.getCompanyName())
                 .eqIfPresent(CarApplyBillDO::getReturnStatus, reqVO.getReturnStatus())
                 .orderByDesc(CarApplyBillDO::getId));
     }

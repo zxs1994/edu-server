@@ -86,14 +86,6 @@ public class CarApplyBillRespVO {
     @ExcelProperty("部门名称")
     private String deptName;
 
-    @Schema(description = "公司ID", example = "1109")
-    @ExcelProperty("公司ID")
-    private Long companyId;
-
-    @Schema(description = "公司名称", example = "张三")
-    @ExcelProperty("公司名称")
-    private String companyName;
-
     @Schema(description = "还车状态", example = "0")
     @ExcelProperty("还车状态")
     private Integer returnStatus;

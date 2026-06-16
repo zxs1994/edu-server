@@ -94,4 +94,11 @@ public class BpmProcessInstanceCopyDO extends BaseDO {
      */
     private String reason;
 
+    /**
+     * 已读状态
+     *
+     * 0 - 未读，1 - 已读
+     */
+    private Integer readStatus;
+
 }

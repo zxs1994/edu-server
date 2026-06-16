@@ -98,14 +98,6 @@ public class CarApplyBillDO extends BaseDO {
      */
     private String deptName;
     /**
-     * 公司ID
-     */
-    private Long companyId;
-    /**
-     * 公司名称
-     */
-    private String companyName;
-    /**
      * 还车状态
      */
     private Integer returnStatus;

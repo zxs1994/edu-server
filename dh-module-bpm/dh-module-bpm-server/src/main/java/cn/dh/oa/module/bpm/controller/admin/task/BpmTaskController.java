@@ -12,6 +12,7 @@ import cn.dh.oa.module.bpm.service.definition.BpmFormService;
 import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceService;
 import cn.dh.oa.module.bpm.service.task.BpmTaskService;
+import cn.dh.oa.module.bpm.service.task.BpmWorkbenchService;
 import cn.dh.oa.module.system.api.dept.DeptApi;
 import cn.dh.oa.module.system.api.dept.dto.DeptRespDTO;
 import cn.dh.oa.module.system.api.user.AdminUserApi;
@@ -54,6 +55,8 @@ public class BpmTaskController {
     private BpmFormService formService;
     @Resource
     private BpmProcessDefinitionService processDefinitionService;
+    @Resource
+    private BpmWorkbenchService workbenchService;
 
     @Resource
     private AdminUserApi adminUserApi;
@@ -250,6 +253,22 @@ public class BpmTaskController {
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
         return success(BpmTaskConvert.INSTANCE.buildTaskListByParentTaskId(taskList, userMap, deptMap));
+    }
+
+    @GetMapping("/workbench/unread-counts")
+    @Operation(summary = "获取工作台各 Tab 未读数量")
+    @PreAuthorize("@ss.hasPermission('bpm:task:query')")
+    public CommonResult<Map<String, Long>> getWorkbenchUnreadCounts() {
+        return success(workbenchService.getUnreadCounts(getLoginUserId()));
+    }
+
+    @PutMapping("/workbench/mark-read")
+    @Operation(summary = "标记工作台 Tab 为已读")
+    @Parameter(name = "tabKey", description = "Tab 标识(todo/myBill/done/copy)", required = true)
+    @PreAuthorize("@ss.hasPermission('bpm:task:query')")
+    public CommonResult<Boolean> markWorkbenchTabAsRead(@RequestParam("tabKey") String tabKey) {
+        workbenchService.markTabAsRead(getLoginUserId(), tabKey);
+        return success(true);
     }
 
 }

@@ -57,4 +57,19 @@ public interface BpmProcessInstanceCopyService {
      */
     void deleteProcessInstanceCopy(String processInstanceId);
 
+    /**
+     * 获取用户的未读抄送数量
+     *
+     * @param userId 用户ID
+     * @return 未读数量
+     */
+    Long getUnreadCopyCount(Long userId);
+
+    /**
+     * 将用户的所有未读抄送标记为已读
+     *
+     * @param userId 用户ID
+     */
+    void markAllCopyAsRead(Long userId);
+
 }

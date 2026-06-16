@@ -97,14 +97,6 @@ public class CarReturnBillRespVO {
     @ExcelProperty("部门名称")
     private String deptName;
 
-    @Schema(description = "公司ID", example = "27382")
-    @ExcelProperty("公司ID")
-    private Long companyId;
-
-    @Schema(description = "公司名称", example = "李四")
-    @ExcelProperty("公司名称")
-    private String companyName;
-
     @Schema(description = "附件列表")
     private List<AttachmentRespVO> attachments;
 }

@@ -13,6 +13,7 @@ import cn.dh.oa.module.system.dal.dataobject.dept.DeptDO;
 import cn.dh.oa.module.system.dal.dataobject.user.AdminUserDO;
 import cn.dh.oa.module.system.enums.common.SexEnum;
 import cn.dh.oa.module.system.service.dept.DeptService;
+import cn.dh.oa.module.system.service.permission.PermissionService;
 import cn.dh.oa.module.system.service.user.AdminUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static cn.dh.oa.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
 import static cn.dh.oa.framework.common.pojo.CommonResult.success;
@@ -45,6 +47,8 @@ public class UserController {
     private AdminUserService userService;
     @Resource
     private DeptService deptService;
+    @Resource
+    private PermissionService permissionService;
 
     @PostMapping("/create")
     @Operation(summary = "新增用户")
@@ -108,7 +112,10 @@ public class UserController {
         // 拼接数据
         Map<Long, DeptDO> deptMap = deptService.getDeptMap(
                 convertList(pageResult.getList(), AdminUserDO::getDeptId));
-        return success(new PageResult<>(UserConvert.INSTANCE.convertList(pageResult.getList(), deptMap),
+        // 查询角色数据
+        Map<Long, Set<Long>> userRoleMap = permissionService.getUserRoleIdMapByUserIds(
+                convertList(pageResult.getList(), AdminUserDO::getId));
+        return success(new PageResult<>(UserConvert.INSTANCE.convertList(pageResult.getList(), deptMap, userRoleMap),
                 pageResult.getTotal()));
     }
 
