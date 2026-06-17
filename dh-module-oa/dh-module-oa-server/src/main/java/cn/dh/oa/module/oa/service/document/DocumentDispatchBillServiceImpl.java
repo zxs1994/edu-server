@@ -166,11 +166,6 @@ public class DocumentDispatchBillServiceImpl implements DocumentDispatchBillServ
 
     @Override
     public PageResult<DocumentDispatchBillDO> getDocumentDispatchBillPage(DocumentDispatchBillPageReqVO pageReqVO) {
-        // 自动添加创建人过滤条件（当前登录用户）
-        Long currentUserId = SecurityFrameworkUtils.getLoginUserId();
-        if (currentUserId != null) {
-            pageReqVO.setCreator(String.valueOf(currentUserId));
-        }
         return documentDispatchBillMapper.selectPage(pageReqVO);
     }
 

@@ -6,6 +6,7 @@ import cn.dh.oa.module.bpm.api.event.BpmProcessInstanceStatusMessage;
 import cn.dh.oa.module.bpm.api.event.BpmProcessInstanceInfo;
 import cn.dh.oa.module.bpm.api.event.BpmTaskInfo;
 import cn.dh.oa.module.bpm.api.event.BpmNotificationTypeEnum;
+import cn.dh.oa.module.bpm.framework.flowable.core.enums.BpmnVariableConstants;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -190,6 +191,8 @@ public class BpmNotificationManager {
                 .processInstanceName(processInstance.getName())
                 .tenantId(processInstance.getTenantId())
                 .suspended(processInstance.isSuspended())
+                .status((Integer) processInstance.getProcessVariables()
+                        .get(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS))
                 .build();
 
         // 构建任务信息

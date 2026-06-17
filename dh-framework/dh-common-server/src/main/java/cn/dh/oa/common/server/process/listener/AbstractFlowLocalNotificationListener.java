@@ -180,11 +180,22 @@ public abstract class AbstractFlowLocalNotificationListener<T extends BillTypeEn
         BpmTaskInfo taskInfo = message.getTaskInfo();
         if (taskInfo != null && StringUtils.isNoneEmpty(taskInfo.getTaskDefinitionKey())) {
             String taskDefinitionKey = taskInfo.getTaskDefinitionKey();
-            // 重新进入开始节点时，更新单据状态为未开始
+            // 重新进入开始节点时，根据流程状态决定单据状态
             if (taskDefinitionKey.equals(START_USER_NODE_ID)) {
-                log.info("[handleTaskCreatedReenter] 重新进入开始节点，更新单据状态为未开始，processInstanceId: {}",
-                        message.getProcessInstanceInfo().getProcessInstanceId());
-                updateBillStatus(message, BpmProcessInstanceStatusEnum.NOT_START.getStatus());
+                Integer processStatus = message.getProcessInstanceInfo() != null
+                        ? message.getProcessInstanceInfo().getStatus() : null;
+                if (processStatus != null
+                        && processStatus.equals(BpmProcessInstanceStatusEnum.REJECT.getStatus())) {
+                    // 驳回后：单据状态设为 REJECT（已驳回），允许发起人重新提交
+                    log.info("[handleTaskCreatedReenter] 驳回后重新进入开始节点，更新单据状态为已驳回，processInstanceId: {}",
+                            message.getProcessInstanceInfo().getProcessInstanceId());
+                    updateBillStatus(message, BpmProcessInstanceStatusEnum.REJECT.getStatus());
+                } else {
+                    // 撤回等其他情况：单据状态设为 NOT_START（未提交）
+                    log.info("[handleTaskCreatedReenter] 重新进入开始节点，更新单据状态为未开始，processInstanceId: {}",
+                            message.getProcessInstanceInfo().getProcessInstanceId());
+                    updateBillStatus(message, BpmProcessInstanceStatusEnum.NOT_START.getStatus());
+                }
             }
         }
     }

@@ -783,12 +783,14 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
     @Transactional(rollbackFor = Exception.class)
     @DataPermission(enable = false) // 关闭数据权限，避免查询不到用户数据。相关案例：https://gitee.com/zhijiantianya/dh-cloud/issues/ID1UYA
     public String createProcessInstance(Long userId, @Valid BpmProcessInstanceCreateReqVO createReqVO) {
-        // 获得流程定义
-        ProcessDefinition definition = processDefinitionService
-                .getProcessDefinition(createReqVO.getProcessDefinitionId());
-        // 发起流程
-        return createProcessInstance0(userId, definition, createReqVO.getVariables(), null,
-                createReqVO.getStartUserSelectAssignees());
+        return FlowableUtils.executeAuthenticatedUserId(userId, () -> {
+            // 获得流程定义
+            ProcessDefinition definition = processDefinitionService
+                    .getProcessDefinition(createReqVO.getProcessDefinitionId());
+            // 发起流程
+            return createProcessInstance0(userId, definition, createReqVO.getVariables(), null,
+                    createReqVO.getStartUserSelectAssignees());
+        });
     }
 
     @Override

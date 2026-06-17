@@ -138,7 +138,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         }
 
         // ========== 流程变量/业务搜索条件 ==========
-        // billType 语义为“单据类型”，即流程定义 key
+        // billType 语义为"单据类型"，即流程定义 key
         if (StrUtil.isNotBlank(pageVO.getBillType())) {
             taskQuery.processDefinitionKey(pageVO.getBillType());
         }
@@ -146,7 +146,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
             taskQuery.processVariableValueLike(BpmProcessVariableConstants.BILL_CODE, "%" + pageVO.getBillCode() + "%");
         }
         if (ArrayUtil.isNotEmpty(pageVO.getBillCreateTime())) {
-            // 按“单据日期”过滤，即流程实例开始时间范围
+            // 按"单据日期"过滤，即流程实例开始时间范围
             // 通过 HistoricProcessInstance 获取在时间范围内启动的实例，再限定任务查询
             List<String> processInstanceIds = convertList(
                     historyService.createHistoricProcessInstanceQuery()
@@ -213,7 +213,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
     }
 
     /**
-     * 获得用户指定 taskId 任务编号的“待办”（未审批、且可审核）的任务
+     * 获得用户指定 taskId 任务编号的"待办"（未审批、且可审核）的任务
      *
      * @param userId 用户编号
      * @param taskId 任务编号
@@ -234,7 +234,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
     }
 
     /**
-     * 获得用户指定 processInstanceId 流程编号下的首个“待办”（未审批、且可审核）的任务
+     * 获得用户指定 processInstanceId 流程编号下的首个"待办"（未审批、且可审核）的任务
      *
      * @param userId            用户编号
      * @param processInstanceId 流程编号
@@ -380,7 +380,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
     public Task validateTask(Long userId, String taskId) {
         Task task = validateTaskExist(taskId);
         // 为什么判断 assignee 非空的情况下？
-        // 例如说：在审批人为空时，我们会有“自动审批通过”的策略，此时 userId 为 null，允许通过
+        // 例如说：在审批人为空时，我们会有"自动审批通过"的策略，此时 userId 为 null，允许通过
         if (StrUtil.isNotBlank(task.getAssignee())
                 && ObjectUtil.notEqual(userId, NumberUtils.parseLong(task.getAssignee()))) {
             throw exception(TASK_OPERATE_FAIL_ASSIGN_NOT_SELF);
@@ -770,7 +770,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
     }
 
     /**
-     * 审批通过存在“后加签”的任务。
+     * 审批通过存在"后加签"的任务。
      * <p>
      * 注意：该任务不能马上完成，需要一个中间状态（APPROVING），并激活剩余所有子任务（PROCESS）为可审批处理
      * 如果马上完成，则会触发下一个任务，甚至如果没有下一个任务则流程实例就直接结束了！
@@ -883,7 +883,7 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                 BpmCommentTypeEnum.REJECT.formatComment(reqVO.getReason()));
         // 2.3 如果当前任务时被加签的，则加它的根任务也标记成未通过
         // 疑问：为什么要标记未通过呢？
-        // 回答：例如说 A 任务被向前加签除 B 任务时，B 任务被审批不通过，此时 A 会被取消。而 dh-ui-admin-vue3 不展示“已取消”的任务，导致展示不出审批不通过的细节。
+        // 回答：例如说 A 任务被向前加签除 B 任务时，B 任务被审批不通过，此时 A 会被取消。而 dh-ui-admin-vue3 不展示"已取消"的任务，导致展示不出审批不通过的细节。
         if (task.getParentTaskId() != null) {
             String rootParentId = getTaskRootParentId(task);
             updateTaskStatusAndReason(rootParentId, BpmTaskStatusEnum.REJECT.getStatus(),
@@ -1032,7 +1032,20 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                 // 设置流程变量（local）节点退回标记, 用于退回到节点，不执行 BpmUserTaskAssignStartUserHandlerTypeEnum 策略，导致自动通过
                 .localVariable(reqVO.getTargetTaskDefinitionKey(),
                         String.format(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_RETURN_FLAG, reqVO.getTargetTaskDefinitionKey()), Boolean.TRUE)
+                // 设置流程实例状态为 REJECT（已驳回），使列表页显示驳回状态，发起人可重新提交
+                .processVariable(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS,
+                        BpmProcessInstanceStatusEnum.REJECT.getStatus())
                 .changeState();
+
+        // 5. 将目标节点新创建的任务状态设置为 NOT_START（未提交），使工作流汇总中显示"未提交"
+        List<Task> newTasks = taskService.createTaskQuery()
+                .processInstanceId(currentTask.getProcessInstanceId())
+                .taskDefinitionKey(reqVO.getTargetTaskDefinitionKey())
+                .active()
+                .list();
+        for (Task newTask : newTasks) {
+            updateTaskStatus(newTask.getId(), BpmTaskStatusEnum.NOT_START.getStatus());
+        }
     }
 
     @Override
@@ -1389,8 +1402,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
     /**
      * 校验任务是否可以加签，主要校验加签类型是否一致：
      * <p>
-     * 1. 如果存在“向前加签”的任务，则不能“向后加签”
-     * 2. 如果存在“向后加签”的任务，则不能“向前加签”
+     * 1. 如果存在"向前加签"的任务，则不能"向后加签"
+     * 2. 如果存在"向后加签"的任务，则不能"向前加签"
      *
      * @param userId 当前用户 ID
      * @param reqVO  请求参数，包含任务 ID 和加签类型
@@ -1775,68 +1788,75 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                     return;
                 }
 
-                // 自动去重，通过自动审批的方式
-                BpmProcessDefinitionInfoDO processDefinitionInfo = bpmProcessDefinitionService.getProcessDefinitionInfo(task.getProcessDefinitionId());
-                if (processDefinitionInfo == null) {
-                    log.error("[processTaskAssigned][taskId({}) 没有找到流程定义({})]", task.getId(), task.getProcessDefinitionId());
-                    return;
-                }
-                if (processDefinitionInfo.getAutoApprovalType() != null) {
-                    HistoricTaskInstanceQuery sameAssigneeQuery = historyService.createHistoricTaskInstanceQuery()
-                            .processInstanceId(task.getProcessInstanceId())
-                            .taskAssignee(task.getAssignee()) // 相同审批人
-                            .taskVariableValueEquals(BpmnVariableConstants.TASK_VARIABLE_STATUS, BpmTaskStatusEnum.APPROVE.getStatus())
-                            .finished();
-                    if (BpmAutoApproveTypeEnum.APPROVE_ALL.getType().equals(processDefinitionInfo.getAutoApprovalType())
-                            && sameAssigneeQuery.count() > 0) {
-                        getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
-                                .setReason(BpmAutoApproveTypeEnum.APPROVE_ALL.getName()));
-                        return;
-                    }
-                    if (BpmAutoApproveTypeEnum.APPROVE_SEQUENT.getType().equals(processDefinitionInfo.getAutoApprovalType())) {
-                        // 修复：原实现基于 BPMN 模型的入边（incoming flows）查找上一个节点，
-                        // 当两个审批节点之间存在网关（Gateway）或中间事件节点时，入边指向的是网关而非上一个审批节点，
-                        // 导致 APPROVE_SEQUENT 永远不生效。
-                        // 改为：查询历史任务表，找到最近一个已完成的任务，如果它的审批人与当前相同且已审批通过，则自动通过。
-                        HistoricTaskInstance lastFinishedTask = historyService.createHistoricTaskInstanceQuery()
-                                .processInstanceId(task.getProcessInstanceId())
-                                .finished()
-                                .orderByHistoricTaskInstanceEndTime().desc()
-                                .listPage(0, 1)
-                                .stream().findFirst().orElse(null);
-                        if (lastFinishedTask != null
-                                && StrUtil.equals(lastFinishedTask.getAssignee(), task.getAssignee())) {
-                            // 确认该最近完成的任务确实是审批通过的
-                            if (sameAssigneeQuery.count() > 0) {
-                                getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
-                                        .setReason(BpmAutoApproveTypeEnum.APPROVE_SEQUENT.getName()));
-                                return;
-                            }
-                        }
-                    }
-                }
-
-                // 获取发起人节点
+                // 获取流程模型和退回标记，用于后续判断
+                // 修复：将 RETURN_FLAG 检查移到 APPROVE_ALL/APPROVE_SEQUENT 之前，
+                // 退回后的节点不走自动去重/自动审批策略，等待用户手动处理
                 BpmnModel bpmnModel = modelService.getBpmnModelByDefinitionId(processInstance.getProcessDefinitionId());
                 if (bpmnModel == null) {
                     log.error("[processTaskAssigned][taskId({}) 没有找到流程模型]", task.getId());
                     return;
                 }
                 FlowElement userTaskElement = BpmnModelUtils.getFlowElementById(bpmnModel, task.getTaskDefinitionKey());
-                // 判断是否为退回或者驳回：如果是退回或者驳回不走这个策略（使用 local variable）
+                // 判断是否为退回或者驳回：如果是退回或者驳回不走自动审批策略（使用 local variable）
                 String returnFlagKey = String.format(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_RETURN_FLAG, task.getTaskDefinitionKey());
                 Boolean returnTaskFlag = runtimeService.getVariableLocal(task.getExecutionId(), returnFlagKey, Boolean.class);
                 log.debug("[processTaskAssigned] 检查RETURN_FLAG: taskId={}, taskDefinitionKey={}, returnFlagKey={}, returnTaskFlag={}",
                         task.getId(), task.getTaskDefinitionKey(), returnFlagKey, returnTaskFlag);
-                Boolean skipStartUserNodeFlag = Convert.toBool(runtimeService.getVariable(processInstance.getProcessInstanceId(),
-                        BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_SKIP_START_USER_NODE, String.class));
-                if (userTaskElement.getId().equals(START_USER_NODE_ID)
-                        && (skipStartUserNodeFlag == null // 目的：一般是“主流程”，发起人节点，自动通过审核
-                        || BooleanUtil.isTrue(skipStartUserNodeFlag)) // 目的：一般是“子流程”，发起人节点，按配置自动通过审核
-                        && ObjUtil.notEqual(returnTaskFlag, Boolean.TRUE)) {
-                    getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
-                            .setReason(BpmReasonEnum.ASSIGN_START_USER_APPROVE_WHEN_SKIP_START_USER_NODE.getReason()));
-                    return;
+
+                // 自动去重，通过自动审批的方式（退回后的节点跳过自动审批）
+                if (ObjUtil.notEqual(returnTaskFlag, Boolean.TRUE)) {
+                    BpmProcessDefinitionInfoDO processDefinitionInfo = bpmProcessDefinitionService.getProcessDefinitionInfo(task.getProcessDefinitionId());
+                    if (processDefinitionInfo == null) {
+                        log.error("[processTaskAssigned][taskId({}) 没有找到流程定义({})]", task.getId(), task.getProcessDefinitionId());
+                        return;
+                    }
+                    if (processDefinitionInfo.getAutoApprovalType() != null) {
+                        HistoricTaskInstanceQuery sameAssigneeQuery = historyService.createHistoricTaskInstanceQuery()
+                                .processInstanceId(task.getProcessInstanceId())
+                                .taskAssignee(task.getAssignee()) // 相同审批人
+                                .taskVariableValueEquals(BpmnVariableConstants.TASK_VARIABLE_STATUS, BpmTaskStatusEnum.APPROVE.getStatus())
+                                .finished();
+                        if (BpmAutoApproveTypeEnum.APPROVE_ALL.getType().equals(processDefinitionInfo.getAutoApprovalType())
+                                && sameAssigneeQuery.count() > 0) {
+                            getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
+                                    .setReason(BpmAutoApproveTypeEnum.APPROVE_ALL.getName()));
+                            return;
+                        }
+                        if (BpmAutoApproveTypeEnum.APPROVE_SEQUENT.getType().equals(processDefinitionInfo.getAutoApprovalType())) {
+                            // 修复：原实现基于 BPMN 模型的入边（incoming flows）查找上一个节点，
+                            // 当两个审批节点之间存在网关（Gateway）或中间事件节点时，入边指向的是网关而非上一个审批节点，
+                            // 导致 APPROVE_SEQUENT 永远不生效。
+                            // 改为：查询历史任务表，找到最近一个已完成的任务，如果它的审批人与当前相同且已审批通过，则自动通过。
+                            HistoricTaskInstance lastFinishedTask = historyService.createHistoricTaskInstanceQuery()
+                                    .processInstanceId(task.getProcessInstanceId())
+                                    .finished()
+                                    .orderByHistoricTaskInstanceEndTime().desc()
+                                    .listPage(0, 1)
+                                    .stream().findFirst().orElse(null);
+                            if (lastFinishedTask != null
+                                    && StrUtil.equals(lastFinishedTask.getAssignee(), task.getAssignee())) {
+                                // 确认该最近完成的任务确实是审批通过的
+                                if (sameAssigneeQuery.count() > 0) {
+                                    getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
+                                            .setReason(BpmAutoApproveTypeEnum.APPROVE_SEQUENT.getName()));
+                                    return;
+                                }
+                            }
+                        }
+                    }
+
+                    Boolean skipStartUserNodeFlag = Convert.toBool(runtimeService.getVariable(processInstance.getProcessInstanceId(),
+                            BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_SKIP_START_USER_NODE, String.class));
+                    if (userTaskElement.getId().equals(START_USER_NODE_ID)
+                            && (skipStartUserNodeFlag == null // 目的：一般是"主流程"，发起人节点，自动通过审核
+                            || BooleanUtil.isTrue(skipStartUserNodeFlag))) { // 目的：一般是"子流程"，发起人节点，按配置自动通过审核
+                        getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
+                                .setReason(BpmReasonEnum.ASSIGN_START_USER_APPROVE_WHEN_SKIP_START_USER_NODE.getReason()));
+                        return;
+                    }
+                } else {
+                    log.info("[processTaskAssigned] 检测到退回标记，跳过自动审批: taskId={}, taskDefinitionKey={}",
+                            task.getId(), task.getTaskDefinitionKey());
                 }
                 // 当不为发起人节点时，审批人与提交人为同一人时，根据 BpmUserTaskAssignStartUserHandlerTypeEnum 策略进行处理
                 if (ObjectUtil.notEqual(userTaskElement.getId(), START_USER_NODE_ID)

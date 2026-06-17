@@ -184,11 +184,6 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
 
     @Override
     public PageResult<SealApplyBillDO> getSealApplyBillPage(SealApplyBillPageReqVO pageReqVO) {
-        // 自动添加创建人过滤条件（当前登录用户）
-        Long currentUserId = SecurityFrameworkUtils.getLoginUserId();
-        if (currentUserId != null) {
-            pageReqVO.setCreator(String.valueOf(currentUserId));
-        }
         return sealApplyBillMapper.selectPage(pageReqVO);
     }
 

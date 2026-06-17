@@ -19,32 +19,7 @@ public class BannerApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         ThreadUtil.execute(() -> {
             ThreadUtil.sleep(1, TimeUnit.SECONDS); // 延迟 1 秒，保证输出到结尾
-            log.info("\n----------------------------------------------------------\n\t" +
-                            "项目启动成功！\n\t" +
-                            "接口文档: \t{} \n\t" +
-                            "开发文档: \t{} \n\t" +
-                            "视频教程: \t{} \n" +
-                            "----------------------------------------------------------",
-                    "https://ruoyioffice.com/api-doc/",
-                    "https://ruoyioffice.com",
-                    "https://ruoyioffice.com/02Yf6M7Qn");
-
-            // 数据报表
-            System.out.println("[报表模块 dh-module-report 教程][参考 https://ruoyioffice.com/report/ 开启]");
-            // 工作流
-            System.out.println("[工作流模块 dh-module-bpm 教程][参考 https://ruoyioffice.com/bpm/ 开启]");
-            // 商城系统
-            System.out.println("[商城系统 dh-module-mall 教程][参考 https://ruoyioffice.com/mall/build/ 开启]");
-            // ERP 系统
-            System.out.println("[ERP 系统 dh-module-erp - 教程][参考 https://ruoyioffice.com/erp/build/ 开启]");
-            // CRM 系统
-            System.out.println("[CRM 系统 dh-module-crm - 教程][参考 https://ruoyioffice.com/crm/build/ 开启]");
-            // 微信公众号
-            System.out.println("[微信公众号 dh-module-mp 教程][参考 https://ruoyioffice.com/mp/build/ 开启]");
-            // 支付平台
-            System.out.println("[支付系统 dh-module-pay - 教程][参考 https://ruoyioffice.com/pay/build/ 开启]");
-            // AI 大模型
-            System.out.println("[AI 大模型 dh-module-ai - 教程][参考 https://ruoyioffice.com/ai/build/ 开启]");
+            log.info("欢迎使用dh-oa系统");
         });
     }
 

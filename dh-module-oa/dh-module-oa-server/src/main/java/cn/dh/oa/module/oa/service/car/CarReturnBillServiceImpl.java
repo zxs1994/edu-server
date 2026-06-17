@@ -183,11 +183,6 @@ public class CarReturnBillServiceImpl implements CarReturnBillService, FlowBillS
 
     @Override
     public PageResult<CarReturnBillDO> getCarReturnBillPage(CarReturnBillPageReqVO pageReqVO) {
-        // 自动添加创建人过滤条件（当前登录用户）
-        Long currentUserId = SecurityFrameworkUtils.getLoginUserId();
-        if (currentUserId != null) {
-            pageReqVO.setCreator(String.valueOf(currentUserId));
-        }
         return carReturnBillMapper.selectPage(pageReqVO);
     }
 
