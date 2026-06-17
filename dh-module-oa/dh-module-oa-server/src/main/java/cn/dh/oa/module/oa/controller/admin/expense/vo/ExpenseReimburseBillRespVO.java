@@ -31,9 +31,17 @@ public class ExpenseReimburseBillRespVO {
     @ExcelProperty("单据状态")
     private Integer processStatus;
 
+    @Schema(description = "单据类型（1-日常报销 2-差旅报销）", example = "2")
+    @ExcelProperty("单据类型")
+    private Integer billType;
+
     @Schema(description = "关联出差单号（多个用逗号分隔）", example = "CLCC202412010001")
     @ExcelProperty("关联出差单号")
     private String travelBillCode;
+
+    @Schema(description = "报销事由（日常报销）", example = "办公用品采购")
+    @ExcelProperty("报销事由")
+    private String cause;
 
     @Schema(description = "出差事由（拼接展示）", example = "项目现场实施")
     @ExcelProperty("出差事由")

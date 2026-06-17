@@ -18,5 +18,7 @@ public class UserSimpleBaseVO {
     private Long deptId;
     @Schema(description = "部门名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "研发部")
     private String deptName;
+    @Schema(description = "岗位名称", example = "项目经理")
+    private String postName;
 
 }

@@ -33,6 +33,7 @@ import cn.dh.oa.module.bpm.service.message.dto.BpmMessageSendWhenProcessInstance
 import cn.dh.oa.module.bpm.service.message.dto.BpmMessageSendWhenProcessInstanceRejectReqDTO;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.module.system.api.dept.dto.DeptRespDTO;
+import cn.dh.oa.module.system.api.dept.dto.PostRespDTO;
 import cn.dh.oa.module.system.api.user.dto.AdminUserRespDTO;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.engine.history.HistoricProcessInstance;
@@ -66,6 +67,7 @@ public interface BpmProcessInstanceConvert {
                                                                           Map<String, List<Task>> taskMap,
                                                                           Map<Long, AdminUserRespDTO> userMap,
                                                                           Map<Long, DeptRespDTO> deptMap,
+                                                                          Map<Long, PostRespDTO> postMap,
                                                                           Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap) {
         PageResult<BpmProcessInstanceRespVO> vpPageResult = BeanUtils.toBean(pageResult, BpmProcessInstanceRespVO.class);
         for (int i = 0; i < pageResult.getList().size(); i++) {
@@ -82,13 +84,23 @@ public interface BpmProcessInstanceConvert {
                 if (startUser != null) {
                     respVO.setStartUser(BeanUtils.toBean(startUser, UserSimpleBaseVO.class));
                     MapUtils.findAndThen(deptMap, startUser.getDeptId(), dept -> respVO.getStartUser().setDeptName(dept.getName()));
+                    // 填充岗位名称
+                    if (CollUtil.isNotEmpty(startUser.getPostIds())) {
+                        Long firstPostId = startUser.getPostIds().iterator().next();
+                        MapUtils.findAndThen(postMap, firstPostId, post -> respVO.getStartUser().setPostName(post.getName()));
+                    }
                 }
                 if (CollUtil.isNotEmpty(respVO.getTasks())) {
                     respVO.getTasks().forEach(task -> {
                         AdminUserRespDTO assigneeUser = userMap.get(task.getAssignee());
-                        if (assigneeUser!= null) {
+                        if (assigneeUser != null) {
                             task.setAssigneeUser(BeanUtils.toBean(assigneeUser, UserSimpleBaseVO.class));
                             MapUtils.findAndThen(deptMap, assigneeUser.getDeptId(), dept -> task.getAssigneeUser().setDeptName(dept.getName()));
+                            // 填充岗位名称
+                            if (CollUtil.isNotEmpty(assigneeUser.getPostIds())) {
+                                Long firstPostId = assigneeUser.getPostIds().iterator().next();
+                                MapUtils.findAndThen(postMap, firstPostId, post -> task.getAssigneeUser().setPostName(post.getName()));
+                            }
                         }
                     });
                 }

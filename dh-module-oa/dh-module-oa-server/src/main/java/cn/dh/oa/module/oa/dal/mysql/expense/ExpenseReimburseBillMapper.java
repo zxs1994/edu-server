@@ -19,6 +19,7 @@ public interface ExpenseReimburseBillMapper extends BaseMapperX<ExpenseReimburse
 
     default PageResult<ExpenseReimburseBillDO> selectPage(ExpenseReimburseBillPageReqVO reqVO) {
         return selectPage(reqVO, new LambdaQueryWrapperX<ExpenseReimburseBillDO>()
+                .eqIfPresent(ExpenseReimburseBillDO::getBillType, reqVO.getBillType())
                 .likeIfPresent(ExpenseReimburseBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(ExpenseReimburseBillDO::getProcessStatus, reqVO.getProcessStatus())
                 .likeIfPresent(ExpenseReimburseBillDO::getDeptName, reqVO.getDeptName())

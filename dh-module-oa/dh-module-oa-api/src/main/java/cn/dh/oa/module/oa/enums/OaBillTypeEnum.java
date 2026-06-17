@@ -61,7 +61,12 @@ public enum OaBillTypeEnum implements BillTypeEnum {
     /**
      * 纠错申请单
      */
-    OA_CORRECTION_BILL("111", "纠错申请单", "oa_correction_bill");
+    OA_CORRECTION_BILL("111", "纠错申请单", "oa_correction_bill"),
+
+    /**
+     * 日常报销单
+     */
+    OA_DAILY_EXPENSE_BILL("112", "日常报销单", "oa_daily_expense_bill");
 
     /**
      * 单据类型代码

@@ -23,8 +23,14 @@ public class ExpenseReimburseBillSaveReqVO {
     @Schema(description = "单据状态", example = "1")
     private Integer processStatus;
 
+    @Schema(description = "单据类型（1-日常报销 2-差旅报销）", example = "2")
+    private Integer billType;
+
     @Schema(description = "关联出差单号（多个用逗号分隔）", example = "CLCC202412010001,CLCC202412010002")
     private String travelBillCode;
+
+    @Schema(description = "报销事由（日常报销必填）", example = "办公用品采购")
+    private String cause;
 
     @Schema(description = "出差事由（自动拼接，仅用于回显）", example = "项目现场实施")
     private String travelCause;

@@ -34,6 +34,7 @@ public enum BpmReasonEnum {
     ASSIGN_START_USER_TRANSFER_DEPT_LEADER("审批人与提交人为同一人时，转交给部门负责人审批"),
     ASSIGN_EMPTY_APPROVE("审批人为空，自动通过"),
     ASSIGN_EMPTY_REJECT("审批人为空，自动不通过"),
+    ASSIGN_EMPTY_FALLBACK_APPROVE("审批人为空且未配置处理策略，系统兜底自动通过"),
     APPROVE_TYPE_AUTO_APPROVE("非人工审核，自动通过"),
     APPROVE_TYPE_AUTO_REJECT("非人工审核，自动不通过"),
     CANCEL_BY_PROCESS_CLEAN("进程清理自动取消"),

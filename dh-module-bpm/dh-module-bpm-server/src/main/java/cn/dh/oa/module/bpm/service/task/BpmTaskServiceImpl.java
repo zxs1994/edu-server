@@ -1678,6 +1678,11 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                         && getTask(task.getId()) == null) {
                     return;
                 }
+                // 兜底保护：如果任务已经被 processTaskAssigned 回调处理完毕（如自动审批去重），不再重复处理
+                if (getTask(task.getId()) == null) {
+                    log.debug("[processTaskCreated][taskId({}) 任务已被其他回调处理，跳过自动审批]", task.getId());
+                    return;
+                }
                 // 特殊情况一：【人工审核】审批人为空，根据配置是否要自动通过、自动拒绝
                 if (ObjectUtil.equal(approveType, BpmUserTaskApproveTypeEnum.USER.getType())) {
                     // 如果有审批人、或者拥有人，则说明不满足情况一，不自动通过、不自动拒绝
@@ -1690,6 +1695,13 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                     } else if (ObjectUtil.equal(assignEmptyHandlerType, BpmUserTaskAssignEmptyHandlerTypeEnum.REJECT.getType())) {
                         getSelf().rejectTask(null, new BpmTaskRejectReqVO()
                                 .setId(task.getId()).setReason(BpmReasonEnum.ASSIGN_EMPTY_REJECT.getReason()));
+                    } else {
+                        // 兜底：审批人为空且未配置有效的处理策略（如 assignEmptyHandlerType 为 null、ASSIGN_USER、ASSIGN_ADMIN 等），
+                        // 自动通过以避免流程永远卡在此节点无法推进
+                        log.warn("[processTaskCreated][taskId({}) 审批人为空且 assignEmptyHandlerType({}) 无法处理，兜底自动通过]",
+                                task.getId(), assignEmptyHandlerType);
+                        getSelf().approveTask(null, new BpmTaskApproveReqVO()
+                                .setId(task.getId()).setReason(BpmReasonEnum.ASSIGN_EMPTY_FALLBACK_APPROVE.getReason()));
                     }
                     // 特殊情况二：【自动审核】审批类型为自动通过、不通过
                 } else {
@@ -1782,18 +1794,24 @@ public class BpmTaskServiceImpl implements BpmTaskService {
                         return;
                     }
                     if (BpmAutoApproveTypeEnum.APPROVE_SEQUENT.getType().equals(processDefinitionInfo.getAutoApprovalType())) {
-                        BpmnModel bpmnModel = modelService.getBpmnModelByDefinitionId(processInstance.getProcessDefinitionId());
-                        if (bpmnModel == null) {
-                            log.error("[processTaskAssigned][taskId({}) 没有找到流程模型({})]", task.getId(), task.getProcessDefinitionId());
-                            return;
-                        }
-                        List<String> sourceTaskIds = convertList(BpmnModelUtils.getElementIncomingFlows( // 获取所有上一个节点
-                                        BpmnModelUtils.getFlowElementById(bpmnModel, task.getTaskDefinitionKey())),
-                                SequenceFlow::getSourceRef);
-                        if (sameAssigneeQuery.taskDefinitionKeys(sourceTaskIds).count() > 0) {
-                            getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
-                                    .setReason(BpmAutoApproveTypeEnum.APPROVE_SEQUENT.getName()));
-                            return;
+                        // 修复：原实现基于 BPMN 模型的入边（incoming flows）查找上一个节点，
+                        // 当两个审批节点之间存在网关（Gateway）或中间事件节点时，入边指向的是网关而非上一个审批节点，
+                        // 导致 APPROVE_SEQUENT 永远不生效。
+                        // 改为：查询历史任务表，找到最近一个已完成的任务，如果它的审批人与当前相同且已审批通过，则自动通过。
+                        HistoricTaskInstance lastFinishedTask = historyService.createHistoricTaskInstanceQuery()
+                                .processInstanceId(task.getProcessInstanceId())
+                                .finished()
+                                .orderByHistoricTaskInstanceEndTime().desc()
+                                .listPage(0, 1)
+                                .stream().findFirst().orElse(null);
+                        if (lastFinishedTask != null
+                                && StrUtil.equals(lastFinishedTask.getAssignee(), task.getAssignee())) {
+                            // 确认该最近完成的任务确实是审批通过的
+                            if (sameAssigneeQuery.count() > 0) {
+                                getSelf().approveTask(Long.valueOf(task.getAssignee()), new BpmTaskApproveReqVO().setId(task.getId())
+                                        .setReason(BpmAutoApproveTypeEnum.APPROVE_SEQUENT.getName()));
+                                return;
+                            }
                         }
                     }
                 }

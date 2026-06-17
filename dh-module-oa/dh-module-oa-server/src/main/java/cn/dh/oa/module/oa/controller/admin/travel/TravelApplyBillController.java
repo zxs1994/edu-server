@@ -92,7 +92,6 @@ public class TravelApplyBillController {
 
     @GetMapping("/page")
     @Operation(summary = "获得差旅申请单分页")
-    @PreAuthorize("@ss.hasPermission('oa:travel-apply-bill:query')")
     public CommonResult<PageResult<TravelApplyBillRespVO>> getTravelApplyBillPage(@Valid TravelApplyBillPageReqVO pageReqVO) {
         PageResult<TravelApplyBillDO> pageResult = travelApplyBillService.getTravelApplyBillPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, TravelApplyBillRespVO.class));

@@ -37,12 +37,20 @@ public class ExpenseReimburseBillDO extends BaseDO {
      * 单据状态
      */
     private Integer processStatus;
+    /**
+     * 单据类型（1-日常报销 2-差旅报销）
+     */
+    private Integer billType;
 
     // ========== 差旅关联信息 ==========
     /**
      * 关联出差单号（多个用逗号分隔）
      */
     private String travelBillCode;
+    /**
+     * 报销事由（日常报销必填）
+     */
+    private String cause;
 
     // ========== 报销信息 ==========
     /**

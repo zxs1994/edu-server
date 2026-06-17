@@ -13,6 +13,7 @@ import cn.dh.oa.common.server.attachment.service.AttachmentService;
 import cn.dh.oa.common.server.attachment.controller.vo.AttachmentRespVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.Resource;
@@ -44,11 +45,12 @@ import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
  */
 @Slf4j
 @Service
+@Primary
 @Validated
 public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillService, FlowBillService<OaBillTypeEnum> {
 
     @Resource
-    private ExpenseReimburseBillMapper expenseReimburseBillMapper;
+    protected ExpenseReimburseBillMapper expenseReimburseBillMapper;
 
     @Resource
     private ExpenseReimburseDetailMapper expenseReimburseDetailMapper;
@@ -62,12 +64,23 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
 
+    /**
+     * 根据 billType 获取对应的单据类型枚举
+     */
+    protected OaBillTypeEnum getBillTypeEnum(ExpenseReimburseBillSaveReqVO saveReqVO) {
+        return (saveReqVO.getBillType() != null && saveReqVO.getBillType() == 1)
+                ? OaBillTypeEnum.OA_DAILY_EXPENSE_BILL
+                : OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long saveExpenseReimburseBill(ExpenseReimburseBillSaveReqVO saveReqVO) {
+        OaBillTypeEnum billTypeEnum = getBillTypeEnum(saveReqVO);
+
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
-            saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL));
+            saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, billTypeEnum));
         }
 
         // 插入或更新
@@ -76,7 +89,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
 
         // 保存附件信息
         if (saveReqVO.getAttachments() != null) {
-            attachmentService.saveAttachmentList(OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getTypeCode(), expenseReimburseBill.getId(), saveReqVO.getAttachments());
+            attachmentService.saveAttachmentList(billTypeEnum.getTypeCode(), expenseReimburseBill.getId(), saveReqVO.getAttachments());
         }
 
         // 保存费用明细（先删后增）
@@ -89,9 +102,11 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long submitExpenseReimburseBill(ExpenseReimburseBillSaveReqVO saveReqVO) {
+        OaBillTypeEnum billTypeEnum = getBillTypeEnum(saveReqVO);
+
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
-            saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL));
+            saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, billTypeEnum));
         }
 
         // 保存或更新
@@ -102,7 +117,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
         // 智能提交 BPM 流程
         Map<String, Object> processInstanceVariables = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
         String processInstanceId = processInstanceApi.submitProcessInstance(Long.valueOf(saveReqVO.getCreator()),
-                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getProcessDefinitionKey())
+                new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(billTypeEnum.getProcessDefinitionKey())
                         .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(expenseReimburseBill.getId()))
         ).getCheckedData();
 
@@ -111,7 +126,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
 
         // 保存附件信息
         if (saveReqVO.getAttachments() != null) {
-            attachmentService.saveAttachmentList(OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getTypeCode(), expenseReimburseBill.getId(), saveReqVO.getAttachments());
+            attachmentService.saveAttachmentList(billTypeEnum.getTypeCode(), expenseReimburseBill.getId(), saveReqVO.getAttachments());
         }
 
         // 保存费用明细（先删后增）
@@ -123,8 +138,9 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
 
     @Override
     public Long createExpenseReimburseBill(ExpenseReimburseBillSaveReqVO createReqVO) {
+        OaBillTypeEnum billTypeEnum = getBillTypeEnum(createReqVO);
         // 生成单号
-        String billCode = BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL);
+        String billCode = BillCodeUtils.generateBillCode(SystemEnum.OA, billTypeEnum);
         createReqVO.setBillCode(billCode);
         // 插入
         ExpenseReimburseBillDO expenseReimburseBill = BeanUtils.toBean(createReqVO, ExpenseReimburseBillDO.class);
@@ -185,9 +201,14 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
 
         ExpenseReimburseBillRespVO respVO = BeanUtils.toBean(expenseReimburseBill, ExpenseReimburseBillRespVO.class);
 
+        // 根据 billType 确定附件类型编码
+        String typeCode = (expenseReimburseBill.getBillType() != null && expenseReimburseBill.getBillType() == 1)
+                ? OaBillTypeEnum.OA_DAILY_EXPENSE_BILL.getTypeCode()
+                : OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getTypeCode();
+
         // 获取附件信息
         respVO.setAttachments(BeanUtils.toBean(
-            attachmentService.getAttachmentListByBusiness(OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getTypeCode(), id),
+            attachmentService.getAttachmentListByBusiness(typeCode, id),
             AttachmentRespVO.class
         ));
 

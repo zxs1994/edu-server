@@ -15,6 +15,9 @@ import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DA
 @ToString(callSuper = true)
 public class ExpenseReimburseBillPageReqVO extends PageParam {
 
+    @Schema(description = "单据类型（1-日常报销 2-差旅报销）", example = "1")
+    private Integer billType;
+
     @Schema(description = "单据编号", example = "CLBX202412010001")
     private String billCode;
 

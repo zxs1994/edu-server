@@ -81,7 +81,6 @@ public class RedTemplateController {
 
     @GetMapping("/simple-list")
     @Operation(summary = "获得套红模板精简列表（下拉选择用）")
-    @PreAuthorize("@ss.hasPermission('oa:red-template:query')")
     public CommonResult<List<RedTemplateRespVO>> getRedTemplateSimpleList() {
         List<RedTemplateDO> list = redTemplateService.getRedTemplateList();
         return success(BeanUtils.toBean(list, RedTemplateRespVO.class));

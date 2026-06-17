@@ -16,7 +16,9 @@ import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceService;
 import cn.dh.oa.module.bpm.service.task.BpmTaskService;
 import cn.dh.oa.module.system.api.dept.DeptApi;
+import cn.dh.oa.module.system.api.dept.PostApi;
 import cn.dh.oa.module.system.api.dept.dto.DeptRespDTO;
+import cn.dh.oa.module.system.api.dept.dto.PostRespDTO;
 import cn.dh.oa.module.system.api.user.AdminUserApi;
 import cn.dh.oa.module.system.api.user.dto.AdminUserRespDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +34,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,6 +64,8 @@ public class BpmProcessInstanceController {
     private AdminUserApi adminUserApi;
     @Resource
     private DeptApi deptApi;
+    @Resource
+    private PostApi postApi;
 
     @GetMapping("/my-page")
     @Operation(summary = "获得我的实例分页列表", description = "在【我的流程】菜单中，进行调用")
@@ -88,8 +93,10 @@ public class BpmProcessInstanceController {
         Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
+        Map<Long, PostRespDTO> postMap = postApi.getPostMap(
+                convertSetByFlatMap(userMap.values(), AdminUserRespDTO::getPostIds, Collection::stream));
         return success(BpmProcessInstanceConvert.INSTANCE.buildProcessInstancePage(pageResult,
-                processDefinitionMap, categoryMap, taskMap, userMap, deptMap, processDefinitionInfoMap));
+                processDefinitionMap, categoryMap, taskMap, userMap, deptMap, postMap, processDefinitionInfoMap));
     }
 
     @GetMapping("/manager-page")
@@ -115,10 +122,12 @@ public class BpmProcessInstanceController {
                 convertSet(pageResult.getList(), processInstance -> NumberUtils.parseLong(processInstance.getStartUserId())));
         Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
+        Map<Long, PostRespDTO> postMap = postApi.getPostMap(
+                convertSetByFlatMap(userMap.values(), AdminUserRespDTO::getPostIds, Collection::stream));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricProcessInstance::getProcessDefinitionId));
         return success(BpmProcessInstanceConvert.INSTANCE.buildProcessInstancePage(pageResult,
-                processDefinitionMap, categoryMap, taskMap, userMap, deptMap, processDefinitionInfoMap));
+                processDefinitionMap, categoryMap, taskMap, userMap, deptMap, postMap, processDefinitionInfoMap));
     }
 
     @PostMapping("/create")

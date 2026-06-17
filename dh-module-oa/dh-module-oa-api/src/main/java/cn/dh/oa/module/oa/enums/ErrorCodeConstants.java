@@ -76,4 +76,7 @@ public interface ErrorCodeConstants {
 
     // ========== 套红模板 1-101-013-000 ============
     ErrorCode RED_TEMPLATE_NOT_EXISTS = new ErrorCode(1_101_013_000, "套红模板不存在");
+
+    // ========== 日常报销 1-101-014-000 ============
+    ErrorCode DAILY_EXPENSE_BILL_NOT_EXISTS = new ErrorCode(1_101_014_000, "日常报销单不存在");
 }
