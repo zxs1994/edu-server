@@ -40,21 +40,21 @@ public class CarReturnBillController {
 
     @PostMapping("/save")
     @Operation(summary = "保存还车申请单")
-    @PreAuthorize("@ss.hasPermission('oa:car-return-bill:save')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:car-return-bill:create', 'oa:car-return-bill:query', 'oa:car-return-bill:save', 'oa:car-return-bill:submit')")
     public CommonResult<Long> saveCarReturnBill(@Valid @RequestBody CarReturnBillSaveReqVO saveReqVO) {
         return success(carReturnBillService.saveCarReturnBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交还车申请单")
-    @PreAuthorize("@ss.hasPermission('oa:car-return-bill:submit')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:car-return-bill:create', 'oa:car-return-bill:query', 'oa:car-return-bill:save', 'oa:car-return-bill:submit')")
     public CommonResult<Long> submitCarReturnBill(@Valid @RequestBody CarReturnBillSaveReqVO createReqVO) {
         return success(carReturnBillService.submitCarReturnBill(createReqVO));
     }
 
     @PostMapping("/create")
     @Operation(summary = "创建还车申请单")
-    @PreAuthorize("@ss.hasPermission('oa:car-return-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:car-return-bill:create', 'oa:car-return-bill:query', 'oa:car-return-bill:save', 'oa:car-return-bill:submit')")
     public CommonResult<Long> createCarReturnBill(@Valid @RequestBody CarReturnBillSaveReqVO createReqVO) {
         return success(carReturnBillService.createCarReturnBill(createReqVO));
     }
@@ -88,7 +88,7 @@ public class CarReturnBillController {
     @GetMapping("/get")
     @Operation(summary = "获得还车申请单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:car-return-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:car-return-bill:create', 'oa:car-return-bill:query', 'oa:car-return-bill:save', 'oa:car-return-bill:submit')")
     public CommonResult<CarReturnBillRespVO> getCarReturnBill(@RequestParam("id") Long id) {
         CarReturnBillRespVO respVO = carReturnBillService.getCarReturnBillInfo(id);
         return success(respVO);

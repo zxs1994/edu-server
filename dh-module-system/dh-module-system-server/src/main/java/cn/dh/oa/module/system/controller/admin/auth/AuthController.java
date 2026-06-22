@@ -35,6 +35,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -110,7 +111,7 @@ public class AuthController {
             // 获取用户公司信息和部门信息
             DeptDO company = deptService.getUserCompany(user.getDeptId());
             DeptDO dept = deptService.getDept(user.getDeptId());
-            return success(AuthConvert.INSTANCE.convert(user, Collections.emptyList(), Collections.emptyList(), company, dept));
+            return success(AuthConvert.INSTANCE.convert(user, Collections.emptyList(), Collections.emptyList(), Collections.emptySet(), company, dept));
         }
         List<RoleDO> roles = roleService.getRoleList(roleIds);
         roles.removeIf(role -> !CommonStatusEnum.ENABLE.getStatus().equals(role.getStatus())); // 移除禁用的角色
@@ -118,6 +119,30 @@ public class AuthController {
         // 1.3 获得菜单列表
         Set<Long> menuIds = permissionService.getRoleMenuListByRoleId(convertSet(roles, RoleDO::getId));
         List<MenuDO> menuList = menuService.getMenuList(menuIds);
+
+        // 1.3.1 自动补全缺失的父级菜单（结构节点）
+        // 必须在 filterDisableMenus 之前执行！因为 filterDisableMenus 会检查父链完整性，
+        // 缺失父级的子菜单会被误判为"禁用"而被移除。
+        // 场景：角色分配了子菜单但未分配父目录（如 OA 页面已分配但审批管理目录未分配），
+        // 此时从 DB 加载缺失的父目录，确保菜单树结构完整、路由可正常注册。
+        // 父目录自身的 visible 属性保持不变，管理员角色因直接拥有该菜单而可见，
+        // 普通用户角色因未拥有该菜单而在侧边栏中不显示（但路由通过子菜单仍可用）。
+        for (int i = 0; i < 5; i++) {
+            Set<Long> existingIds = convertSet(menuList, MenuDO::getId);
+            Set<Long> allParentIds = new HashSet<>();
+            menuList.forEach(m -> {
+                if (m.getParentId() != null && m.getParentId() != MenuDO.ID_ROOT) {
+                    allParentIds.add(m.getParentId());
+                }
+            });
+            allParentIds.removeAll(existingIds);
+            if (allParentIds.isEmpty()) {
+                break;
+            }
+            menuList.addAll(menuService.getMenuList(allParentIds));
+        }
+
+        // 1.3.2 过滤禁用的菜单（含祖先链检查，需要父级已补全才能正确判断）
         menuList = menuService.filterDisableMenus(menuList);
 
         // 1.4 获取用户公司信息和部门信息
@@ -125,7 +150,7 @@ public class AuthController {
         DeptDO dept = deptService.getDept(user.getDeptId());
 
         // 2. 拼接结果返回
-        return success(AuthConvert.INSTANCE.convert(user, roles, menuList, company, dept));
+        return success(AuthConvert.INSTANCE.convert(user, roles, menuList, menuIds, company, dept));
     }
 
     @PostMapping("/register")

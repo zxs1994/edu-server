@@ -65,6 +65,11 @@ public class TravelApplyBillDO extends BaseDO {
      */
     private Integer reimbursementStatus;
 
+    /**
+     * 申请类型（1国内差旅 2出境差旅）
+     */
+    private Integer travelType;
+
     // ========== 公共字段 ==========
 
     /**

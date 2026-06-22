@@ -34,6 +34,8 @@ import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
 import cn.dh.oa.module.bpm.service.message.BpmMessageService;
 import cn.dh.oa.module.bpm.service.message.dto.BpmMessageSendWhenTaskTimeoutReqDTO;
 import cn.dh.oa.module.bpm.service.notification.BpmNotificationManager;
+import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.enums.OaProcessVariableConstants;
 import cn.dh.oa.module.system.api.dept.DeptApi;
 import cn.dh.oa.module.system.api.dept.dto.DeptRespDTO;
 import cn.dh.oa.module.system.api.user.AdminUserApi;
@@ -672,6 +674,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         if (CollUtil.isNotEmpty(reqVO.getVariables())) { // 合并前端传递的流程变量，以前端为准
             processVariables.putAll(reqVO.getVariables());
         }
+        // 补偿公文发文单缺失/类型错误的网关变量（兼容历史流程）
+        fillDocumentDispatchGatewayVariables(instance, processVariables);
 
         // 4. 校验并处理 APPROVE_USER_SELECT 当前审批人，选择下一节点审批人的逻辑
         Map<String, Object> variables = validateAndSetNextAssignees(task.getTaskDefinitionKey(), processVariables,
@@ -2000,6 +2004,20 @@ public class BpmTaskServiceImpl implements BpmTaskService {
      */
     private BpmTaskServiceImpl getSelf() {
         return SpringUtil.getBean(getClass());
+    }
+
+    /**
+     * 公文发文单网关条件依赖 docIsImportant 布尔变量，历史流程可能未设置或类型错误
+     */
+    private void fillDocumentDispatchGatewayVariables(ProcessInstance instance, Map<String, Object> variables) {
+        String processKey = instance.getProcessDefinitionKey();
+        if (processKey == null || !processKey.startsWith(OaBillTypeEnum.OA_DOCUMENT_DISPATCH_BILL.getProcessDefinitionKey())) {
+            return;
+        }
+        Object docIsImportant = variables.get(OaProcessVariableConstants.PV_DOC_IS_IMPORTANT);
+        if (!(docIsImportant instanceof Boolean)) {
+            variables.put(OaProcessVariableConstants.PV_DOC_IS_IMPORTANT, Boolean.FALSE);
+        }
     }
 
 }

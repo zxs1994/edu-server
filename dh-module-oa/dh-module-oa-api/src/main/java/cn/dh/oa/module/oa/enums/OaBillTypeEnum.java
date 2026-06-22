@@ -54,6 +54,11 @@ public enum OaBillTypeEnum implements BillTypeEnum {
     OA_TRAVEL_APPLY_BILL("109", "差旅申请单", "oa_travel_apply_bill"),
 
     /**
+     * 出境差旅申请单（与差旅申请单共用数据表，流程定义独立）
+     */
+    OA_OVERSEAS_TRAVEL_APPLY_BILL("113", "出境差旅申请单", "oa_travel_apply_bill_copy"),
+
+    /**
      * 收文办理单
      */
     OA_INCOMING_DOCUMENT_BILL("110", "收文办理单", "oa_incoming_document_bill"),

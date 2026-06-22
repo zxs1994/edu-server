@@ -44,6 +44,9 @@ public class DocumentDispatchBillSaveReqVO {
     @Schema(description = "发文字号序号", example = "1")
     private Integer docNumberSerial;
 
+    @Schema(description = "是否重要公文（0否 1是）", example = "0")
+    private Integer isImportant;
+
     @Schema(description = "紧急程度（0普通 1急件 2特急）", example = "0")
     private Integer urgencyLevel;
 

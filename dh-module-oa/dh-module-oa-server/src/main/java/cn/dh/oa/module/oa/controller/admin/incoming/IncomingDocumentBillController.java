@@ -36,21 +36,21 @@ public class IncomingDocumentBillController {
 
     @PostMapping("/create")
     @Operation(summary = "创建收文办理单")
-    @PreAuthorize("@ss.hasPermission('oa:incoming-document-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:incoming-document-bill:create', 'oa:incoming-document-bill:query', 'oa:incoming-document-bill:submit')")
     public CommonResult<Long> createIncomingDocumentBill(@Valid @RequestBody IncomingDocumentBillSaveReqVO createReqVO) {
         return success(incomingDocumentBillService.createIncomingDocumentBill(createReqVO));
     }
 
     @PostMapping("/save")
     @Operation(summary = "保存收文办理单")
-    @PreAuthorize("@ss.hasPermission('oa:incoming-document-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:incoming-document-bill:create', 'oa:incoming-document-bill:query', 'oa:incoming-document-bill:submit')")
     public CommonResult<Long> saveIncomingDocumentBill(@Valid @RequestBody IncomingDocumentBillSaveReqVO saveReqVO) {
         return success(incomingDocumentBillService.saveIncomingDocumentBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交收文办理单")
-    @PreAuthorize("@ss.hasPermission('oa:incoming-document-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:incoming-document-bill:create', 'oa:incoming-document-bill:query', 'oa:incoming-document-bill:submit')")
     public CommonResult<Long> submitIncomingDocumentBill(@Valid @RequestBody IncomingDocumentBillSaveReqVO submitReqVO) {
         return success(incomingDocumentBillService.submitIncomingDocumentBill(submitReqVO));
     }
@@ -102,7 +102,7 @@ public class IncomingDocumentBillController {
     @GetMapping("/get")
     @Operation(summary = "获得收文办理单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:incoming-document-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:incoming-document-bill:create', 'oa:incoming-document-bill:query', 'oa:incoming-document-bill:submit')")
     public CommonResult<IncomingDocumentBillRespVO> getIncomingDocumentBill(@RequestParam("id") Long id) {
         IncomingDocumentBillRespVO respVO = incomingDocumentBillService.getIncomingDocumentBillInfo(id);
         return success(respVO);

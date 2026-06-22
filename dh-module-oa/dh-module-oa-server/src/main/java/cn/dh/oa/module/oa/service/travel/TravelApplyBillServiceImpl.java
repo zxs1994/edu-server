@@ -13,6 +13,7 @@ import cn.dh.oa.common.server.attachment.service.AttachmentService;
 import cn.dh.oa.common.server.attachment.controller.vo.AttachmentRespVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
@@ -34,6 +35,7 @@ import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exce
 import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
 
 @Slf4j
+@Primary
 @Service
 @Validated
 public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowBillService<OaBillTypeEnum> {
@@ -53,6 +55,7 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long saveTravelApplyBill(TravelApplyBillSaveReqVO saveReqVO) {
+        fillTravelType(saveReqVO);
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_TRAVEL_APPLY_BILL));
         }
@@ -70,6 +73,7 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long submitTravelApplyBill(TravelApplyBillSaveReqVO saveReqVO) {
+        fillTravelType(saveReqVO);
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_TRAVEL_APPLY_BILL));
         }
@@ -79,7 +83,7 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
         Map<String, Object> vars = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
         String processInstanceId = processInstanceApi.submitProcessInstance(Long.valueOf(saveReqVO.getCreator()),
                 new BpmProcessInstanceCreateReqDTO()
-                        .setProcessDefinitionKey(OaBillTypeEnum.OA_TRAVEL_APPLY_BILL.getProcessDefinitionKey())
+                        .setProcessDefinitionKey(getProcessDefinitionKey(saveReqVO))
                         .setVariables(vars)
                         .setBusinessKey(String.valueOf(bill.getId()))
         ).getCheckedData();
@@ -162,6 +166,23 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
     public void updateProcessStatus(String businessKey, Integer status) {
         Long id = Long.parseLong(businessKey);
         travelApplyBillMapper.updateById(new TravelApplyBillDO().setId(id).setProcessStatus(status));
+    }
+
+    /** 根据申请类型选择流程定义 key */
+    private String getProcessDefinitionKey(TravelApplyBillSaveReqVO saveReqVO) {
+        return isOverseasTravel(saveReqVO.getTravelType())
+                ? OaBillTypeEnum.OA_OVERSEAS_TRAVEL_APPLY_BILL.getProcessDefinitionKey()
+                : OaBillTypeEnum.OA_TRAVEL_APPLY_BILL.getProcessDefinitionKey();
+    }
+
+    private void fillTravelType(TravelApplyBillSaveReqVO saveReqVO) {
+        if (saveReqVO.getTravelType() == null) {
+            saveReqVO.setTravelType(1);
+        }
+    }
+
+    private boolean isOverseasTravel(Integer travelType) {
+        return travelType != null && travelType == 2;
     }
 
     private void validateTravelApplyBillExists(Long id) {

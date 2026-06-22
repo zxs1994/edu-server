@@ -39,14 +39,14 @@ public class CorrectionBillController {
 
     @PostMapping("/save")
     @Operation(summary = "保存纠错申请单")
-    @PreAuthorize("@ss.hasPermission('oa:correction-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:correction-bill:create', 'oa:correction-bill:query')")
     public CommonResult<Long> saveCorrectionBill(@Valid @RequestBody CorrectionBillSaveReqVO saveReqVO) {
         return success(correctionBillService.saveCorrectionBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交纠错申请单")
-    @PreAuthorize("@ss.hasPermission('oa:correction-bill:submit')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:correction-bill:create', 'oa:correction-bill:query', 'oa:correction-bill:submit')")
     public CommonResult<Long> submitCorrectionBill(@Valid @RequestBody CorrectionBillSaveReqVO submitReqVO) {
         return success(correctionBillService.submitCorrectionBill(submitReqVO));
     }
@@ -80,7 +80,7 @@ public class CorrectionBillController {
     @GetMapping("/get")
     @Operation(summary = "获得纠错申请单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:correction-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:correction-bill:create', 'oa:correction-bill:query')")
     public CommonResult<CorrectionBillRespVO> getCorrectionBill(@RequestParam("id") Long id) {
         CorrectionBillRespVO respVO = correctionBillService.getCorrectionBillInfo(id);
         return success(respVO);

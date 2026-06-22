@@ -40,21 +40,21 @@ public class DocumentDispatchBillController {
 
     @PostMapping("/create")
     @Operation(summary = "创建公文发文单")
-    @PreAuthorize("@ss.hasPermission('oa:document-dispatch-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:document-dispatch-bill:create', 'oa:document-dispatch-bill:query', 'oa:document-dispatch-bill:submit')")
     public CommonResult<Long> createDocumentDispatchBill(@Valid @RequestBody DocumentDispatchBillSaveReqVO createReqVO) {
         return success(documentDispatchBillService.createDocumentDispatchBill(createReqVO));
     }
 
     @PostMapping("/save")
     @Operation(summary = "保存公文发文单")
-    @PreAuthorize("@ss.hasPermission('oa:document-dispatch-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:document-dispatch-bill:create', 'oa:document-dispatch-bill:query', 'oa:document-dispatch-bill:submit')")
     public CommonResult<Long> saveDocumentDispatchBill(@Valid @RequestBody DocumentDispatchBillSaveReqVO saveReqVO) {
         return success(documentDispatchBillService.saveDocumentDispatchBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交公文发文单")
-    @PreAuthorize("@ss.hasPermission('oa:document-dispatch-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:document-dispatch-bill:create', 'oa:document-dispatch-bill:query', 'oa:document-dispatch-bill:submit')")
     public CommonResult<Long> submitDocumentDispatchBill(@Valid @RequestBody DocumentDispatchBillSaveReqVO submitReqVO) {
         return success(documentDispatchBillService.submitDocumentDispatchBill(submitReqVO));
     }
@@ -88,7 +88,7 @@ public class DocumentDispatchBillController {
     @GetMapping("/get")
     @Operation(summary = "获得公文发文单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:document-dispatch-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:document-dispatch-bill:create', 'oa:document-dispatch-bill:query', 'oa:document-dispatch-bill:submit')")
     public CommonResult<DocumentDispatchBillRespVO> getDocumentDispatchBill(@RequestParam("id") Long id) {
         DocumentDispatchBillRespVO respVO = documentDispatchBillService.getDocumentDispatchBillInfo(id);
         return success(respVO);

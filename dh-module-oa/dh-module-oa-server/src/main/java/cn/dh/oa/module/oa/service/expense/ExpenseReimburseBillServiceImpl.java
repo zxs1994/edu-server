@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,6 +78,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     @Transactional(rollbackFor = Exception.class)
     public Long saveExpenseReimburseBill(ExpenseReimburseBillSaveReqVO saveReqVO) {
         OaBillTypeEnum billTypeEnum = getBillTypeEnum(saveReqVO);
+        fillTotalAmount(saveReqVO);
 
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
@@ -103,6 +105,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     @Transactional(rollbackFor = Exception.class)
     public Long submitExpenseReimburseBill(ExpenseReimburseBillSaveReqVO saveReqVO) {
         OaBillTypeEnum billTypeEnum = getBillTypeEnum(saveReqVO);
+        fillTotalAmount(saveReqVO);
 
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
@@ -200,6 +203,9 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
         }
 
         ExpenseReimburseBillRespVO respVO = BeanUtils.toBean(expenseReimburseBill, ExpenseReimburseBillRespVO.class);
+        if (respVO.getTotalAmount() == null) {
+            respVO.setTotalAmount(BigDecimal.ZERO);
+        }
 
         // 根据 billType 确定附件类型编码
         String typeCode = (expenseReimburseBill.getBillType() != null && expenseReimburseBill.getBillType() == 1)
@@ -251,8 +257,6 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
         return expenseReimburseBillMapper.selectPage(pageReqVO);
     }
 
-    // ==================== 费用明细 ====================
-
     /**
      * 保存费用明细（先删后增）
      */
@@ -267,6 +271,13 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
                 detailDO.setId(null); // 确保是新插入
                 expenseReimburseDetailMapper.insert(detailDO);
             }
+        }
+    }
+
+    /** 报销总金额未填时默认 0 */
+    private void fillTotalAmount(ExpenseReimburseBillSaveReqVO saveReqVO) {
+        if (saveReqVO.getTotalAmount() == null) {
+            saveReqVO.setTotalAmount(BigDecimal.ZERO);
         }
     }
 

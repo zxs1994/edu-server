@@ -40,21 +40,21 @@ public class SealApplyBillController {
 
     @PostMapping("/create")
     @Operation(summary = "创建用印申请单")
-    @PreAuthorize("@ss.hasPermission('oa:seal-apply-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:seal-apply-bill:create', 'oa:seal-apply-bill:query', 'oa:seal-apply-bill:submit')")
     public CommonResult<Long> createSealApplyBill(@Valid @RequestBody SealApplyBillSaveReqVO createReqVO) {
         return success(sealApplyBillService.createSealApplyBill(createReqVO));
     }
 
     @PostMapping("/save")
     @Operation(summary = "保存用印申请单")
-    @PreAuthorize("@ss.hasPermission('oa:seal-apply-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:seal-apply-bill:create', 'oa:seal-apply-bill:query', 'oa:seal-apply-bill:submit')")
     public CommonResult<Long> saveSealApplyBill(@Valid @RequestBody SealApplyBillSaveReqVO saveReqVO) {
         return success(sealApplyBillService.saveSealApplyBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交用印申请单")
-    @PreAuthorize("@ss.hasPermission('oa:seal-apply-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:seal-apply-bill:create', 'oa:seal-apply-bill:query', 'oa:seal-apply-bill:submit')")
     public CommonResult<Long> submitSealApplyBill(@Valid @RequestBody SealApplyBillSaveReqVO submitReqVO) {
         return success(sealApplyBillService.submitSealApplyBill(submitReqVO));
     }
@@ -88,7 +88,7 @@ public class SealApplyBillController {
     @GetMapping("/get")
     @Operation(summary = "获得用印申请单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:seal-apply-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:seal-apply-bill:create', 'oa:seal-apply-bill:query', 'oa:seal-apply-bill:submit')")
     public CommonResult<SealApplyBillRespVO> getSealApplyBill(@RequestParam("id") Long id) {
         SealApplyBillRespVO respVO = sealApplyBillService.getSealApplyBillInfo(id);
         return success(respVO);

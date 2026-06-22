@@ -36,21 +36,21 @@ public class TravelApplyBillController {
 
     @PostMapping("/create")
     @Operation(summary = "创建差旅申请单")
-    @PreAuthorize("@ss.hasPermission('oa:travel-apply-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:travel-apply-bill:create', 'oa:travel-apply-bill:query', 'oa:travel-apply-bill:submit')")
     public CommonResult<Long> createTravelApplyBill(@Valid @RequestBody TravelApplyBillSaveReqVO createReqVO) {
         return success(travelApplyBillService.createTravelApplyBill(createReqVO));
     }
 
     @PostMapping("/save")
     @Operation(summary = "保存差旅申请单")
-    @PreAuthorize("@ss.hasPermission('oa:travel-apply-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:travel-apply-bill:create', 'oa:travel-apply-bill:query', 'oa:travel-apply-bill:submit')")
     public CommonResult<Long> saveTravelApplyBill(@Valid @RequestBody TravelApplyBillSaveReqVO saveReqVO) {
         return success(travelApplyBillService.saveTravelApplyBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交差旅申请单")
-    @PreAuthorize("@ss.hasPermission('oa:travel-apply-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:travel-apply-bill:create', 'oa:travel-apply-bill:query', 'oa:travel-apply-bill:submit')")
     public CommonResult<Long> submitTravelApplyBill(@Valid @RequestBody TravelApplyBillSaveReqVO submitReqVO) {
         return success(travelApplyBillService.submitTravelApplyBill(submitReqVO));
     }
@@ -84,7 +84,7 @@ public class TravelApplyBillController {
     @GetMapping("/get")
     @Operation(summary = "获得差旅申请单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:travel-apply-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:travel-apply-bill:create', 'oa:travel-apply-bill:query', 'oa:travel-apply-bill:submit')")
     public CommonResult<TravelApplyBillRespVO> getTravelApplyBill(@RequestParam("id") Long id) {
         TravelApplyBillRespVO respVO = travelApplyBillService.getTravelApplyBillInfo(id);
         return success(respVO);

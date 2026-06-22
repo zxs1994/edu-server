@@ -40,21 +40,21 @@ public class ContractBillController {
 
     @PostMapping("/create")
     @Operation(summary = "创建合同审批单")
-    @PreAuthorize("@ss.hasPermission('oa:contract-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:contract-bill:create', 'oa:contract-bill:query', 'oa:contract-bill:submit')")
     public CommonResult<Long> createContractBill(@Valid @RequestBody ContractBillSaveReqVO createReqVO) {
         return success(contractBillService.createContractBill(createReqVO));
     }
 
     @PostMapping("/save")
     @Operation(summary = "保存合同审批单")
-    @PreAuthorize("@ss.hasPermission('oa:contract-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:contract-bill:create', 'oa:contract-bill:query', 'oa:contract-bill:submit')")
     public CommonResult<Long> saveContractBill(@Valid @RequestBody ContractBillSaveReqVO saveReqVO) {
         return success(contractBillService.saveContractBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交合同审批单")
-    @PreAuthorize("@ss.hasPermission('oa:contract-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:contract-bill:create', 'oa:contract-bill:query', 'oa:contract-bill:submit')")
     public CommonResult<Long> submitContractBill(@Valid @RequestBody ContractBillSaveReqVO submitReqVO) {
         return success(contractBillService.submitContractBill(submitReqVO));
     }
@@ -88,7 +88,7 @@ public class ContractBillController {
     @GetMapping("/get")
     @Operation(summary = "获得合同审批单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:contract-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:contract-bill:create', 'oa:contract-bill:query', 'oa:contract-bill:submit')")
     public CommonResult<ContractBillRespVO> getContractBill(@RequestParam("id") Long id) {
         ContractBillRespVO respVO = contractBillService.getContractBillInfo(id);
         return success(respVO);

@@ -40,21 +40,21 @@ public class ExpenseReimburseBillController {
 
     @PostMapping("/create")
     @Operation(summary = "创建费用报销单")
-    @PreAuthorize("@ss.hasPermission('oa:expense-reimburse-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:expense-reimburse-bill:create', 'oa:expense-reimburse-bill:query', 'oa:expense-reimburse-bill:submit')")
     public CommonResult<Long> createExpenseReimburseBill(@Valid @RequestBody ExpenseReimburseBillSaveReqVO createReqVO) {
         return success(expenseReimburseBillService.createExpenseReimburseBill(createReqVO));
     }
 
     @PostMapping("/save")
     @Operation(summary = "保存费用报销单")
-    @PreAuthorize("@ss.hasPermission('oa:expense-reimburse-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:expense-reimburse-bill:create', 'oa:expense-reimburse-bill:query', 'oa:expense-reimburse-bill:submit')")
     public CommonResult<Long> saveExpenseReimburseBill(@Valid @RequestBody ExpenseReimburseBillSaveReqVO saveReqVO) {
         return success(expenseReimburseBillService.saveExpenseReimburseBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交费用报销单")
-    @PreAuthorize("@ss.hasPermission('oa:expense-reimburse-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:expense-reimburse-bill:create', 'oa:expense-reimburse-bill:query', 'oa:expense-reimburse-bill:submit')")
     public CommonResult<Long> submitExpenseReimburseBill(@Valid @RequestBody ExpenseReimburseBillSaveReqVO submitReqVO) {
         return success(expenseReimburseBillService.submitExpenseReimburseBill(submitReqVO));
     }
@@ -88,7 +88,7 @@ public class ExpenseReimburseBillController {
     @GetMapping("/get")
     @Operation(summary = "获得费用报销单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:expense-reimburse-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:expense-reimburse-bill:create', 'oa:expense-reimburse-bill:query', 'oa:expense-reimburse-bill:submit')")
     public CommonResult<ExpenseReimburseBillRespVO> getExpenseReimburseBill(@RequestParam("id") Long id) {
         ExpenseReimburseBillRespVO respVO = expenseReimburseBillService.getExpenseReimburseBillInfo(id);
         return success(respVO);

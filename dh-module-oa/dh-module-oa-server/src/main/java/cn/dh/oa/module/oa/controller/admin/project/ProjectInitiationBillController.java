@@ -36,21 +36,21 @@ public class ProjectInitiationBillController {
 
     @PostMapping("/create")
     @Operation(summary = "创建项目立项单")
-    @PreAuthorize("@ss.hasPermission('oa:project-initiation-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:project-initiation-bill:create', 'oa:project-initiation-bill:query', 'oa:project-initiation-bill:submit')")
     public CommonResult<Long> createProjectInitiationBill(@Valid @RequestBody ProjectInitiationBillSaveReqVO createReqVO) {
         return success(projectInitiationBillService.createProjectInitiationBill(createReqVO));
     }
 
     @PostMapping("/save")
     @Operation(summary = "保存项目立项单")
-    @PreAuthorize("@ss.hasPermission('oa:project-initiation-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:project-initiation-bill:create', 'oa:project-initiation-bill:query', 'oa:project-initiation-bill:submit')")
     public CommonResult<Long> saveProjectInitiationBill(@Valid @RequestBody ProjectInitiationBillSaveReqVO saveReqVO) {
         return success(projectInitiationBillService.saveProjectInitiationBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交项目立项单")
-    @PreAuthorize("@ss.hasPermission('oa:project-initiation-bill:create')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:project-initiation-bill:create', 'oa:project-initiation-bill:query', 'oa:project-initiation-bill:submit')")
     public CommonResult<Long> submitProjectInitiationBill(@Valid @RequestBody ProjectInitiationBillSaveReqVO submitReqVO) {
         return success(projectInitiationBillService.submitProjectInitiationBill(submitReqVO));
     }
@@ -84,7 +84,7 @@ public class ProjectInitiationBillController {
     @GetMapping("/get")
     @Operation(summary = "获得项目立项单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:project-initiation-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:project-initiation-bill:create', 'oa:project-initiation-bill:query', 'oa:project-initiation-bill:submit')")
     public CommonResult<ProjectInitiationBillRespVO> getProjectInitiationBill(@RequestParam("id") Long id) {
         ProjectInitiationBillRespVO respVO = projectInitiationBillService.getProjectInitiationBillInfo(id);
         return success(respVO);

@@ -51,6 +51,9 @@ public class TravelApplyBillSaveReqVO {
     @Schema(description = "报销状态（0未报销 1已报销）")
     private Integer reimbursementStatus;
 
+    @Schema(description = "申请类型（1国内差旅 2出境差旅）")
+    private Integer travelType;
+
     // ========== 公共字段 ==========
 
     @Schema(description = "创建者姓名")

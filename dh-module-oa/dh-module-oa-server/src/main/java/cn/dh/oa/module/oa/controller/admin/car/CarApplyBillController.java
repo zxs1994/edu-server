@@ -40,14 +40,14 @@ public class CarApplyBillController {
 
     @PostMapping("/save")
     @Operation(summary = "保存用车申请单")
-    @PreAuthorize("@ss.hasPermission('oa:car-apply-bill:save')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:car-apply-bill:create', 'oa:car-apply-bill:query', 'oa:car-apply-bill:save', 'oa:car-apply-bill:submit')")
     public CommonResult<Long> saveCarApplyBill(@Valid @RequestBody CarApplyBillSaveReqVO saveReqVO) {
         return success(carApplyBillService.saveCarApplyBill(saveReqVO));
     }
 
     @PostMapping("/submit")
     @Operation(summary = "提交用车申请单")
-    @PreAuthorize("@ss.hasPermission('oa:car-apply-bill:submit')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:car-apply-bill:create', 'oa:car-apply-bill:query', 'oa:car-apply-bill:save', 'oa:car-apply-bill:submit')")
     public CommonResult<Long> submitCarApplyBill(@Valid @RequestBody CarApplyBillSaveReqVO createReqVO) {
         return success(carApplyBillService.submitCarApplyBill(createReqVO));
     }
@@ -81,7 +81,7 @@ public class CarApplyBillController {
     @GetMapping("/get")
     @Operation(summary = "获得用车申请单")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
-    @PreAuthorize("@ss.hasPermission('oa:car-apply-bill:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:car-apply-bill:create', 'oa:car-apply-bill:query', 'oa:car-apply-bill:save', 'oa:car-apply-bill:submit')")
     public CommonResult<CarApplyBillRespVO> getCarApplyBill(@RequestParam("id") Long id) {
         CarApplyBillRespVO respVO = carApplyBillService.getCarApplyBillInfo(id);
         return success(respVO);
