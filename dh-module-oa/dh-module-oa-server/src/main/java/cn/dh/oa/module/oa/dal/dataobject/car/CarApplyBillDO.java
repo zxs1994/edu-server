@@ -42,9 +42,9 @@ public class CarApplyBillDO extends BaseDO {
      */
     private Integer processStatus;
     /**
-     * 车辆
+     * 车辆ID(逗号分隔)
      */
-    private Long carId;
+    private String carId;
     /**
      * 车牌号
      */

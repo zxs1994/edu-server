@@ -255,11 +255,12 @@ public class CarApplyBillServiceImpl implements CarApplyBillService, FlowBillSer
 
     /**
      * 校验车辆使用时间冲突
+     * 支持多车辆（carId为逗号分隔字符串），逐个检查时间冲突
      *
      * @param saveReqVO 保存请求VO
      */
     private void validateTimeConflict(CarApplyBillSaveReqVO saveReqVO) {
-        if (saveReqVO.getCarId() == null || saveReqVO.getGoTime() == null || saveReqVO.getReturnTime() == null) {
+        if (StringUtils.isBlank(saveReqVO.getCarId()) || saveReqVO.getGoTime() == null || saveReqVO.getReturnTime() == null) {
             return; // 如果必要字段为空，跳过校验
         }
 
@@ -268,10 +269,9 @@ public class CarApplyBillServiceImpl implements CarApplyBillService, FlowBillSer
             throw exception(CAR_TIME_CONFLICT);
         }
 
-        // 查询同一车辆在相同时间段内的申请单
-        List<CarApplyBillDO> conflictBills = carApplyBillMapper.selectList(
+        // 查询同一时间段内的申请单（按状态和时间重叠筛选，不在此处过滤carId）
+        List<CarApplyBillDO> potentialConflictBills = carApplyBillMapper.selectList(
                 new LambdaQueryWrapperX<CarApplyBillDO>()
-                        .eq(CarApplyBillDO::getCarId, saveReqVO.getCarId())
                         .ne(saveReqVO.getId() != null, CarApplyBillDO::getId, saveReqVO.getId()) // 排除当前编辑的记录
                         .and(wrapper -> wrapper
                                 // 场景1：存在审批中的申请单且时间重合
@@ -295,8 +295,8 @@ public class CarApplyBillServiceImpl implements CarApplyBillService, FlowBillSer
                                 // 场景2：存在审批通过且还车状态为待还车或还车中的申请单且时间重合
                                 .or(subWrapper -> subWrapper
                                         .eq(CarApplyBillDO::getProcessStatus, APPROVE.getStatus())
-                                        .in(CarApplyBillDO::getReturnStatus, 
-                                                CarReturnStatusEnum.PENDING_RETURN.getStatus(), 
+                                        .in(CarApplyBillDO::getReturnStatus,
+                                                CarReturnStatusEnum.PENDING_RETURN.getStatus(),
                                                 CarReturnStatusEnum.RETURNING.getStatus())
                                         .and(timeWrapper -> timeWrapper
                                                 .and(timeWrapper2 -> timeWrapper2
@@ -316,8 +316,24 @@ public class CarApplyBillServiceImpl implements CarApplyBillService, FlowBillSer
                         )
         );
 
-        if (!conflictBills.isEmpty()) {
-            throw exception(CAR_TIME_CONFLICT);
+        if (potentialConflictBills.isEmpty()) {
+            return;
+        }
+
+        // 解析当前请求中的车辆ID列表
+        Set<String> requestCarIds = new HashSet<>(Arrays.asList(saveReqVO.getCarId().split(",")));
+
+        // 检查是否有车辆ID冲突
+        for (CarApplyBillDO bill : potentialConflictBills) {
+            if (StringUtils.isNotBlank(bill.getCarId())) {
+                Set<String> billCarIds = new HashSet<>(Arrays.asList(bill.getCarId().split(",")));
+                // 检查是否有交集
+                for (String carId : requestCarIds) {
+                    if (billCarIds.contains(carId.trim())) {
+                        throw exception(CAR_TIME_CONFLICT);
+                    }
+                }
+            }
         }
     }
 

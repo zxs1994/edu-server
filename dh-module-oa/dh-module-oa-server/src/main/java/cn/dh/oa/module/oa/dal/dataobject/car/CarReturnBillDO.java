@@ -46,9 +46,9 @@ public class CarReturnBillDO extends BaseDO {
      */
     private String applyBill;
     /**
-     * 车辆
+     * 车辆ID(逗号分隔)
      */
-    private Long carId;
+    private String carId;
     /**
      * 车牌号
      */

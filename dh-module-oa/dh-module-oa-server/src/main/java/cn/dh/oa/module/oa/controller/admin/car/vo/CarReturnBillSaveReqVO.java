@@ -27,8 +27,8 @@ public class CarReturnBillSaveReqVO {
     @Schema(description = "用车申请单")
     private String applyBill;
 
-    @Schema(description = "车辆", example = "10499")
-    private Long carId;
+    @Schema(description = "车辆ID(逗号分隔)", example = "1,2,3")
+    private String carId;
 
     @Schema(description = "车牌号")
     private String carNo;

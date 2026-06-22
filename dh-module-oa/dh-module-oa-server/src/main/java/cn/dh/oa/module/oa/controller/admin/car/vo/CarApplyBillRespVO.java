@@ -30,9 +30,9 @@ public class CarApplyBillRespVO {
     @ExcelProperty("单据状态")
     private Integer processStatus;
 
-    @Schema(description = "车辆", example = "3524")
-    @ExcelProperty("车辆")
-    private Long carId;
+    @Schema(description = "车辆ID(逗号分隔)", example = "1,2,3")
+    @ExcelProperty("车辆ID")
+    private String carId;
 
     @Schema(description = "车牌号", example = "3524")
     @ExcelProperty("车牌号")

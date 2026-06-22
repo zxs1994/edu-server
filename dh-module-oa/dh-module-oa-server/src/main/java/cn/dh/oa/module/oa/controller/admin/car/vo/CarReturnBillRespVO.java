@@ -33,9 +33,9 @@ public class CarReturnBillRespVO {
     @ExcelProperty("用车申请单")
     private String applyBill;
 
-    @Schema(description = "车辆", example = "10499")
-    @ExcelProperty("车辆")
-    private Long carId;
+    @Schema(description = "车辆ID(逗号分隔)", example = "1,2,3")
+    @ExcelProperty("车辆ID")
+    private String carId;
 
     @Schema(description = "车牌号")
     @ExcelProperty("车牌号")

@@ -24,8 +24,8 @@ public class CarApplyBillSaveReqVO {
     @Schema(description = "单据状态", example = "2")
     private Integer processStatus;
 
-    @Schema(description = "车辆", example = "3524")
-    private Long carId;
+    @Schema(description = "车辆ID(逗号分隔)", example = "1,2,3")
+    private String carId;
 
     @Schema(description = "车牌号", example = "3524")
     private String carNo;
