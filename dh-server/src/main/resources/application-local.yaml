@@ -140,3 +140,6 @@ wx:
     secret: wx_placeholder_secret
     token: wx_placeholder_token
     aes-key: wx_placeholder_aeskey
+  miniapp:
+    appid: wx97aa0bdf8160f4f9
+    secret: 74fb648cb7c00479b2d4d94f82a57aad

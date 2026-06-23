@@ -122,6 +122,15 @@ justauth:
       client-secret: 1wTb7hYxnpT2TUbIeHGXGo7T0odav1ic10mLdyyATOw
       agent-id: 1000004
       ignore-check-redirect-uri: true
+    WECHAT_MINI_PROGRAM: # 微信小程序
+      client-id: ${wx.miniapp.appid}
+      client-secret: ${wx.miniapp.secret}
+      ignore-check-redirect-uri: true
+      ignore-check-state: true
+    WECHAT_MP: # 微信公众号
+      client-id: ${wx.mp.app-id}
+      client-secret: ${wx.mp.secret}
+      ignore-check-redirect-uri: true
     ALIPAY: # 支付宝小程序
       client-id: xx
       client-secret: xx
@@ -133,10 +142,17 @@ justauth:
     prefix: 'social_auth_state:' # 缓存前缀，目前只对 Redis 缓存生效，默认 JUSTAUTH::STATE::
     timeout: 24h # 超时时长，目前只对 Redis 缓存生效，默认 3 分钟
 
-# 微信公众号配置（占位，暂未使用）
+# 微信公众号、小程序配置
 wx:
   mp:
     app-id: wx_placeholder_appid
     secret: wx_placeholder_secret
     token: wx_placeholder_token
     aes-key: wx_placeholder_aeskey
+  miniapp:
+    appid: wx97aa0bdf8160f4f9
+    secret: 74fb648cb7c00479b2d4d94f82a57aad
+    config-storage:
+      type: RedisTemplate
+      key-prefix: wa
+      http-client-type: HttpClient

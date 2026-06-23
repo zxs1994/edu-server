@@ -32,6 +32,8 @@ public class SecurityConfiguration {
                         .requestMatchers("/actuator/**").permitAll();
                 // RPC 服务的安全配置
                 registry.requestMatchers(ApiConstants.PREFIX + "/**").permitAll();
+                // App 端认证接口（如小程序登录）
+                registry.requestMatchers("/app-api/system/auth/**").permitAll();
             }
 
         };
