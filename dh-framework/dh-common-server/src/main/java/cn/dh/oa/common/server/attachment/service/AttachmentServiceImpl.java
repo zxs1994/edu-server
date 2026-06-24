@@ -33,6 +33,11 @@ public class AttachmentServiceImpl implements AttachmentService {
     public Long createAttachment(@Valid AttachmentSaveReqVO createReqVO) {
         // 插入
         AttachmentDO attachment = BeanUtils.toBean(createReqVO, AttachmentDO.class);
+        // filePath 为空时，用 fileUrl 兜底
+        if ((attachment.getFilePath() == null || attachment.getFilePath().isEmpty())
+                && attachment.getFileUrl() != null && !attachment.getFileUrl().isEmpty()) {
+            attachment.setFilePath(attachment.getFileUrl());
+        }
         if (attachment.getUploadTime() == null) {
             attachment.setUploadTime(LocalDateTime.now());
         }
@@ -96,6 +101,11 @@ public class AttachmentServiceImpl implements AttachmentService {
                         AttachmentDO attachmentDO = BeanUtils.toBean(reqVO, AttachmentDO.class);
                         attachmentDO.setBusinessType(businessType);
                         attachmentDO.setBusinessId(businessId);
+                        // filePath 为空时，用 fileUrl 兜底（小程序端只传 fileUrl）
+                        if ((attachmentDO.getFilePath() == null || attachmentDO.getFilePath().isEmpty())
+                                && attachmentDO.getFileUrl() != null && !attachmentDO.getFileUrl().isEmpty()) {
+                            attachmentDO.setFilePath(attachmentDO.getFileUrl());
+                        }
                         // 新增时设置上传时间
                         if (attachmentDO.getId() == null && attachmentDO.getUploadTime() == null) {
                             attachmentDO.setUploadTime(LocalDateTime.now());

@@ -197,7 +197,7 @@ public class OaDraftBillService implements OaDraftBillApi {
                                                    OaDraftBillQueryDTO query, boolean supportCompanyFilter) {
         LambdaQueryWrapper<T> wrapper = new LambdaQueryWrapper<>(clazz);
         wrapper.apply("creator = {0}", creator)
-                .apply("process_status = {0}", notStart)
+                .apply("process_status IN ({0}, 0)", notStart)
                 .and(w -> w.apply("process_instance_id IS NULL").or().apply("process_instance_id = ''"));
         if (StrUtil.isNotBlank(query.getBillCode())) {
             wrapper.apply("bill_code LIKE {0}", "%" + query.getBillCode() + "%");
