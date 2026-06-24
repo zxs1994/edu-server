@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -158,7 +159,18 @@ public class AuthController {
         }
 
         // 1.3.2 过滤禁用的菜单（含祖先链检查，需要父级已补全才能正确判断）
-        menuList = menuService.filterDisableMenus(menuList);
+        menuList = new ArrayList<>(menuService.filterDisableMenus(menuList));
+
+        // 1.3.3 工作人员角色保护：强制移除审批管理(5300)
+        // 无论数据库如何配置，纯工作人员角色用户永远不会在侧边栏看到审批管理。
+        // 若用户同时拥有其他包含审批管理的角色（如管理员），则保留。
+        final long STAFF_ROLE_ID = 209L;
+        final long APPROVAL_MGMT_MENU_ID = 5300L;
+        Set<Long> activeRoleIds = convertSet(roles, RoleDO::getId);
+        if (activeRoleIds.contains(STAFF_ROLE_ID) && activeRoleIds.size() == 1) {
+            menuList.removeIf(m -> m.getId().equals(APPROVAL_MGMT_MENU_ID));
+            menuIds.remove(APPROVAL_MGMT_MENU_ID);
+        }
 
         // 1.4 获取用户公司信息和部门信息
         DeptDO company = deptService.getUserCompany(user.getDeptId());
