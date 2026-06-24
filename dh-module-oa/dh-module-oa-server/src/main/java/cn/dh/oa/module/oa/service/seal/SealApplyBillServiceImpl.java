@@ -3,6 +3,8 @@ package cn.dh.oa.module.oa.service.seal;
 import cn.dh.oa.framework.common.enums.SystemEnum;
 import cn.dh.oa.framework.common.util.bill.BillCodeUtils;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import cn.dh.oa.framework.security.core.util.SecurityFrameworkUtils;
 import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
@@ -61,14 +63,26 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_SEAL_APPLY_BILL));
         }
 
-        // 现场用印时，清空预计归还时间
+        // 现场用印时，清空归还时间
         if (saveReqVO.getUseMode() != null && saveReqVO.getUseMode() == 1) {
             saveReqVO.setExpectedReturnTime(null);
+            saveReqVO.setActualReturnTime(null);
         }
+
+        // 校验时间冲突（现场用章和外借用章都需要校验）
+        validateTimeConflict(saveReqVO);
 
         // 插入或更新
         SealApplyBillDO sealApplyBill = BeanUtils.toBean(saveReqVO, SealApplyBillDO.class);
         sealApplyBillMapper.insertOrUpdate(sealApplyBill);
+
+        // 现场用印时，显式清空归还时间（MyBatis-Plus 默认 NOT_NULL 策略不会将 null 写入 UPDATE）
+        if (saveReqVO.getUseMode() != null && saveReqVO.getUseMode() == 1) {
+            sealApplyBillMapper.update(new LambdaUpdateWrapper<SealApplyBillDO>()
+                    .eq(SealApplyBillDO::getId, sealApplyBill.getId())
+                    .set(SealApplyBillDO::getExpectedReturnTime, null)
+                    .set(SealApplyBillDO::getActualReturnTime, null));
+        }
 
         // 保存附件信息
         if (saveReqVO.getAttachments() != null) {
@@ -86,20 +100,27 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_SEAL_APPLY_BILL));
         }
 
-        // 现场用印时，清空预计归还时间
+        // 现场用印时，清空归还时间
         if (saveReqVO.getUseMode() != null && saveReqVO.getUseMode() == 1) {
             saveReqVO.setExpectedReturnTime(null);
+            saveReqVO.setActualReturnTime(null);
         }
 
-        // 校验时间冲突（仅外借用章需要校验）
-        if (saveReqVO.getUseMode() != null && saveReqVO.getUseMode() == 2) {
-            validateTimeConflict(saveReqVO);
-        }
+        // 校验时间冲突（现场用章和外借用章都需要校验）
+        validateTimeConflict(saveReqVO);
 
         // 保存或更新
         SealApplyBillDO sealApplyBill = BeanUtils.toBean(saveReqVO, SealApplyBillDO.class)
                 .setProcessStatus(BpmTaskStatusEnum.RUNNING.getStatus());
         sealApplyBillMapper.insertOrUpdate(sealApplyBill);
+
+        // 现场用印时，显式清空归还时间（MyBatis-Plus 默认 NOT_NULL 策略不会将 null 写入 UPDATE）
+        if (saveReqVO.getUseMode() != null && saveReqVO.getUseMode() == 1) {
+            sealApplyBillMapper.update(new LambdaUpdateWrapper<SealApplyBillDO>()
+                    .eq(SealApplyBillDO::getId, sealApplyBill.getId())
+                    .set(SealApplyBillDO::getExpectedReturnTime, null)
+                    .set(SealApplyBillDO::getActualReturnTime, null));
+        }
 
         // 智能提交 BPM 流程（如果流程实例不存在则创建，存在则审批发起人任务）
         Map<String, Object> processInstanceVariables = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
@@ -263,70 +284,90 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
         updateUseStatus(id, SealUseStatusEnum.OVERDUE.getStatus());
     }
 
+    @Override
+    public boolean checkTimeConflict(SealApplyBillSaveReqVO checkVO) {
+        try {
+            validateTimeConflict(checkVO);
+            return false; // 无冲突
+        } catch (Exception e) {
+            return true; // 存在冲突
+        }
+    }
+
     /**
-     * 校验印章使用时间冲突（仅外借用章需要校验）
+     * 校验印章使用时间冲突（现场用章和外借用章都需要校验）
+     * - 现场用章：检查预计用章时间是否落在其他申请的时间段内
+     * - 外借用章：检查预计用章时间~预计归还时间段是否与其他申请的时间段重叠
      *
      * @param saveReqVO 保存请求VO
      */
     private void validateTimeConflict(SealApplyBillSaveReqVO saveReqVO) {
-        if (saveReqVO.getSealId() == null || saveReqVO.getExpectedUseTime() == null || saveReqVO.getExpectedReturnTime() == null) {
+        if (saveReqVO.getSealId() == null || saveReqVO.getExpectedUseTime() == null) {
             return; // 如果必要字段为空，跳过校验
         }
 
-        // 校验预计用章时间不能晚于预计归还时间
-        if (saveReqVO.getExpectedUseTime().isAfter(saveReqVO.getExpectedReturnTime())) {
-            throw exception(SEAL_TIME_CONFLICT);
+        // 外借用章时，校验预计用章时间不能晚于预计归还时间
+        if (saveReqVO.getUseMode() == 2) {
+            if (saveReqVO.getExpectedReturnTime() == null
+                    || saveReqVO.getExpectedUseTime().isAfter(saveReqVO.getExpectedReturnTime())) {
+                throw exception(SEAL_TIME_CONFLICT);
+            }
         }
 
-        // 查询同一印章在相同时间段内的申请单（仅外借用章）
-        List<SealApplyBillDO> conflictBills = sealApplyBillMapper.selectList(
-                new LambdaQueryWrapperX<SealApplyBillDO>()
-                        .eq(SealApplyBillDO::getSealId, saveReqVO.getSealId())
-                        .eq(SealApplyBillDO::getUseMode, 2) // 仅检查外借用章
-                        .ne(saveReqVO.getId() != null, SealApplyBillDO::getId, saveReqVO.getId()) // 排除当前编辑的记录
-                        .and(wrapper -> wrapper
-                                // 场景1：存在审批中的申请单且时间重合
-                                .and(subWrapper -> subWrapper
-                                        .eq(SealApplyBillDO::getProcessStatus, RUNNING.getStatus())
-                                        .and(timeWrapper -> timeWrapper
-                                                .and(timeWrapper2 -> timeWrapper2
-                                                        .le(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
-                                                        .ge(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedUseTime())
-                                                )
-                                                .or(timeWrapper3 -> timeWrapper3
-                                                        .le(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedReturnTime())
-                                                        .ge(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedReturnTime())
-                                                )
-                                                .or(timeWrapper4 -> timeWrapper4
-                                                        .ge(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
-                                                        .le(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedReturnTime())
-                                                )
-                                        )
-                                )
-                                // 场景2：存在审批通过且用印状态为外借中的申请单且时间重合
-                                .or(subWrapper -> subWrapper
-                                        .eq(SealApplyBillDO::getProcessStatus, APPROVE.getStatus())
-                                        .eq(SealApplyBillDO::getUseStatus, SealUseStatusEnum.BORROWED.getStatus())
-                                        .and(timeWrapper -> timeWrapper
-                                                .and(timeWrapper2 -> timeWrapper2
-                                                        .le(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
-                                                        .ge(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedUseTime())
-                                                )
-                                                .or(timeWrapper3 -> timeWrapper3
-                                                        .le(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedReturnTime())
-                                                        .ge(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedReturnTime())
-                                                )
-                                                .or(timeWrapper4 -> timeWrapper4
-                                                        .ge(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
-                                                        .le(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedReturnTime())
-                                                )
-                                        )
-                                )
-                        )
-        );
+        // 查询同一印章在相同时间段内的申请单（排除当前记录）
+        LambdaQueryWrapper<SealApplyBillDO> queryWrapper = new LambdaQueryWrapperX<SealApplyBillDO>()
+                .eq(SealApplyBillDO::getSealId, saveReqVO.getSealId())
+                .ne(saveReqVO.getId() != null, SealApplyBillDO::getId, saveReqVO.getId())
+                .and(wrapper -> wrapper
+                        // 场景1：存在审批中的申请单
+                        .and(subWrapper -> {
+                            subWrapper.eq(SealApplyBillDO::getProcessStatus, RUNNING.getStatus());
+                            addTimeOverlapCondition(subWrapper, saveReqVO);
+                        })
+                        // 场景2：存在审批通过且用印状态为外借中的申请单
+                        .or(subWrapper -> {
+                            subWrapper.eq(SealApplyBillDO::getProcessStatus, APPROVE.getStatus())
+                                    .eq(SealApplyBillDO::getUseStatus, SealUseStatusEnum.BORROWED.getStatus());
+                            addTimeOverlapCondition(subWrapper, saveReqVO);
+                        })
+                );
+
+        List<SealApplyBillDO> conflictBills = sealApplyBillMapper.selectList(queryWrapper);
 
         if (!conflictBills.isEmpty()) {
             throw exception(SEAL_TIME_CONFLICT);
+        }
+    }
+
+    /**
+     * 添加时间重叠条件
+     * - 现场用章(useMode==1)：只有一个时间点(expectedUseTime)，检查是否落在已有时间段内
+     * - 外借用章(useMode==2)：检查两个时间段是否重叠
+     */
+    private void addTimeOverlapCondition(LambdaQueryWrapper<SealApplyBillDO> wrapper, SealApplyBillSaveReqVO saveReqVO) {
+
+        if (saveReqVO.getUseMode() == 1) {
+            // 现场用章：检查时间点是否落在已有申请的时间段 [expectedUseTime, expectedReturnTime] 内
+            wrapper.and(timeWrapper -> timeWrapper
+                    .le(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
+                    .ge(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedUseTime())
+            );
+        } else {
+            // 外借用章：检查两个时间段是否重叠
+            wrapper.and(timeWrapper -> timeWrapper
+                    .and(tw -> tw
+                            .le(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
+                            .ge(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedUseTime())
+                    )
+                    .or(tw -> tw
+                            .le(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedReturnTime())
+                            .ge(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedReturnTime())
+                    )
+                    .or(tw -> tw
+                            .ge(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
+                            .le(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedReturnTime())
+                    )
+            );
         }
     }
 

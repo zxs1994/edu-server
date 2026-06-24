@@ -102,6 +102,13 @@ public class SealApplyBillController {
         return success(BeanUtils.toBean(pageResult, SealApplyBillRespVO.class));
     }
 
+    @PostMapping("/check-time-conflict")
+    @Operation(summary = "校验印章时间冲突")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:seal-apply-bill:create', 'oa:seal-apply-bill:query', 'oa:seal-apply-bill:submit')")
+    public CommonResult<Boolean> checkTimeConflict(@RequestBody SealApplyBillSaveReqVO checkVO) {
+        return success(sealApplyBillService.checkTimeConflict(checkVO));
+    }
+
     @GetMapping("/export-excel")
     @Operation(summary = "导出用印申请单 Excel")
     @PreAuthorize("@ss.hasPermission('oa:seal-apply-bill:export')")

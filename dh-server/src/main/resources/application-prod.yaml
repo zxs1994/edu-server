@@ -1,13 +1,8 @@
-# ================================
-# 鼎衡后端 - 生产环境配置（单体模式）
-# ================================
-# 基于 application-local.yaml 生成，适用于单体部署
-# 注意：敏感信息请通过环境变量或外部配置覆盖
-
 server:
-  port: 48080
+  port: 38080
 
 --- #################### 数据库相关配置 ####################
+
 spring:
   # 数据源配置项
   datasource:
@@ -18,8 +13,8 @@ spring:
         enabled: true
         allow: # 设置白名单，不填则允许所有访问
         url-pattern: /druid/*
-        login-username: ${DRUID_USERNAME:admin} # 控制台管理用户名和密码
-        login-password: ${DRUID_PASSWORD:admin123}
+        login-username: # 控制台管理用户名和密码
+        login-password:
       filter:
         stat:
           enabled: true
@@ -31,8 +26,8 @@ spring:
             multi-statement-allow: true
     dynamic: # 多数据源配置
       druid: # Druid 【连接池】相关的全局配置
-        initial-size: 1 # 初始连接数
-        min-idle: 1 # 最小连接池数量
+        initial-size: 5 # 初始连接数
+        min-idle: 10 # 最小连接池数量
         max-active: 20 # 最大连接池数量
         max-wait: 60000 # 配置获取连接等待超时的时间，单位：毫秒（1 分钟）
         time-between-eviction-runs-millis: 60000 # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位：毫秒（1 分钟）
@@ -47,18 +42,17 @@ spring:
       primary: master
       datasource:
         master:
-          # 生产环境数据库配置 - 请通过环境变量覆盖
-          url: ${MYSQL_URL:jdbc:mysql://192.168.30.130:3306/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
+          url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3316/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
           username: ${MYSQL_USERNAME:root}
-          password: ${MYSQL_PASSWORD:Admin$123!}
+          password: ${MYSQL_PASSWORD:root}
 
-  # Redis 配置 - 生产环境
+  # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
   data:
     redis:
-      host: ${REDIS_HOST:192.168.30.130} # 地址
-      port: ${REDIS_PORT:6379} # 端口
+      host: ${REDIS_HOST:127.0.0.1} # 地址
+      port: ${REDIS_PORT:6377} # 端口
       database: ${REDIS_DATABASE:0} # 数据库索引
-      password: ${REDIS_PASSWORD:Admin$123!} # 密码
+      password: ${REDIS_PASSWORD:LGD} # 密码
 
 --- #################### 消息队列相关 ####################
 
@@ -67,8 +61,8 @@ spring:
   rabbitmq:
     host: 127.0.0.1 # RabbitMQ 服务的地址
     port: 5672 # RabbitMQ 服务的端口
-    username: rabbit # RabbitMQ 服务的账号
-    password: rabbit # RabbitMQ 服务的密码
+    username: guest # RabbitMQ 服务的账号
+    password: guest # RabbitMQ 服务的密码
   # Kafka 配置项，对应 KafkaProperties 配置类
   kafka:
     bootstrap-servers: 127.0.0.1:9092 # 指定 Kafka Broker 地址，可以设置多个，以逗号分隔
@@ -108,36 +102,12 @@ spring:
 logging:
   file:
     name: ${user.home}/logs/${spring.application.name}.log # 日志文件名，全路径
-  level:
-    # 配置自己写的 MyBatis Mapper 打印日志
-    cn.dh.oa.module.bpm.dal.mysql: debug
-    cn.dh.oa.module.infra.dal.mysql: debug
-    cn.dh.oa.module.infra.dal.mysql.logger.ApiErrorLogMapper: INFO # 配置 ApiErrorLogMapper 的日志级别为 info，避免和 GlobalExceptionHandler 重复打印
-    cn.dh.oa.module.infra.dal.mysql.job.JobLogMapper: INFO # 配置 JobLogMapper 的日志级别为 info
-    cn.dh.oa.module.infra.dal.mysql.file.FileConfigMapper: INFO # 配置 FileConfigMapper 的日志级别为 info
-    cn.dh.oa.module.oa.dal.mysql: debug
-    cn.dh.oa.module.hrm.dal.mysql: debug
-    cn.dh.oa.module.system.dal.mysql: debug
-    cn.dh.oa.module.system.dal.mysql.sms.SmsChannelMapper: INFO # 配置 SmsChannelMapper 的日志级别为 info
-    org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 芋艿：先禁用，Spring Boot 3.X 存在部分错误的 WARN 提示
-
-debug: false
 
 --- #################### 鼎衡相关配置 ####################
 
 # 鼎衡配置项，设置当前项目所有自定义的配置
 dh:
-  captcha:
-    enable: false # 暂时关闭图片验证码，方便登录等接口的测试；
-  security:
-    mock-enable: true
-  access-log: # 访问日志的配置项
-    enable: false
-  demo: false # 关闭演示模式
-  wxa-code:
-    env-version: develop # 小程序版本: 正式版为 "release"；体验版为 "trial"；开发版为 "develop"
-  wxa-subscribe-message:
-    miniprogram-state: developer # 跳转小程序类型：开发版为 "developer"；体验版为 "trial"为；正式版为 "formal"
+  demo: false # 开启演示模式
   tencent-lbs-key: TVDBZ-TDILD-4ON4B-PFDZA-RNLKH-VVF6E # QQ 地图的密钥 https://lbs.qq.com/service/staticV2/staticGuide/staticDoc
 
 justauth:
@@ -152,6 +122,15 @@ justauth:
       client-secret: 1wTb7hYxnpT2TUbIeHGXGo7T0odav1ic10mLdyyATOw
       agent-id: 1000004
       ignore-check-redirect-uri: true
+    WECHAT_MINI_PROGRAM: # 微信小程序
+      client-id: wx97aa0bdf8160f4f9
+      client-secret: 74fb648cb7c00479b2d4d94f82a57aad
+      ignore-check-redirect-uri: true
+      ignore-check-state: true
+    WECHAT_MP: # 微信公众号
+      client-id: ${wx.mp.app-id}
+      client-secret: ${wx.mp.secret}
+      ignore-check-redirect-uri: true
     ALIPAY: # 支付宝小程序
       client-id: xx
       client-secret: xx
@@ -162,3 +141,18 @@ justauth:
     type: REDIS
     prefix: 'social_auth_state:' # 缓存前缀，目前只对 Redis 缓存生效，默认 JUSTAUTH::STATE::
     timeout: 24h # 超时时长，目前只对 Redis 缓存生效，默认 3 分钟
+
+# 微信公众号、小程序配置
+wx:
+  mp:
+    app-id: wx_placeholder_appid
+    secret: wx_placeholder_secret
+    token: wx_placeholder_token
+    aes-key: wx_placeholder_aeskey
+  miniapp:
+    appid: wx97aa0bdf8160f4f9
+    secret: 74fb648cb7c00479b2d4d94f82a57aad
+    config-storage:
+      type: RedisTemplate
+      key-prefix: wa
+      http-client-type: HttpClient

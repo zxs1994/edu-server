@@ -126,4 +126,12 @@ public interface SealApplyBillService {
      */
     void markAsOverdue(Long id);
 
+    /**
+     * 校验印章使用时间冲突（供前端实时校验调用）
+     *
+     * @param checkVO 校验参数（sealId, useMode, expectedUseTime, expectedReturnTime, id）
+     * @return true=存在冲突，false=无冲突
+     */
+    boolean checkTimeConflict(SealApplyBillSaveReqVO checkVO);
+
 }

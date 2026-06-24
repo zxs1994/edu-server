@@ -3,6 +3,7 @@ package cn.dh.oa.module.oa.controller.admin.travel.vo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Schema(description = "管理后台 - 差旅行程明细新增/修改 Request VO")
 @Data
@@ -21,9 +22,11 @@ public class TravelItinerarySaveReqVO {
     private String destinationCity;
 
     @Schema(description = "开始日期")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime startDate;
 
     @Schema(description = "结束日期")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime endDate;
 
     @Schema(description = "交通方式：1火车 2飞机 3自驾 4公务用车 5其他")
