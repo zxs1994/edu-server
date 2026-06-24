@@ -13,6 +13,7 @@ import cn.dh.oa.module.bpm.dal.dataobject.definition.BpmProcessDefinitionInfoDO;
 import cn.dh.oa.module.bpm.dal.dataobject.task.BpmProcessInstanceCopyDO;
 import cn.dh.oa.module.bpm.framework.flowable.core.util.FlowableUtils;
 import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
+import cn.dh.oa.module.bpm.service.bill.BpmBillDeletedService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceCopyService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceService;
 import cn.dh.oa.module.system.api.user.AdminUserApi;
@@ -51,6 +52,8 @@ public class BpmProcessInstanceCopyController {
 
     @Resource
     private AdminUserApi adminUserApi;
+    @Resource
+    private BpmBillDeletedService billDeletedService;
 
     @GetMapping("/page")
     @Operation(summary = "获得抄送流程分页列表")
@@ -70,7 +73,7 @@ public class BpmProcessInstanceCopyController {
                 copy -> Stream.of(copy.getStartUserId(), Long.parseLong(copy.getCreator()))));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), BpmProcessInstanceCopyDO::getProcessDefinitionId));
-        return success(convertPage(pageResult, copy -> {
+        PageResult<BpmProcessInstanceCopyRespVO> result = convertPage(pageResult, copy -> {
             BpmProcessInstanceCopyRespVO copyVO = BeanUtils.toBean(copy, BpmProcessInstanceCopyRespVO.class);
             MapUtils.findAndThen(userMap, Long.valueOf(copy.getCreator()),
                     user -> copyVO.setStartUser(BeanUtils.toBean(user, UserSimpleBaseVO.class)));
@@ -84,7 +87,9 @@ public class BpmProcessInstanceCopyController {
                         copyVO.setProcessInstanceStartTime(DateUtils.of(processInstance.getStartTime()));
                     });
             return copyVO;
-        }));
+        });
+        billDeletedService.fillCopyPage(result, processInstanceMap);
+        return success(result);
     }
 
     @GetMapping("/unread-count")

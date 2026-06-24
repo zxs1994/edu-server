@@ -66,6 +66,11 @@ public class TravelApplyBillDO extends BaseDO {
     private Integer reimbursementStatus;
 
     /**
+     * 关联的差旅报销单ID（被报销单保存时锁定，删除报销单或解除关联时释放）
+     */
+    private Long linkedExpenseBillId;
+
+    /**
      * 申请类型（1国内差旅 2出境差旅）
      */
     private Integer travelType;

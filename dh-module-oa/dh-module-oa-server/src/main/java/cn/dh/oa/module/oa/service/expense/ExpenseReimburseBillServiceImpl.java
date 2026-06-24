@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.expense.ExpenseReimburseBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.expense.ExpenseReimburseDetailDO;
@@ -38,6 +39,7 @@ import cn.dh.oa.module.oa.dal.mysql.travel.TravelApplyBillMapper;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
+import static cn.dh.oa.module.oa.enums.OaProcessVariableConstants.PV_EXPENSE_IS_LARGE_AMOUNT;
 
 /**
  * 差旅报销单 Service 实现类
@@ -85,9 +87,14 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, billTypeEnum));
         }
 
+        String oldTravelBillCode = getOldTravelBillCode(saveReqVO.getId());
+
         // 插入或更新
         ExpenseReimburseBillDO expenseReimburseBill = BeanUtils.toBean(saveReqVO, ExpenseReimburseBillDO.class);
         expenseReimburseBillMapper.insertOrUpdate(expenseReimburseBill);
+
+        syncTravelApplyLinks(expenseReimburseBill.getId(), expenseReimburseBill.getBillType(),
+                saveReqVO.getTravelBillCode(), oldTravelBillCode);
 
         // 保存附件信息
         if (saveReqVO.getAttachments() != null) {
@@ -112,13 +119,19 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, billTypeEnum));
         }
 
+        String oldTravelBillCode = getOldTravelBillCode(saveReqVO.getId());
+
         // 保存或更新
         ExpenseReimburseBillDO expenseReimburseBill = BeanUtils.toBean(saveReqVO, ExpenseReimburseBillDO.class)
                 .setProcessStatus(BpmTaskStatusEnum.RUNNING.getStatus());
         expenseReimburseBillMapper.insertOrUpdate(expenseReimburseBill);
 
+        syncTravelApplyLinks(expenseReimburseBill.getId(), expenseReimburseBill.getBillType(),
+                saveReqVO.getTravelBillCode(), oldTravelBillCode);
+
         // 智能提交 BPM 流程
         Map<String, Object> processInstanceVariables = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
+        fillExpenseGatewayVariables(processInstanceVariables, saveReqVO.getTotalAmount());
         String processInstanceId = processInstanceApi.submitProcessInstance(Long.valueOf(saveReqVO.getCreator()),
                 new BpmProcessInstanceCreateReqDTO().setProcessDefinitionKey(billTypeEnum.getProcessDefinitionKey())
                         .setVariables(processInstanceVariables).setBusinessKey(String.valueOf(expenseReimburseBill.getId()))
@@ -154,12 +167,40 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateExpenseReimburseBill(ExpenseReimburseBillSaveReqVO updateReqVO) {
-        // 校验存在
-        validateExpenseReimburseBillExists(updateReqVO.getId());
-        // 更新
+        ExpenseReimburseBillDO existing = expenseReimburseBillMapper.selectById(updateReqVO.getId());
+        if (existing == null) {
+            throw exception(EXPENSE_REIMBURSE_BILL_NOT_EXISTS);
+        }
         ExpenseReimburseBillDO updateObj = BeanUtils.toBean(updateReqVO, ExpenseReimburseBillDO.class);
         expenseReimburseBillMapper.updateById(updateObj);
+
+        // 差旅报销标记已支付时，同步关联差旅申请为已报销
+        if (Integer.valueOf(1).equals(updateReqVO.getPaymentStatus())
+                && !Integer.valueOf(1).equals(existing.getPaymentStatus())
+                && existing.getBillType() != null && existing.getBillType() != 1) {
+            markTravelApplyBillsReimbursed(existing.getTravelBillCode());
+        }
+    }
+
+    /** 将关联差旅申请单标记为已报销 */
+    private void markTravelApplyBillsReimbursed(String travelBillCode) {
+        if (StringUtils.isBlank(travelBillCode)) {
+            return;
+        }
+        List<String> codeList = Arrays.stream(travelBillCode.split(","))
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+        if (codeList.isEmpty()) {
+            return;
+        }
+        travelApplyBillMapper.selectList(
+                new LambdaQueryWrapperX<TravelApplyBillDO>()
+                        .in(TravelApplyBillDO::getBillCode, codeList)
+        ).forEach(bill -> travelApplyBillMapper.updateById(
+                new TravelApplyBillDO().setId(bill.getId()).setReimbursementStatus(1)));
     }
 
     @Override
@@ -167,6 +208,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     public void deleteExpenseReimburseBill(Long id) {
         // 校验存在
         validateExpenseReimburseBillExists(id);
+        releaseTravelApplyLinks(id);
         // 删除费用明细
         expenseReimburseDetailMapper.deleteByBillId(id);
         // 删除主单
@@ -176,8 +218,8 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteExpenseReimburseBillListByIds(List<Long> ids) {
-        // 删除关联的费用明细
         for (Long id : ids) {
+            releaseTravelApplyLinks(id);
             expenseReimburseDetailMapper.deleteByBillId(id);
         }
         // 删除主单
@@ -279,6 +321,80 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
         if (saveReqVO.getTotalAmount() == null) {
             saveReqVO.setTotalAmount(BigDecimal.ZERO);
         }
+    }
+
+    /** 大额报销阈值（元），默认 50000 */
+    private static final BigDecimal DEFAULT_EXPENSE_LARGE_THRESHOLD = new BigDecimal("50000");
+
+    /** 补充费用报销流程网关变量 expenseIsLargeAmount */
+    static void fillExpenseGatewayVariables(Map<String, Object> variables, BigDecimal totalAmount) {
+        BigDecimal amount = totalAmount != null ? totalAmount : BigDecimal.ZERO;
+        variables.put(PV_EXPENSE_IS_LARGE_AMOUNT, amount.compareTo(DEFAULT_EXPENSE_LARGE_THRESHOLD) > 0);
+    }
+
+    private String getOldTravelBillCode(Long expenseBillId) {
+        if (expenseBillId == null) {
+            return null;
+        }
+        ExpenseReimburseBillDO existing = expenseReimburseBillMapper.selectById(expenseBillId);
+        return existing != null ? existing.getTravelBillCode() : null;
+    }
+
+    private boolean isTravelExpenseBill(Integer billType) {
+        return billType == null || billType != 1;
+    }
+
+    private Set<String> parseTravelBillCodes(String travelBillCode) {
+        if (StringUtils.isBlank(travelBillCode)) {
+            return Collections.emptySet();
+        }
+        return Arrays.stream(travelBillCode.split(","))
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toSet());
+    }
+
+    /** 保存/提交差旅报销单时，同步出差申请单的关联锁定 */
+    private void syncTravelApplyLinks(Long expenseBillId, Integer billType,
+                                      String newTravelBillCode, String oldTravelBillCode) {
+        if (!isTravelExpenseBill(billType)) {
+            return;
+        }
+        Set<String> newCodes = parseTravelBillCodes(newTravelBillCode);
+        Set<String> oldCodes = parseTravelBillCodes(oldTravelBillCode);
+
+        Set<String> toUnlock = new HashSet<>(oldCodes);
+        toUnlock.removeAll(newCodes);
+        if (!toUnlock.isEmpty()) {
+            travelApplyBillMapper.update(null, new LambdaUpdateWrapper<TravelApplyBillDO>()
+                    .set(TravelApplyBillDO::getLinkedExpenseBillId, null)
+                    .in(TravelApplyBillDO::getBillCode, toUnlock)
+                    .eq(TravelApplyBillDO::getLinkedExpenseBillId, expenseBillId));
+        }
+
+        Set<String> toLock = new HashSet<>(newCodes);
+        toLock.removeAll(oldCodes);
+        for (String code : toLock) {
+            TravelApplyBillDO travel = travelApplyBillMapper.selectOne(TravelApplyBillDO::getBillCode, code);
+            if (travel == null) {
+                continue;
+            }
+            if (travel.getLinkedExpenseBillId() != null && !travel.getLinkedExpenseBillId().equals(expenseBillId)) {
+                throw exception(TRAVEL_APPLY_ALREADY_LINKED);
+            }
+        }
+        if (!newCodes.isEmpty()) {
+            travelApplyBillMapper.update(null, new LambdaUpdateWrapper<TravelApplyBillDO>()
+                    .set(TravelApplyBillDO::getLinkedExpenseBillId, expenseBillId)
+                    .in(TravelApplyBillDO::getBillCode, newCodes));
+        }
+    }
+
+    /** 删除差旅报销单时，释放已锁定的出差申请单 */
+    private void releaseTravelApplyLinks(Long expenseBillId) {
+        travelApplyBillMapper.update(null, new LambdaUpdateWrapper<TravelApplyBillDO>()
+                .set(TravelApplyBillDO::getLinkedExpenseBillId, null)
+                .eq(TravelApplyBillDO::getLinkedExpenseBillId, expenseBillId));
     }
 
     // ==================== FlowBillService 接口实现 ====================

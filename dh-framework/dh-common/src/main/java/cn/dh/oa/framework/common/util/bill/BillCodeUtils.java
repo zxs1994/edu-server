@@ -44,8 +44,11 @@ public class BillCodeUtils {
         // 构建Redis key: bill_code:系统代码:前缀:日期
         String redisKey = REDIS_KEY_PREFIX + ":" + sysCode + ":" + billTypeCode + ":" + dateStr;
 
-        // 递增序号
+        // 递增序号（Redis 无 key 时 increment 会创建并返回 1）
         Long sequenceNo = stringRedisTemplate.opsForValue().increment(redisKey);
+        if (sequenceNo == null) {
+            sequenceNo = 1L;
+        }
 
         // 设置过期时间为2天，确保跨日期不会冲突
         stringRedisTemplate.expire(redisKey, Duration.ofDays(2L));

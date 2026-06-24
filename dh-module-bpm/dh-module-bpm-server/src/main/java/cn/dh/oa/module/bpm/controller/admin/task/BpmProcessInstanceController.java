@@ -13,6 +13,7 @@ import cn.dh.oa.module.bpm.dal.dataobject.definition.BpmCategoryDO;
 import cn.dh.oa.module.bpm.dal.dataobject.definition.BpmProcessDefinitionInfoDO;
 import cn.dh.oa.module.bpm.service.definition.BpmCategoryService;
 import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
+import cn.dh.oa.module.bpm.service.bill.BpmBillDeletedService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceService;
 import cn.dh.oa.module.bpm.service.task.BpmTaskService;
 import cn.dh.oa.module.system.api.dept.DeptApi;
@@ -66,6 +67,8 @@ public class BpmProcessInstanceController {
     private DeptApi deptApi;
     @Resource
     private PostApi postApi;
+    @Resource
+    private BpmBillDeletedService billDeletedService;
 
     @GetMapping("/my-page")
     @Operation(summary = "获得我的实例分页列表", description = "在【我的流程】菜单中，进行调用")
@@ -95,8 +98,11 @@ public class BpmProcessInstanceController {
                 convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
         Map<Long, PostRespDTO> postMap = postApi.getPostMap(
                 convertSetByFlatMap(userMap.values(), AdminUserRespDTO::getPostIds, Collection::stream));
-        return success(BpmProcessInstanceConvert.INSTANCE.buildProcessInstancePage(pageResult,
-                processDefinitionMap, categoryMap, taskMap, userMap, deptMap, postMap, processDefinitionInfoMap));
+        PageResult<BpmProcessInstanceRespVO> result = BpmProcessInstanceConvert.INSTANCE.buildProcessInstancePage(pageResult,
+                processDefinitionMap, categoryMap, taskMap, userMap, deptMap, postMap, processDefinitionInfoMap);
+        billDeletedService.fillProcessInstancePage(result, pageResult.getList());
+        billDeletedService.removeDeletedFromProcessInstancePage(result);
+        return success(result);
     }
 
     @GetMapping("/manager-page")

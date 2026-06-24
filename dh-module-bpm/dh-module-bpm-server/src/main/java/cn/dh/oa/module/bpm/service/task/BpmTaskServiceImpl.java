@@ -676,6 +676,8 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         }
         // 补偿公文发文单缺失/类型错误的网关变量（兼容历史流程）
         fillDocumentDispatchGatewayVariables(instance, processVariables);
+        // 补偿差旅报销单缺失的网关变量（兼容历史流程）
+        fillExpenseReimburseGatewayVariables(instance, processVariables);
 
         // 4. 校验并处理 APPROVE_USER_SELECT 当前审批人，选择下一节点审批人的逻辑
         Map<String, Object> variables = validateAndSetNextAssignees(task.getTaskDefinitionKey(), processVariables,
@@ -2017,6 +2019,25 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         Object docIsImportant = variables.get(OaProcessVariableConstants.PV_DOC_IS_IMPORTANT);
         if (!(docIsImportant instanceof Boolean)) {
             variables.put(OaProcessVariableConstants.PV_DOC_IS_IMPORTANT, Boolean.FALSE);
+        }
+    }
+
+    /**
+     * 差旅/日常报销单网关条件依赖 expenseIsLargeAmount 布尔变量，历史流程可能未设置
+     */
+    private void fillExpenseReimburseGatewayVariables(ProcessInstance instance, Map<String, Object> variables) {
+        String processKey = instance.getProcessDefinitionKey();
+        if (processKey == null) {
+            return;
+        }
+        boolean isExpenseProcess = processKey.startsWith(OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getProcessDefinitionKey())
+                || processKey.startsWith(OaBillTypeEnum.OA_DAILY_EXPENSE_BILL.getProcessDefinitionKey());
+        if (!isExpenseProcess) {
+            return;
+        }
+        Object expenseIsLargeAmount = variables.get(OaProcessVariableConstants.PV_EXPENSE_IS_LARGE_AMOUNT);
+        if (!(expenseIsLargeAmount instanceof Boolean)) {
+            variables.put(OaProcessVariableConstants.PV_EXPENSE_IS_LARGE_AMOUNT, Boolean.FALSE);
         }
     }
 

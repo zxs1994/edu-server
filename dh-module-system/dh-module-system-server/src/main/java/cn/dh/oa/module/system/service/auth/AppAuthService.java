@@ -27,4 +27,13 @@ public interface AppAuthService {
      */
     AuthLoginRespVO wxMiniBindLogin(String code, String username, String password);
 
+    /**
+     * 微信小程序退出登录（解绑微信并注销 token）
+     *
+     * @param code   微信登录 code
+     * @param userId 当前登录用户 ID
+     * @param token  访问令牌
+     */
+    void wxMiniLogout(String code, Long userId, String token);
+
 }

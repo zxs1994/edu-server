@@ -11,11 +11,15 @@ import cn.dh.oa.module.system.dal.dataobject.user.AdminUserDO;
 import cn.dh.oa.module.system.dal.mysql.social.SocialUserBindMapper;
 import cn.dh.oa.module.system.dal.mysql.social.SocialUserMapper;
 import cn.dh.oa.module.system.enums.social.SocialTypeEnum;
+import cn.dh.oa.module.system.enums.logger.LoginLogTypeEnum;
 import cn.dh.oa.module.system.service.oauth2.OAuth2TokenService;
+import cn.dh.oa.module.system.service.social.SocialUserService;
+import cn.hutool.core.util.StrUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -42,6 +46,9 @@ public class AppAuthServiceImpl implements AppAuthService {
 
     @Resource
     private AdminAuthService adminAuthService;
+
+    @Resource
+    private SocialUserService socialUserService;
 
     @Override
     public AuthLoginRespVO wxMiniLogin(String code) {
@@ -138,6 +145,36 @@ public class AppAuthServiceImpl implements AppAuthService {
                 .refreshToken(accessTokenDO.getRefreshToken())
                 .expiresTime(accessTokenDO.getExpiresTime())
                 .build();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void wxMiniLogout(String code, Long userId, String token) {
+        Long actualUserId = userId;
+        if (actualUserId == null && StrUtil.isNotBlank(token)) {
+            OAuth2AccessTokenDO accessTokenDO = oauth2TokenService.getAccessToken(token);
+            if (accessTokenDO != null) {
+                actualUserId = accessTokenDO.getUserId();
+            }
+        }
+
+        // 1. 解绑当前微信 openid 与用户的绑定关系
+        if (actualUserId != null) {
+            try {
+                WxMaJscode2SessionResult sessionInfo = wxMaService.jsCode2SessionInfo(code);
+                socialUserService.unbindSocialUser(actualUserId, UserTypeEnum.ADMIN.getValue(),
+                        SocialTypeEnum.WECHAT_MINI_PROGRAM.getType(), sessionInfo.getOpenid());
+            } catch (WxErrorException e) {
+                log.warn("[wxMiniLogout] 微信 code 换取 openid 失败, userId={}", actualUserId, e);
+            } catch (Exception e) {
+                log.warn("[wxMiniLogout] 解绑微信失败, userId={}", actualUserId, e);
+            }
+        }
+
+        // 2. 注销 token（解绑失败也继续登出）
+        if (StrUtil.isNotBlank(token)) {
+            adminAuthService.logout(token, LoginLogTypeEnum.LOGOUT_SELF.getType());
+        }
     }
 
 }

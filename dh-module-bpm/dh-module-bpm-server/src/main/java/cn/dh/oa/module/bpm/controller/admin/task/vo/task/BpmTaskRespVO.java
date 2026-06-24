@@ -127,6 +127,9 @@ public class BpmTaskRespVO {
          */
         private UserSimpleBaseVO startUser;
 
+        @Schema(description = "业务单据是否已删除", example = "false")
+        private Boolean billDeleted;
+
     }
 
     @Data

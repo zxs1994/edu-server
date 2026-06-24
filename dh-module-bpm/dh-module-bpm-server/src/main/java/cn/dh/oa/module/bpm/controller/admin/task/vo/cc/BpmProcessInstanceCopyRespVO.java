@@ -48,4 +48,7 @@ public class BpmProcessInstanceCopyRespVO {
     @Schema(description = "已读状态：0未读 1已读", requiredMode = Schema.RequiredMode.REQUIRED, example = "0")
     private Integer readStatus;
 
+    @Schema(description = "业务单据是否已删除", example = "false")
+    private Boolean billDeleted;
+
 }

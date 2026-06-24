@@ -9,6 +9,7 @@ import cn.dh.oa.framework.datapermission.core.annotation.DataPermission;
 import cn.dh.oa.framework.security.config.SecurityProperties;
 import cn.dh.oa.framework.security.core.util.SecurityFrameworkUtils;
 import cn.dh.oa.module.system.controller.admin.auth.vo.*;
+import cn.dh.oa.module.system.controller.app.auth.vo.WxMiniLoginReqVO;
 import cn.dh.oa.module.system.convert.auth.AuthConvert;
 import cn.dh.oa.module.system.dal.dataobject.dept.DeptDO;
 import cn.dh.oa.module.system.dal.dataobject.permission.MenuDO;
@@ -16,6 +17,7 @@ import cn.dh.oa.module.system.dal.dataobject.permission.RoleDO;
 import cn.dh.oa.module.system.dal.dataobject.user.AdminUserDO;
 import cn.dh.oa.module.system.enums.logger.LoginLogTypeEnum;
 import cn.dh.oa.module.system.service.auth.AdminAuthService;
+import cn.dh.oa.module.system.service.auth.AppAuthService;
 import cn.dh.oa.module.system.service.dept.DeptService;
 import cn.dh.oa.module.system.service.permission.MenuService;
 import cn.dh.oa.module.system.service.permission.PermissionService;
@@ -53,6 +55,8 @@ public class AuthController {
     @Resource
     private AdminAuthService authService;
     @Resource
+    private AppAuthService appAuthService;
+    @Resource
     private AdminUserService userService;
     @Resource
     private RoleService roleService;
@@ -84,6 +88,17 @@ public class AuthController {
         if (StrUtil.isNotBlank(token)) {
             authService.logout(token, LoginLogTypeEnum.LOGOUT_SELF.getType());
         }
+        return success(true);
+    }
+
+    @PostMapping("/wx-mini-logout")
+    @PermitAll
+    @Operation(summary = "微信小程序退出登录（解绑微信并登出）")
+    public CommonResult<Boolean> wxMiniLogout(@Valid @RequestBody WxMiniLoginReqVO reqVO,
+                                            HttpServletRequest request) {
+        String token = SecurityFrameworkUtils.obtainAuthorization(request,
+                securityProperties.getTokenHeader(), securityProperties.getTokenParameter());
+        appAuthService.wxMiniLogout(reqVO.getCode(), getLoginUserId(), token);
         return success(true);
     }
 

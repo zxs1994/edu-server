@@ -26,6 +26,15 @@ public class TravelApplyBillPageReqVO extends PageParam {
     @Schema(description = "创建者")
     private String creator;
 
+    @Schema(description = "报销状态（0未报销 1已报销）")
+    private Integer reimbursementStatus;
+
+    @Schema(description = "排除已被其他差旅报销单关联的单据")
+    private Boolean excludeLinkedToExpense;
+
+    @Schema(description = "编辑差旅报销单时传入当前报销单ID，其已关联的出差申请仍可展示")
+    private Long excludeExpenseBillId;
+
     @Schema(description = "创建时间")
     @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime[] createTime;

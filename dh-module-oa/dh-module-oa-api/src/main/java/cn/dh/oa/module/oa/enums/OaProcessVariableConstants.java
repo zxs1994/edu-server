@@ -79,5 +79,16 @@ public interface OaProcessVariableConstants {
      */
     String PV_TRAVEL_IS_OVERSEAS = "travelIsOverseas";
 
+    // ========== 费用报销单流程变量 ==========
+
+    /**
+     * 是否大额报销变量名
+     *
+     * 网关条件 ${expenseIsLargeAmount == true} 需要布尔值
+     */
+    String PV_EXPENSE_IS_LARGE_AMOUNT = "expenseIsLargeAmount";
+
+    /** 大额报销默认阈值（元），与 infra_config oa.expense.large-amount-threshold 保持一致 */
+    String EXPENSE_LARGE_AMOUNT_THRESHOLD_KEY = "oa.expense.large-amount-threshold";
 
 }

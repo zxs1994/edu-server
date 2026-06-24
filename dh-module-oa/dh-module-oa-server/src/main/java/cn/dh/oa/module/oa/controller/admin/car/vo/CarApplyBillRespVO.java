@@ -90,6 +90,10 @@ public class CarApplyBillRespVO {
     @ExcelProperty("还车状态")
     private Integer returnStatus;
 
+    @Schema(description = "备注", example = "紧急用车")
+    @ExcelProperty("备注")
+    private String remark;
+
     @Schema(description = "附件列表")
     private List<AttachmentRespVO> attachments;
 

@@ -2,8 +2,8 @@ package cn.dh.oa.module.system.controller.app.auth;
 
 import cn.dh.oa.framework.common.pojo.CommonResult;
 import cn.dh.oa.module.system.controller.admin.auth.vo.AuthLoginRespVO;
-import cn.dh.oa.module.system.controller.app.auth.vo.WxMiniLoginReqVO;
 import cn.dh.oa.module.system.controller.app.auth.vo.WxMiniBindLoginReqVO;
+import cn.dh.oa.module.system.controller.app.auth.vo.WxMiniLoginReqVO;
 import cn.dh.oa.module.system.service.auth.AppAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

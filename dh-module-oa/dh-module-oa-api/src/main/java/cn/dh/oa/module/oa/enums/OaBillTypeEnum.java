@@ -115,4 +115,16 @@ public enum OaBillTypeEnum implements BillTypeEnum {
         return processDefinitionKey;
     }
 
+    public static OaBillTypeEnum getByProcessDefinitionKey(String processDefinitionKey) {
+        if (processDefinitionKey == null) {
+            return null;
+        }
+        for (OaBillTypeEnum value : values()) {
+            if (processDefinitionKey.equals(value.processDefinitionKey)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
 }

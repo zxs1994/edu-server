@@ -61,6 +61,11 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_SEAL_APPLY_BILL));
         }
 
+        // 现场用印时，清空预计归还时间
+        if (saveReqVO.getUseMode() != null && saveReqVO.getUseMode() == 1) {
+            saveReqVO.setExpectedReturnTime(null);
+        }
+
         // 插入或更新
         SealApplyBillDO sealApplyBill = BeanUtils.toBean(saveReqVO, SealApplyBillDO.class);
         sealApplyBillMapper.insertOrUpdate(sealApplyBill);
@@ -79,6 +84,11 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
         // 如果单号为空，需要生成
         if(StringUtils.isBlank(saveReqVO.getBillCode())){
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_SEAL_APPLY_BILL));
+        }
+
+        // 现场用印时，清空预计归还时间
+        if (saveReqVO.getUseMode() != null && saveReqVO.getUseMode() == 1) {
+            saveReqVO.setExpectedReturnTime(null);
         }
 
         // 校验时间冲突（仅外借用章需要校验）

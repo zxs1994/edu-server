@@ -10,6 +10,7 @@ import cn.dh.oa.module.bpm.dal.dataobject.definition.BpmFormDO;
 import cn.dh.oa.module.bpm.dal.dataobject.definition.BpmProcessDefinitionInfoDO;
 import cn.dh.oa.module.bpm.service.definition.BpmFormService;
 import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
+import cn.dh.oa.module.bpm.service.bill.BpmBillDeletedService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceService;
 import cn.dh.oa.module.bpm.service.task.BpmTaskService;
 import cn.dh.oa.module.bpm.service.task.BpmWorkbenchService;
@@ -62,6 +63,8 @@ public class BpmTaskController {
     private AdminUserApi adminUserApi;
     @Resource
     private DeptApi deptApi;
+    @Resource
+    private BpmBillDeletedService billDeletedService;
 
     @GetMapping("todo-page")
     @Operation(summary = "获取 Todo 待办任务分页")
@@ -79,7 +82,9 @@ public class BpmTaskController {
                 convertSet(processInstanceMap.values(), instance -> Long.valueOf(instance.getStartUserId())));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), Task::getProcessDefinitionId));
-        return success(BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap));
+        PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap);
+        billDeletedService.fillTodoTaskPage(result, processInstanceMap);
+        return success(result);
     }
 
     @GetMapping("done-page")
@@ -98,7 +103,9 @@ public class BpmTaskController {
                 convertSet(processInstanceMap.values(), instance -> Long.valueOf(instance.getStartUserId())));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
-        return success(BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, null, processDefinitionInfoMap));
+        PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, null, processDefinitionInfoMap);
+        billDeletedService.fillHistoricTaskPage(result, processInstanceMap);
+        return success(result);
     }
 
     @GetMapping("manager-page")
