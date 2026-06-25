@@ -289,9 +289,10 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
         try {
             validateTimeConflict(checkVO);
             return false; // 无冲突
-        } catch (Exception e) {
-            return true; // 存在冲突
+        } catch (cn.dh.oa.framework.common.exception.ServiceException e) {
+            return true; // 仅业务异常（时间冲突）才算冲突
         }
+        // 其他异常（DB错误等）向上抛出，不被吞掉
     }
 
     /**
@@ -302,8 +303,12 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
      * @param saveReqVO 保存请求VO
      */
     private void validateTimeConflict(SealApplyBillSaveReqVO saveReqVO) {
-        if (saveReqVO.getSealId() == null || saveReqVO.getExpectedUseTime() == null) {
-            return; // 如果必要字段为空，跳过校验
+        // 防御检查：sealId 必须有效
+        if (saveReqVO.getSealId() == null || saveReqVO.getSealId() <= 0
+                || saveReqVO.getExpectedUseTime() == null) {
+            log.info("[validateTimeConflict] 跳过校验，sealId={}, expectedUseTime={}",
+                    saveReqVO.getSealId(), saveReqVO.getExpectedUseTime());
+            return;
         }
 
         // 外借用章时，校验预计用章时间不能晚于预计归还时间
@@ -332,11 +337,20 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
                         })
                 );
 
+        log.info("[validateTimeConflict] 开始校验，sealId={}, useMode={}, expectedUseTime={}, expectedReturnTime={}, excludeId={}",
+                saveReqVO.getSealId(), saveReqVO.getUseMode(), saveReqVO.getExpectedUseTime(),
+                saveReqVO.getExpectedReturnTime(), saveReqVO.getId());
+
         List<SealApplyBillDO> conflictBills = sealApplyBillMapper.selectList(queryWrapper);
 
         if (!conflictBills.isEmpty()) {
+            log.warn("[validateTimeConflict] 发现冲突记录：{}", conflictBills.stream()
+                    .map(b -> "id=" + b.getId() + ",processStatus=" + b.getProcessStatus() + ",useMode=" + b.getUseMode()
+                            + ",useTime=" + b.getExpectedUseTime() + ",returnTime=" + b.getExpectedReturnTime())
+                    .toList());
             throw exception(SEAL_TIME_CONFLICT);
         }
+        log.info("[validateTimeConflict] 校验通过，无冲突");
     }
 
     /**
