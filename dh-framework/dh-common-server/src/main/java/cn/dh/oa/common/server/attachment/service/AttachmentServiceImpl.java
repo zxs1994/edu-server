@@ -38,6 +38,24 @@ public class AttachmentServiceImpl implements AttachmentService {
                 && attachment.getFileUrl() != null && !attachment.getFileUrl().isEmpty()) {
             attachment.setFilePath(attachment.getFileUrl());
         }
+        // fileName 为空时，从 fileUrl 中提取文件名
+        if ((attachment.getFileName() == null || attachment.getFileName().isEmpty())
+                && attachment.getFileUrl() != null && !attachment.getFileUrl().isEmpty()) {
+            String url = attachment.getFileUrl();
+            int slashIdx = url.lastIndexOf('/');
+            String extracted = slashIdx >= 0 ? url.substring(slashIdx + 1) : url;
+            attachment.setFileName(extracted.isEmpty() ? "unknown" : extracted);
+        }
+        // fileSize 为空时，默认 0
+        if (attachment.getFileSize() == null) {
+            attachment.setFileSize(0L);
+        }
+        // fileExtension 为空时，从 fileName 中提取扩展名
+        if ((attachment.getFileExtension() == null || attachment.getFileExtension().isEmpty())
+                && attachment.getFileName() != null && attachment.getFileName().contains(".")) {
+            String fn = attachment.getFileName();
+            attachment.setFileExtension(fn.substring(fn.lastIndexOf('.') + 1));
+        }
         if (attachment.getUploadTime() == null) {
             attachment.setUploadTime(LocalDateTime.now());
         }
@@ -105,6 +123,24 @@ public class AttachmentServiceImpl implements AttachmentService {
                         if ((attachmentDO.getFilePath() == null || attachmentDO.getFilePath().isEmpty())
                                 && attachmentDO.getFileUrl() != null && !attachmentDO.getFileUrl().isEmpty()) {
                             attachmentDO.setFilePath(attachmentDO.getFileUrl());
+                        }
+                        // fileName 为空时，从 fileUrl 中提取文件名
+                        if ((attachmentDO.getFileName() == null || attachmentDO.getFileName().isEmpty())
+                                && attachmentDO.getFileUrl() != null && !attachmentDO.getFileUrl().isEmpty()) {
+                            String url = attachmentDO.getFileUrl();
+                            int slashIdx = url.lastIndexOf('/');
+                            String extracted = slashIdx >= 0 ? url.substring(slashIdx + 1) : url;
+                            attachmentDO.setFileName(extracted.isEmpty() ? "unknown" : extracted);
+                        }
+                        // fileSize 为空时，默认 0
+                        if (attachmentDO.getFileSize() == null) {
+                            attachmentDO.setFileSize(0L);
+                        }
+                        // fileExtension 为空时，从 fileName 中提取扩展名
+                        if ((attachmentDO.getFileExtension() == null || attachmentDO.getFileExtension().isEmpty())
+                                && attachmentDO.getFileName() != null && attachmentDO.getFileName().contains(".")) {
+                            String fn = attachmentDO.getFileName();
+                            attachmentDO.setFileExtension(fn.substring(fn.lastIndexOf('.') + 1));
                         }
                         // 新增时设置上传时间
                         if (attachmentDO.getId() == null && attachmentDO.getUploadTime() == null) {

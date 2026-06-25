@@ -109,12 +109,10 @@ public class ContractBillSaveReqVO {
     @Schema(description = "公司名称", example = "鼎衡科技")
     private String companyName;
 
-    @Schema(description = "部门ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
-    @NotNull(message = "部门ID不能为空")
+    @Schema(description = "部门ID", example = "1")
     private Long deptId;
 
-    @Schema(description = "部门名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "技术部")
-    @NotEmpty(message = "部门名称不能为空")
+    @Schema(description = "部门名称", example = "技术部")
     private String deptName;
 
     @Schema(description = "备注")
