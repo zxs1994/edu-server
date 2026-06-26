@@ -161,14 +161,17 @@ public class AuthController {
         // 1.3.2 过滤禁用的菜单（含祖先链检查，需要父级已补全才能正确判断）
         menuList = new ArrayList<>(menuService.filterDisableMenus(menuList));
 
-        // 1.3.3 工作人员角色保护：强制移除审批管理(5300)
-        // 无论数据库如何配置，纯工作人员角色用户永远不会在侧边栏看到审批管理。
-        // 若用户同时拥有其他包含审批管理的角色（如管理员），则保留。
+        // 1.3.3 工作人员角色保护：隐藏审批管理(5300) 目录但不移除
+        // 纯工作人员角色用户在侧边栏不显示审批管理目录，但其下的流程详情页路由仍需正常注册，
+        // 否则用户从「发起流程」跳转到 /oa/* 的流程详情页会 404。
+        // 实现方式：只从 assignedMenuIds(menuIds) 移除 5300，不从 menuList 移除。
+        // 后续 buildMenuTree 的 phantom 机制会将不在 assignedMenuIds 中的菜单设为 visible=false，
+        // 侧边栏不显示，但 5300 仍在 treeNodeMap 中，其子菜单能正常挂载、路由正常注册。
+        // 若用户同时拥有其他包含审批管理的角色（如管理员），则 5300 仍在 assignedMenuIds 中，正常显示。
         final long STAFF_ROLE_ID = 209L;
         final long APPROVAL_MGMT_MENU_ID = 5300L;
         Set<Long> activeRoleIds = convertSet(roles, RoleDO::getId);
         if (activeRoleIds.contains(STAFF_ROLE_ID) && activeRoleIds.size() == 1) {
-            menuList.removeIf(m -> m.getId().equals(APPROVAL_MGMT_MENU_ID));
             menuIds.remove(APPROVAL_MGMT_MENU_ID);
         }
 
