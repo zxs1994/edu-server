@@ -115,11 +115,16 @@ public class HomeAppUserServiceImpl implements HomeAppUserService {
             throw exception(HOME_APP_USER_NOT_EXISTS);
         }
 
-        // 校验该用户是否已添加该应用
+        // 校验该用户是否已添加该应用（有效记录）
         HomeAppUserDO existingApp = appUserMapper.selectByUserIdAndMenuId(userId, createReqVO.getMenuId());
         if (existingApp != null) {
             throw exception(HOME_APP_USER_EXISTS);
         }
+
+        // 清理该 (userId, menuId) 的历史软删除残留，避免唯一键冲突
+        // 唯一键 uk_user_menu(user_id, menu_id, deleted) 在 deleted 恒为 0 时退化为 (user_id, menu_id) 唯一
+        // 物理删除历史 deleted=1 记录，确保 INSERT 不冲突
+        appUserMapper.physicalDeleteByUserIdAndMenuId(userId, createReqVO.getMenuId());
 
         // 获取当前用户应用的最大排序值
         List<HomeAppUserDO> userApps = appUserMapper.selectListByUserId(userId);
@@ -155,8 +160,8 @@ public class HomeAppUserServiceImpl implements HomeAppUserService {
         // 校验应用是否存在
         validateUserAppExists(id);
 
-        // 删除应用
-        appUserMapper.deleteById(id);
+        // 物理删除应用（应用中心场景：移除即真删，避免软删除残留导致唯一键冲突）
+        appUserMapper.physicalDeleteById(id);
     }
 
     @Override
@@ -209,8 +214,8 @@ public class HomeAppUserServiceImpl implements HomeAppUserService {
         // 获取当前用户ID
         Long userId = cn.dh.oa.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId();
 
-        // 删除用户的所有应用配置
-        appUserMapper.deleteByUserId(userId);
+        // 物理删除用户的所有应用配置（避免软删除残留导致唯一键冲突）
+        appUserMapper.physicalDeleteByUserId(userId);
 
         // 重新初始化
         initUserApp();
