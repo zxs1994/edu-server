@@ -29,7 +29,7 @@ public class BpmDraftBillController {
 
     @GetMapping("/my-page")
     @Operation(summary = "获得我的草稿箱分页")
-    @PreAuthorize("@ss.hasPermission('bpm:draft-bill:query')")
+    @PreAuthorize("@ss.hasPermission('bpm:process-instance:query')")
     public CommonResult<PageResult<BpmDraftBillRespVO>> getMyDraftBillPage(
             @Valid BpmDraftBillPageReqVO pageReqVO) {
         return success(draftBillService.getMyDraftBillPage(getLoginUserId(), pageReqVO));
