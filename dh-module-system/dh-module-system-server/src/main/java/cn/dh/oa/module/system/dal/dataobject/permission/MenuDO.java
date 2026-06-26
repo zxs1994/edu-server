@@ -105,5 +105,22 @@ public class MenuDO extends BaseDO {
      * 如果为 false 时，当该菜单只有一个子菜单时，不展示自己，直接展示子菜单
      */
     private Boolean alwaysShow;
+    /**
+     * 应用中心是否显示
+     *
+     * 只有菜单、目录使用
+     * 当设置为 true 时，该菜单/目录允许被加入「应用中心」；为 false 时，应用中心添加列表中不展示该项
+     */
+    private Boolean appVisible;
+    /**
+     * 是否受菜单管理界面管理
+     *
+     * 为 false 时，表示「公共虚拟菜单」：
+     * - 不在菜单管理列表显示
+     * - 不在角色分配菜单界面显示
+     * - 免授权，所有登录用户可在应用中心添加
+     * 正常通过菜单管理新增的菜单默认为 true
+     */
+    private Boolean managed;
 
 }

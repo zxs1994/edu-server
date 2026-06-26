@@ -63,15 +63,21 @@ public class HomeAppUserServiceImpl implements HomeAppUserService {
         // 获取用户有权限的菜单ID列表
         Set<Long> userMenuIds = getUserMenuIds(userId);
 
-        // 过滤出用户有权限的应用
-        appUserList = appUserList.stream()
-                .filter(app -> userMenuIds.contains(app.getMenuId()))
-                .collect(Collectors.toList());
-
         // 获取菜单信息 Map（包含所有菜单，用于递归查找父菜单）
         List<MenuDO> allMenuList = menuService.getMenuList();
         Map<Long, MenuDO> allMenuMap = allMenuList.stream()
                 .collect(Collectors.toMap(MenuDO::getId, menu -> menu));
+
+        // 过滤出用户有权限的应用（虚拟菜单 managed=false 免授权，直接保留）
+        appUserList = appUserList.stream()
+                .filter(app -> {
+                    MenuDO menu = allMenuMap.get(app.getMenuId());
+                    if (menu != null && Boolean.FALSE.equals(menu.getManaged())) {
+                        return true;
+                    }
+                    return userMenuIds.contains(app.getMenuId());
+                })
+                .collect(Collectors.toList());
 
         // 转换为 VO
         return appUserList.stream()
@@ -101,9 +107,11 @@ public class HomeAppUserServiceImpl implements HomeAppUserService {
             throw exception(HOME_APP_USER_NOT_EXISTS);
         }
 
-        // 校验用户是否有该菜单的权限
+        // 校验用户是否有该菜单的权限（虚拟菜单 managed=false 免授权）
         Set<Long> userMenuIds = getUserMenuIds(userId);
-        if (!userMenuIds.contains(createReqVO.getMenuId())) {
+        if (Boolean.FALSE.equals(menu.getManaged())) {
+            // 虚拟菜单免授权，跳过权限校验
+        } else if (!userMenuIds.contains(createReqVO.getMenuId())) {
             throw exception(HOME_APP_USER_NOT_EXISTS);
         }
 

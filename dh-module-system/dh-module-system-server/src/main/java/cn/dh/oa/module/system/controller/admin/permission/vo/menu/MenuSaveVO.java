@@ -61,4 +61,7 @@ public class MenuSaveVO {
     @Schema(description = "是否总是显示", example = "false")
     private Boolean alwaysShow;
 
+    @Schema(description = "应用中心是否显示,true=可加入应用中心", example = "true")
+    private Boolean appVisible;
+
 }

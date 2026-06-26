@@ -99,4 +99,14 @@ public interface MenuService {
      */
     List<MenuDO> getMenuList(Collection<Long> ids);
 
+    /**
+     * 获得「应用中心」可选的菜单列表
+     *
+     * 返回 app_visible=true 且 status=启用 的菜单/目录（含目录与菜单，不含按钮），
+     * 由调用方按当前用户权限再做一次过滤。
+     *
+     * @return 菜单列表
+     */
+    List<MenuDO> getAppCenterMenuList();
+
 }

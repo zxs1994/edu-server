@@ -1,5 +1,6 @@
 package cn.dh.oa.module.system.dal.mysql.permission;
 
+import cn.dh.oa.framework.common.enums.CommonStatusEnum;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.module.system.controller.admin.permission.vo.menu.MenuListReqVO;
@@ -21,6 +22,7 @@ public interface MenuMapper extends BaseMapperX<MenuDO> {
 
     default List<MenuDO> selectList(MenuListReqVO reqVO) {
         return selectList(new LambdaQueryWrapperX<MenuDO>()
+                .eq(MenuDO::getManaged, Boolean.TRUE) // 菜单管理列表不显示虚拟菜单
                 .likeIfPresent(MenuDO::getName, reqVO.getName())
                 .eqIfPresent(MenuDO::getStatus, reqVO.getStatus()));
     }
@@ -31,6 +33,14 @@ public interface MenuMapper extends BaseMapperX<MenuDO> {
 
     default MenuDO selectByComponentName(String componentName) {
         return selectOne(MenuDO::getComponentName, componentName);
+    }
+
+    default List<MenuDO> selectAppCenterList() {
+        // 查询「应用中心显示」且「启用」的菜单/目录，按 sort 排序
+        return selectList(new LambdaQueryWrapperX<MenuDO>()
+                .eq(MenuDO::getAppVisible, Boolean.TRUE)
+                .eq(MenuDO::getStatus, CommonStatusEnum.ENABLE.getStatus())
+                .orderByAsc(MenuDO::getSort));
     }
 
 }

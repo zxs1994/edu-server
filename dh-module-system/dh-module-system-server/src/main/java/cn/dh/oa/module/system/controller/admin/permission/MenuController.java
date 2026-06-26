@@ -86,6 +86,15 @@ public class MenuController {
         return success(BeanUtils.toBean(list, MenuSimpleRespVO.class));
     }
 
+    @GetMapping("/app-center-list")
+    @Operation(summary = "获取应用中心可选菜单列表",
+            description = "返回菜单管理中标记为「应用中心显示」且启用的菜单/目录，前端需结合当前用户权限再做过滤")
+    public CommonResult<List<MenuRespVO>> getAppCenterMenuList() {
+        List<MenuDO> list = menuService.getAppCenterMenuList();
+        list.sort(Comparator.comparing(MenuDO::getSort));
+        return success(BeanUtils.toBean(list, MenuRespVO.class));
+    }
+
     @GetMapping("/get")
     @Operation(summary = "获取菜单信息")
     @PreAuthorize("@ss.hasPermission('system:menu:query')")

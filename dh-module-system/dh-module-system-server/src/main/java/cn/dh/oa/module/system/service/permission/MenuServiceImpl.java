@@ -208,6 +208,14 @@ public class MenuServiceImpl implements MenuService {
         return menuMapper.selectByIds(ids);
     }
 
+    @Override
+    public List<MenuDO> getAppCenterMenuList() {
+        // 查询 app_visible=true 且启用的菜单/目录
+        List<MenuDO> menus = menuMapper.selectAppCenterList();
+        // 过滤掉关闭的菜单（含其子菜单），与 simple-list 保持一致
+        return filterDisableMenus(menus);
+    }
+
     /**
      * 校验父菜单是否合法
      * <p>
@@ -301,6 +309,11 @@ public class MenuServiceImpl implements MenuService {
             menu.setComponentName("");
             menu.setIcon("");
             menu.setPath("");
+            // 按钮类型不可加入应用中心
+            menu.setAppVisible(false);
+        } else if (menu.getAppVisible() == null) {
+            // 目录/菜单类型，未传 appVisible 时默认可加入应用中心
+            menu.setAppVisible(true);
         }
     }
 

@@ -63,6 +63,12 @@ public class MenuRespVO {
     @Schema(description = "是否总是显示", example = "false")
     private Boolean alwaysShow;
 
+    @Schema(description = "应用中心是否显示,true=可加入应用中心", example = "true")
+    private Boolean appVisible;
+
+    @Schema(description = "是否受菜单管理界面管理,false=公共虚拟菜单(免授权)", example = "true")
+    private Boolean managed;
+
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED, example = "时间戳格式")
     private LocalDateTime createTime;
 
