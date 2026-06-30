@@ -3,12 +3,14 @@ package cn.dh.oa.module.bpm.service.task;
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.controller.admin.task.vo.instance.*;
+import cn.dh.oa.module.bpm.controller.admin.task.vo.task.BpmTaskRespVO;
 import jakarta.validation.Valid;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.runtime.ProcessInstance;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Map;
 import java.util.Set;
 
@@ -86,6 +88,12 @@ public interface BpmProcessInstanceService {
                                                                @Valid BpmProcessInstancePageReqVO pageReqVO);
 
     /**
+     * 会长纠错：已提交的指定单据流程实例分页
+     */
+    PageResult<HistoricProcessInstance> getPresidentCorrectionProcessInstancePage(
+            @Valid BpmProcessInstancePageReqVO pageReqVO);
+
+    /**
      * 获取审批详情。
      * <p>
      * 可以是准备发起的流程、进行中的流程、已经结束的流程
@@ -160,6 +168,19 @@ public interface BpmProcessInstanceService {
     void cancelProcessInstanceByAdmin(Long userId, BpmProcessInstanceCancelReqVO cancelReqVO);
 
     /**
+     * 按指定原因取消流程实例（内部 RPC，不做发起人/管理员权限校验）
+     *
+     * @param processInstanceId 流程实例编号
+     * @param reason            取消原因
+     */
+    void cancelProcessInstanceByReason(String processInstanceId, String reason);
+
+    /**
+     * 审批记录列表追加会长纠错虚拟「流程撤销」任务
+     */
+    void appendPresidentCorrectionRevokeTask(List<BpmTaskRespVO> taskList, String processInstanceId);
+
+    /**
      * 更新 ProcessInstance 为不通过
      *
      * @param processInstance 流程实例
@@ -198,4 +219,9 @@ public interface BpmProcessInstanceService {
      * @param instance 流程任务
      */
     void processProcessInstanceCreated(ProcessInstance instance);
+
+    /**
+     * 获取历史流程实例变量
+     */
+    Map<String, Object> getHistoricProcessVariables(String processInstanceId);
 }

@@ -31,6 +31,7 @@ import cn.dh.oa.module.bpm.enums.definition.BpmSimpleModelNodeTypeEnum;
 import cn.dh.oa.module.bpm.enums.task.BpmProcessInstanceStatusEnum;
 import cn.dh.oa.module.bpm.enums.task.BpmReasonEnum;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
+import cn.dh.oa.module.bpm.enums.task.PresidentCorrectionProcessKeyConstants;
 import cn.dh.oa.module.bpm.framework.flowable.core.candidate.BpmTaskCandidateInvoker;
 import cn.dh.oa.module.bpm.service.notification.BpmNotificationManager;
 import cn.dh.oa.module.bpm.framework.flowable.core.enums.BpmTaskCandidateStrategyEnum;
@@ -47,6 +48,8 @@ import cn.dh.oa.module.system.api.dept.DeptApi;
 import cn.dh.oa.module.system.api.dept.dto.DeptRespDTO;
 import cn.dh.oa.module.system.api.user.AdminUserApi;
 import cn.dh.oa.module.system.api.user.dto.AdminUserRespDTO;
+import cn.dh.oa.module.oa.api.correction.OaPresidentCorrectionApi;
+import cn.dh.oa.module.oa.api.correction.dto.OaCorrectionRevokeNodeDTO;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.flowable.bpmn.constants.BpmnXMLConstants;
@@ -77,6 +80,7 @@ import static cn.dh.oa.framework.common.util.collection.CollectionUtils.*;
 import static cn.dh.oa.module.bpm.controller.admin.task.vo.instance.BpmApprovalDetailRespVO.ActivityNode;
 import static cn.dh.oa.module.bpm.enums.ErrorCodeConstants.*;
 import static cn.dh.oa.module.bpm.enums.task.BpmnModelConstants.START_USER_NODE_ID;
+import static cn.dh.oa.module.bpm.enums.task.BpmnModelConstants.PRESIDENT_CORRECTION_REVOKE_NODE_ID;
 import static cn.dh.oa.module.bpm.framework.flowable.core.util.BpmnModelUtils.parseNodeType;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -133,6 +137,9 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     @Resource
     private BpmNotificationManager notificationManager;
+
+    @Resource
+    private OaPresidentCorrectionApi oaPresidentCorrectionApi;
 
     // ========== Query 查询相关方法 ==========
 
@@ -211,6 +218,10 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                 .getProcessDefinitionInfo(processDefinition.getId());
         BpmnModel bpmnModel = processDefinitionService.getProcessDefinitionBpmnModel(processDefinition.getId());
 
+        // 会长纠错撤销信息（原流程被撤销时用于修正展示）
+        OaCorrectionRevokeNodeDTO presidentRevokeNode = reqVO.getProcessInstanceId() != null
+                ? oaPresidentCorrectionApi.getRevokeNode(reqVO.getProcessInstanceId()) : null;
+
         // 2.1 已结束 + 进行中的活动节点
         List<ActivityNode> endActivityNodes = null; // 已结束的审批信息
         List<ActivityNode> runActivityNodes = null; // 进行中的审批信息
@@ -221,8 +232,13 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                     true);
             endActivityNodes = getEndActivityNodeList(startUserId, bpmnModel, processDefinitionInfo,
                     historicProcessInstance, processInstanceStatus, activities, tasks);
+            appendPresidentCorrectionRevokeNode(endActivityNodes, reqVO.getProcessInstanceId());
             runActivityNodes = getRunApproveNodeList(startUserId, bpmnModel, processDefinition, processVariables,
                     activities, tasks);
+            if (presidentRevokeNode != null) {
+                runActivityNodes = Collections.emptyList();
+                processInstanceStatus = BpmProcessInstanceStatusEnum.CANCEL.getStatus();
+            }
         }
 
         // 2.2 流程已经结束，直接 return，无需预测
@@ -332,17 +348,11 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         if (StrUtil.isNotEmpty(pageReqVO.getName())) {
             processInstanceQuery.processInstanceNameLike("%" + pageReqVO.getName() + "%");
         }
-        if (StrUtil.isNotEmpty(pageReqVO.getProcessDefinitionKey())) {
-            processInstanceQuery.processDefinitionKey(pageReqVO.getProcessDefinitionKey());
-        }
+        applyProcessDefinitionKeyFilter(processInstanceQuery, pageReqVO);
         if (StrUtil.isNotEmpty(pageReqVO.getCategory())) {
             processInstanceQuery.processDefinitionCategory(pageReqVO.getCategory());
         }
-
-        if (pageReqVO.getStatus() != null) {
-            processInstanceQuery.variableValueEquals(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS,
-                    pageReqVO.getStatus());
-        }
+        applyProcessStatusFilter(processInstanceQuery, pageReqVO);
         if (ArrayUtil.isNotEmpty(pageReqVO.getCreateTime())) {
             processInstanceQuery.startedAfter(DateUtils.of(pageReqVO.getCreateTime()[0]));
             processInstanceQuery.startedBefore(DateUtils.of(pageReqVO.getCreateTime()[1]));
@@ -352,10 +362,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             processInstanceQuery.finishedBefore(DateUtils.of(pageReqVO.getEndTime()[1]));
         }
 
-        // 新增流程参数查询
-        if (StrUtil.isNotEmpty(pageReqVO.getBillType())) {
-            processInstanceQuery.processDefinitionKey(pageReqVO.getBillType());
-        }
+        // 流程变量查询
         if (StrUtil.isNotEmpty(pageReqVO.getBillCode())) {
             processInstanceQuery.variableValueEquals(BpmProcessVariableConstants.BILL_CODE,
                     pageReqVO.getBillCode());
@@ -388,6 +395,52 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         List<HistoricProcessInstance> processInstanceList = processInstanceQuery.listPage(PageUtils.getStart(pageReqVO),
                 pageReqVO.getPageSize());
         return new PageResult<>(processInstanceList, processInstanceCount);
+    }
+
+    @Override
+    public PageResult<HistoricProcessInstance> getPresidentCorrectionProcessInstancePage(
+            BpmProcessInstancePageReqVO pageReqVO) {
+        if (pageReqVO.getStatus() == null) {
+            pageReqVO.setSubmittedOnly(true);
+        }
+        if (StrUtil.isEmpty(pageReqVO.getProcessDefinitionKey())
+                && CollUtil.isEmpty(pageReqVO.getProcessDefinitionKeys())) {
+            pageReqVO.setProcessDefinitionKeys(PresidentCorrectionProcessKeyConstants.CORRECTABLE_PROCESS_KEYS);
+        }
+        return getProcessInstancePage(null, pageReqVO);
+    }
+
+    private void applyProcessDefinitionKeyFilter(HistoricProcessInstanceQuery query,
+                                                 BpmProcessInstancePageReqVO pageReqVO) {
+        if (StrUtil.isNotEmpty(pageReqVO.getBillType())) {
+            query.processDefinitionKey(pageReqVO.getBillType());
+            return;
+        }
+        if (StrUtil.isNotEmpty(pageReqVO.getProcessDefinitionKey())) {
+            query.processDefinitionKey(pageReqVO.getProcessDefinitionKey());
+            return;
+        }
+        if (CollUtil.isNotEmpty(pageReqVO.getProcessDefinitionKeys())) {
+            query.processDefinitionKeyIn(pageReqVO.getProcessDefinitionKeys());
+        }
+    }
+
+    private void applyProcessStatusFilter(HistoricProcessInstanceQuery query,
+                                          BpmProcessInstancePageReqVO pageReqVO) {
+        if (pageReqVO.getStatus() != null) {
+            query.variableValueEquals(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS,
+                    pageReqVO.getStatus());
+            return;
+        }
+        if (Boolean.TRUE.equals(pageReqVO.getSubmittedOnly())) {
+            query.variableValueNotEquals(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS,
+                    BpmProcessInstanceStatusEnum.NOT_START.getStatus());
+            return;
+        }
+        if (CollUtil.isNotEmpty(pageReqVO.getStatuses()) && pageReqVO.getStatuses().size() == 1) {
+            query.variableValueEquals(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS,
+                    pageReqVO.getStatuses().get(0));
+        }
     }
 
     /**
@@ -503,6 +556,36 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 按照时间排序
         approvalNodes.sort(Comparator.comparing(ActivityNode::getStartTime));
         return approvalNodes;
+    }
+
+    /**
+     * 会长纠错：在原审批时间轴末尾追加虚拟「流程撤销」节点
+     */
+    private void appendPresidentCorrectionRevokeNode(List<ActivityNode> approvalNodes, String processInstanceId) {
+        if (CollUtil.isEmpty(approvalNodes) || StrUtil.isBlank(processInstanceId)) {
+            return;
+        }
+        OaCorrectionRevokeNodeDTO revokeNode = oaPresidentCorrectionApi.getRevokeNode(processInstanceId);
+        if (revokeNode == null) {
+            return;
+        }
+        String reason = BpmReasonEnum.PRESIDENT_CORRECTION_REVOKE.format(
+                revokeNode.getRevokeUserName(), revokeNode.getCorrectionReason());
+        ActivityNodeTask task = new ActivityNodeTask()
+                .setId(PRESIDENT_CORRECTION_REVOKE_NODE_ID)
+                .setAssignee(revokeNode.getRevokeUserId())
+                .setStatus(BpmTaskStatusEnum.CANCEL.getStatus())
+                .setReason(reason);
+        ActivityNode node = new ActivityNode()
+                .setId(PRESIDENT_CORRECTION_REVOKE_NODE_ID)
+                .setName(BpmSimpleModelNodeTypeEnum.PRESIDENT_CORRECTION_REVOKE_NODE.getName())
+                .setNodeType(BpmSimpleModelNodeTypeEnum.PRESIDENT_CORRECTION_REVOKE_NODE.getType())
+                .setStatus(BpmTaskStatusEnum.CANCEL.getStatus())
+                .setStartTime(revokeNode.getRevokeTime())
+                .setEndTime(revokeNode.getRevokeTime())
+                .setTasks(singletonList(task));
+        approvalNodes.add(node);
+        approvalNodes.sort(Comparator.comparing(ActivityNode::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())));
     }
 
     /**
@@ -789,7 +872,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                     .getProcessDefinition(createReqVO.getProcessDefinitionId());
             // 发起流程
             return createProcessInstance0(userId, definition, createReqVO.getVariables(), null,
-                    createReqVO.getStartUserSelectAssignees());
+                    createReqVO.getStartUserSelectAssignees(), false);
         });
     }
 
@@ -803,7 +886,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             // 发起流程
             return createProcessInstance0(userId, definition, createReqDTO.getVariables(),
                     createReqDTO.getBusinessKey(),
-                    createReqDTO.getStartUserSelectAssignees());
+                    createReqDTO.getStartUserSelectAssignees(),
+                    Boolean.TRUE.equals(createReqDTO.getPreserveHistory()));
         });
     }
 
@@ -853,7 +937,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                         .getActiveProcessDefinition(createReqDTO.getProcessDefinitionKey());
                 return createProcessInstance0(userId, definition, createReqDTO.getVariables(),
                         createReqDTO.getBusinessKey(),
-                        createReqDTO.getStartUserSelectAssignees());
+                        createReqDTO.getStartUserSelectAssignees(),
+                        Boolean.TRUE.equals(createReqDTO.getPreserveHistory()));
             }
         });
     }
@@ -954,7 +1039,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     private String createProcessInstance0(Long userId, ProcessDefinition definition,
                                           Map<String, Object> variables, String businessKey,
-                                          Map<String, List<Long>> startUserSelectAssignees) {
+                                          Map<String, List<Long>> startUserSelectAssignees,
+                                          boolean preserveHistory) {
         // 1.1 校验流程定义
         if (definition == null) {
             throw exception(PROCESS_DEFINITION_NOT_EXISTS);
@@ -974,8 +1060,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 1.3 校验发起人自选审批人
         validateStartUserSelectAssignees(userId, definition, startUserSelectAssignees, variables);
 
-        // 1.4 如果提供了BusinessKey，删除相同BusinessKey的历史流程实例
-        if (StrUtil.isNotEmpty(businessKey)) {
+        // 1.4 如果提供了 BusinessKey，默认删除历史流程；会长纠错重审场景保留历史
+        if (StrUtil.isNotEmpty(businessKey) && !preserveHistory) {
             deleteHistoricalProcessInstancesByBusinessKey(businessKey);
         }
 
@@ -1149,6 +1235,45 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                 BpmReasonEnum.CANCEL_PROCESS_INSTANCE_BY_ADMIN.format(user.getNickname(), cancelReqVO.getReason()));
     }
 
+    @Override
+    public void cancelProcessInstanceByReason(String processInstanceId, String reason) {
+        if (getProcessInstance(processInstanceId) == null) {
+            return;
+        }
+        updateProcessInstanceCancel(processInstanceId, reason);
+    }
+
+    @Override
+    public void appendPresidentCorrectionRevokeTask(List<BpmTaskRespVO> taskList, String processInstanceId) {
+        OaCorrectionRevokeNodeDTO revokeNode = oaPresidentCorrectionApi.getRevokeNode(processInstanceId);
+        if (revokeNode == null) {
+            return;
+        }
+        // 原流程未取消的历史数据：隐藏仍显示为「审批中」的残留任务
+        taskList.removeIf(task -> BpmTaskStatusEnum.RUNNING.getStatus().equals(task.getStatus())
+                || BpmTaskStatusEnum.WAIT.getStatus().equals(task.getStatus()));
+        String reason = BpmReasonEnum.PRESIDENT_CORRECTION_REVOKE.format(
+                revokeNode.getRevokeUserName(), revokeNode.getCorrectionReason());
+        BpmTaskRespVO taskVO = new BpmTaskRespVO()
+                .setId(PRESIDENT_CORRECTION_REVOKE_NODE_ID)
+                .setName(BpmSimpleModelNodeTypeEnum.PRESIDENT_CORRECTION_REVOKE_NODE.getName())
+                .setCreateTime(revokeNode.getRevokeTime())
+                .setEndTime(revokeNode.getRevokeTime())
+                .setStatus(BpmTaskStatusEnum.CANCEL.getStatus())
+                .setReason(reason);
+        if (revokeNode.getRevokeUserId() != null) {
+            AdminUserRespDTO user = adminUserApi.getUser(revokeNode.getRevokeUserId()).getCheckedData();
+            if (user != null) {
+                Map<Long, AdminUserRespDTO> userMap = Map.of(user.getId(), user);
+                Map<Long, DeptRespDTO> deptMap = user.getDeptId() != null
+                        ? deptApi.getDeptMap(Set.of(user.getDeptId())) : Map.of();
+                taskVO.setAssigneeUser(BpmProcessInstanceConvert.INSTANCE.buildUser(user.getId(), userMap, deptMap));
+            }
+        }
+        taskList.add(taskVO);
+        taskList.sort(Comparator.comparing(BpmTaskRespVO::getCreateTime, Comparator.nullsLast(Comparator.naturalOrder())));
+    }
+
     private void updateProcessInstanceCancel(String id, String reason) {
         // 1. 更新流程实例 status
         runtimeService.setVariable(id, BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS,
@@ -1294,6 +1419,15 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             }
 
         });
+    }
+
+    @Override
+    public Map<String, Object> getHistoricProcessVariables(String processInstanceId) {
+        HistoricProcessInstance instance = getHistoricProcessInstance(processInstanceId);
+        if (instance == null || CollUtil.isEmpty(instance.getProcessVariables())) {
+            return new HashMap<>();
+        }
+        return new HashMap<>(instance.getProcessVariables());
     }
 
 }

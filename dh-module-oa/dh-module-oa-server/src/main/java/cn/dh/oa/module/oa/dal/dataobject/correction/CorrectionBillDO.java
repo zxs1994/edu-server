@@ -85,6 +85,31 @@ public class CorrectionBillDO extends BaseDO {
      */
     private String correctionResult;
 
+    /**
+     * 纠错类型（1异议纠错 2理事会决议）
+     */
+    private Integer correctionType;
+
+    /**
+     * 撤销时间
+     */
+    private java.time.LocalDateTime revokeTime;
+
+    /**
+     * 撤销人用户ID
+     */
+    private Long revokeUserId;
+
+    /**
+     * 撤销人姓名
+     */
+    private String revokeUserName;
+
+    /**
+     * 纠错版本号
+     */
+    private Integer approvalVersion;
+
     // ========== 基础字段 ==========
     /**
      * 申请人姓名

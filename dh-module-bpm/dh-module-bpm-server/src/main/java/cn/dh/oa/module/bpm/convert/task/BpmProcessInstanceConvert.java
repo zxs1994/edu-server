@@ -121,6 +121,34 @@ public interface BpmProcessInstanceConvert {
         return vpPageResult;
     }
 
+    default Map<String, List<BpmProcessInstanceRespVO.Task>> buildRunningTaskMap(
+            Map<String, List<Task>> taskMap,
+            Map<Long, AdminUserRespDTO> userMap,
+            Map<Long, PostRespDTO> postMap) {
+        if (CollUtil.isEmpty(taskMap)) {
+            return Collections.emptyMap();
+        }
+        Map<String, List<BpmProcessInstanceRespVO.Task>> result = new HashMap<>();
+        taskMap.forEach((instanceId, tasks) -> {
+            List<BpmProcessInstanceRespVO.Task> voTasks = BeanUtils.toBean(tasks, BpmProcessInstanceRespVO.Task.class);
+            if (CollUtil.isNotEmpty(voTasks) && userMap != null) {
+                voTasks.forEach(task -> {
+                    AdminUserRespDTO assigneeUser = userMap.get(task.getAssignee());
+                    if (assigneeUser != null) {
+                        task.setAssigneeUser(BeanUtils.toBean(assigneeUser, UserSimpleBaseVO.class));
+                        if (CollUtil.isNotEmpty(assigneeUser.getPostIds())) {
+                            Long firstPostId = assigneeUser.getPostIds().iterator().next();
+                            MapUtils.findAndThen(postMap, firstPostId,
+                                    post -> task.getAssigneeUser().setPostName(post.getName()));
+                        }
+                    }
+                });
+            }
+            result.put(instanceId, voTasks != null ? voTasks : Collections.emptyList());
+        });
+        return result;
+    }
+
     default BpmProcessInstanceRespVO buildProcessInstance(HistoricProcessInstance processInstance,
                                                           ProcessDefinition processDefinition,
                                                           BpmProcessDefinitionInfoDO processDefinitionInfo,

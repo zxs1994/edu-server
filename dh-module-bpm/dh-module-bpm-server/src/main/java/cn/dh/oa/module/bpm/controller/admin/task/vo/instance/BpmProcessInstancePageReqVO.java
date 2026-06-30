@@ -9,6 +9,7 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
@@ -22,9 +23,18 @@ public class BpmProcessInstancePageReqVO extends PageParam {
     @Schema(description = "流程定义的标识", example = "2048")
     private String processDefinitionKey; // 精准匹配
 
+    @Schema(description = "流程定义标识列表（多选，OR 查询）")
+    private List<String> processDefinitionKeys;
+
     @Schema(description = "流程实例的状态", example = "1")
     @InEnum(BpmProcessInstanceStatusEnum.class)
     private Integer status;
+
+    @Schema(description = "流程实例状态列表（多选，OR 查询）")
+    private List<Integer> statuses;
+
+    @Schema(description = "仅已提交流程（排除未提交 NOT_START）")
+    private Boolean submittedOnly;
 
     @Schema(description = "流程分类", example = "1")
     private String category;

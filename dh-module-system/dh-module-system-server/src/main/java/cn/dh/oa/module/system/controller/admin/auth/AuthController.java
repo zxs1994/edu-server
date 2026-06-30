@@ -127,7 +127,8 @@ public class AuthController {
             // 获取用户公司信息和部门信息
             DeptDO company = deptService.getUserCompany(user.getDeptId());
             DeptDO dept = deptService.getDept(user.getDeptId());
-            return success(AuthConvert.INSTANCE.convert(user, Collections.emptyList(), Collections.emptyList(), Collections.emptySet(), company, dept));
+            return success(AuthConvert.INSTANCE.convert(user, Collections.emptyList(), Collections.emptyList(),
+                    Collections.emptySet(), company, dept));
         }
         List<RoleDO> roles = roleService.getRoleList(roleIds);
         roles.removeIf(role -> !CommonStatusEnum.ENABLE.getStatus().equals(role.getStatus())); // 移除禁用的角色

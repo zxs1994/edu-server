@@ -48,6 +48,9 @@ public class CorrectionBillServiceImpl implements CorrectionBillService {
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
 
+    @Resource
+    private cn.dh.oa.module.oa.service.correction.freeze.BillFreezeHandlerRegistry billFreezeHandlerRegistry;
+
     @Override
     public Long saveCorrectionBill(CorrectionBillSaveReqVO saveReqVO) {
         // 如果单号为空，需要生成
@@ -252,12 +255,7 @@ public class CorrectionBillServiceImpl implements CorrectionBillService {
      * @param correctionBill 纠错申请单
      */
     private void freezeSourceBill(CorrectionBillDO correctionBill) {
-        log.info("[freezeSourceBill] 冻结原单据，原单据类型: {}, 原单据ID: {}",
-                correctionBill.getSourceBillType(), correctionBill.getSourceBillId());
-        // 此处预留原单据冻结逻辑
-        // 根据原单据类型，调用对应模块的Service将原单据标记为冻结状态
-        // 例如：如果是用印申请单，调用 SealApplyBillService 的相关方法
-        // 目前仅更新纠错申请单的冻结状态字段，具体原单据冻结逻辑需要根据各模块实现
+        billFreezeHandlerRegistry.freeze(correctionBill.getSourceBillType(), correctionBill.getSourceBillId());
     }
 
     /**

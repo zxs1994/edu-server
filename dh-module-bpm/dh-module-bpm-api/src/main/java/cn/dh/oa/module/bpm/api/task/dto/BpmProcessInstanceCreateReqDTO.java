@@ -39,4 +39,7 @@ public class BpmProcessInstanceCreateReqDTO {
     @Schema(description = "任务审批信息")
     private BpmTaskApproveReqDTO taskApproveReqDTO;
 
+    @Schema(description = "是否保留同 businessKey 的历史流程实例（会长纠错重审场景为 true）")
+    private Boolean preserveHistory;
+
 }

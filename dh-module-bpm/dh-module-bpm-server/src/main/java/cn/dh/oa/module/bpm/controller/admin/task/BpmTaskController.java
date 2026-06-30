@@ -32,6 +32,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -138,21 +139,24 @@ public class BpmTaskController {
     public CommonResult<List<BpmTaskRespVO>> getTaskListByProcessInstanceId(
             @RequestParam("processInstanceId") String processInstanceId) {
         List<HistoricTaskInstance> taskList = taskService.getTaskListByProcessInstanceId(processInstanceId, true);
-        if (CollUtil.isEmpty(taskList)) {
-            return success(Collections.emptyList());
-        }
 
-        // 拼接数据
-        Set<Long> userIds = convertSetByFlatMap(taskList, task ->
-                Stream.of(NumberUtils.parseLong(task.getAssignee()), NumberUtils.parseLong(task.getOwner())));
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
-        Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
-                convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
-        // 获得 Form Map
-        Map<Long, BpmFormDO> formMap = formService.getFormMap(
-                convertSet(taskList, task -> NumberUtils.parseLong(task.getFormKey())));
-        return success(BpmTaskConvert.INSTANCE.buildTaskListByProcessInstanceId(taskList,
-                formMap, userMap, deptMap));
+        List<BpmTaskRespVO> result;
+        if (CollUtil.isEmpty(taskList)) {
+            result = new ArrayList<>();
+        } else {
+            // 拼接数据
+            Set<Long> userIds = convertSetByFlatMap(taskList, task ->
+                    Stream.of(NumberUtils.parseLong(task.getAssignee()), NumberUtils.parseLong(task.getOwner())));
+            Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
+            Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
+                    convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
+            Map<Long, BpmFormDO> formMap = formService.getFormMap(
+                    convertSet(taskList, task -> NumberUtils.parseLong(task.getFormKey())));
+            result = BpmTaskConvert.INSTANCE.buildTaskListByProcessInstanceId(taskList,
+                    formMap, userMap, deptMap);
+        }
+        processInstanceService.appendPresidentCorrectionRevokeTask(result, processInstanceId);
+        return success(result);
     }
 
     @PutMapping("/approve")

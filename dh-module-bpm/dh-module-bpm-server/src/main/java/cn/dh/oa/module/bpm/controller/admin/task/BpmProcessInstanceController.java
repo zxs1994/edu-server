@@ -36,6 +36,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -136,6 +137,35 @@ public class BpmProcessInstanceController {
                 processDefinitionMap, categoryMap, taskMap, userMap, deptMap, postMap, processDefinitionInfoMap));
     }
 
+    @GetMapping("/president-correction-page")
+    @Operation(summary = "会长纠错 - 可纠错流程实例分页")
+    @PreAuthorize("@ss.hasPermission('oa:president-correction:query')")
+    public CommonResult<PageResult<BpmProcessInstanceRespVO>> getPresidentCorrectionProcessInstancePage(
+            @Valid BpmProcessInstancePageReqVO pageReqVO) {
+        PageResult<HistoricProcessInstance> pageResult = processInstanceService.getPresidentCorrectionProcessInstancePage(
+                pageReqVO);
+        if (CollUtil.isEmpty(pageResult.getList())) {
+            return success(PageResult.empty(pageResult.getTotal()));
+        }
+
+        Map<String, List<Task>> taskMap = taskService.getTaskMapByProcessInstanceIds(
+                convertList(pageResult.getList(), HistoricProcessInstance::getId));
+        Map<String, ProcessDefinition> processDefinitionMap = processDefinitionService.getProcessDefinitionMap(
+                convertSet(pageResult.getList(), HistoricProcessInstance::getProcessDefinitionId));
+        Map<String, BpmCategoryDO> categoryMap = categoryService.getCategoryMap(
+                convertSet(processDefinitionMap.values(), ProcessDefinition::getCategory));
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
+                convertSet(pageResult.getList(), processInstance -> NumberUtils.parseLong(processInstance.getStartUserId())));
+        Map<Long, DeptRespDTO> deptMap = deptApi.getDeptMap(
+                convertSet(userMap.values(), AdminUserRespDTO::getDeptId));
+        Map<Long, PostRespDTO> postMap = postApi.getPostMap(
+                convertSetByFlatMap(userMap.values(), AdminUserRespDTO::getPostIds, Collection::stream));
+        Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
+                convertSet(pageResult.getList(), HistoricProcessInstance::getProcessDefinitionId));
+        return success(BpmProcessInstanceConvert.INSTANCE.buildProcessInstancePage(pageResult,
+                processDefinitionMap, categoryMap, taskMap, userMap, deptMap, postMap, processDefinitionInfoMap));
+    }
+
     @PostMapping("/create")
     @Operation(summary = "新建流程实例")
     @PreAuthorize("@ss.hasPermission('bpm:process-instance:query')")
@@ -183,6 +213,24 @@ public class BpmProcessInstanceController {
             @Valid @RequestBody BpmProcessInstanceCancelReqVO cancelReqVO) {
         processInstanceService.cancelProcessInstanceByAdmin(getLoginUserId(), cancelReqVO);
         return success(true);
+    }
+
+    @GetMapping("/running-tasks-map")
+    @Operation(summary = "批量获取流程实例当前运行中的任务")
+    @PreAuthorize("@ss.hasPermission('bpm:process-instance:query')")
+    public CommonResult<Map<String, List<BpmProcessInstanceRespVO.Task>>> getRunningTasksMap(
+            @RequestParam("processInstanceIds") String processInstanceIds) {
+        List<String> ids = StrUtil.splitTrim(processInstanceIds, ',');
+        if (CollUtil.isEmpty(ids)) {
+            return success(Collections.emptyMap());
+        }
+        Map<String, List<Task>> taskMap = taskService.getTaskMapByProcessInstanceIds(ids);
+        Set<Long> userIds = convertSetByFlatMap(taskMap.values(),
+                tasks -> tasks.stream().map(Task::getAssignee).filter(StrUtil::isNotBlank).map(Long::parseLong));
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(userIds);
+        Map<Long, PostRespDTO> postMap = postApi.getPostMap(
+                convertSetByFlatMap(userMap.values(), AdminUserRespDTO::getPostIds, Collection::stream));
+        return success(BpmProcessInstanceConvert.INSTANCE.buildRunningTaskMap(taskMap, userMap, postMap));
     }
 
     @GetMapping("/get-approval-detail")

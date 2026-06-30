@@ -74,6 +74,12 @@ public interface ErrorCodeConstants {
     // ========== 纠错管理 1-101-012-000 ============
     ErrorCode CORRECTION_BILL_NOT_EXISTS = new ErrorCode(1_101_012_000, "纠错申请单不存在");
     ErrorCode CORRECTION_SOURCE_BILL_NOT_EXISTS = new ErrorCode(1_101_012_001, "纠错原单据不存在");
+    ErrorCode CORRECTION_BILL_ALREADY_IN_PROGRESS = new ErrorCode(1_101_012_002, "该单据已有进行中的纠错");
+    ErrorCode CORRECTION_SOURCE_BILL_NOT_APPROVED = new ErrorCode(1_101_012_003, "仅已审批通过的单据可发起纠错");
+    ErrorCode CORRECTION_BILL_TYPE_NOT_SUPPORTED = new ErrorCode(1_101_012_004, "不支持的单据类型");
+    ErrorCode CORRECTION_COUNCIL_RESULT_REQUIRED = new ErrorCode(1_101_012_005, "理事会决议须填写处理结果");
+    ErrorCode CORRECTION_COUNCIL_FILE_REQUIRED = new ErrorCode(1_101_012_006, "理事会决议须上传决议文件");
+    ErrorCode CORRECTION_BILL_FROZEN = new ErrorCode(1_101_012_007, "单据已冻结，暂不可执行该操作");
 
     // ========== 套红模板 1-101-013-000 ============
     ErrorCode RED_TEMPLATE_NOT_EXISTS = new ErrorCode(1_101_013_000, "套红模板不存在");

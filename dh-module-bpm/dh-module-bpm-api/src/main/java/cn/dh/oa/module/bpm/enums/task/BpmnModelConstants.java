@@ -127,6 +127,11 @@ public interface BpmnModelConstants {
     String START_USER_NODE_ID = "StartUserNode";
 
     /**
+     * 会长纠错虚拟撤销节点 ID（仅审批详情展示）
+     */
+    String PRESIDENT_CORRECTION_REVOKE_NODE_ID = "PresidentCorrectionRevokeNode";
+
+    /**
      * 是否需要签名
      */
     String SIGN_ENABLE = "signEnable";
