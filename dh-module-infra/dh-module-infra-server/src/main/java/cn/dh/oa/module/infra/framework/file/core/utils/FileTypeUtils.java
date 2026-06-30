@@ -81,9 +81,14 @@ public class FileTypeUtils {
     public static void writeAttachment(HttpServletResponse response, String filename, byte[] content) throws IOException {
         // 设置 header 和 contentType
         String mineType = getMineType(content, filename);
-        response.setContentType(mineType);
+        String contentType = mineType;
+        // text 类型补充 charset，避免浏览器按系统默认编码（如 GBK）解析 UTF-8 文件乱码
+        if (isText(mineType) && !StrUtil.containsIgnoreCase(mineType, "charset")) {
+            contentType = mineType + ";charset=UTF-8";
+        }
+        response.setContentType(contentType);
         // 设置内容显示、下载文件名：https://www.cnblogs.com/wq-9/articles/12165056.html
-        if (isImage(mineType)) {
+        if (isImage(mineType) || isText(mineType)) {
             // 参见 https://gitcode.com/zhouzhongyan/ruoyi-office.git/issues/692 讨论
             response.setHeader("Content-Disposition", "inline;filename=" + HttpUtils.encodeUtf8(filename));
         } else {
@@ -106,6 +111,16 @@ public class FileTypeUtils {
      */
     public static boolean isImage(String mineType) {
         return StrUtil.startWith(mineType, "image/");
+    }
+
+    /**
+     * 判断是否是文本类型
+     *
+     * @param mineType 类型
+     * @return 是否是文本
+     */
+    public static boolean isText(String mineType) {
+        return StrUtil.startWithIgnoreCase(StrUtil.subBefore(mineType, ";", false), "text/");
     }
 
 }
