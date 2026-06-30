@@ -32,6 +32,12 @@ public class BpmProcessInstanceRespVO {
     @Schema(description = "流程实例的状态", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Integer status; // 参见 BpmProcessInstanceStatusEnum 枚举
 
+    @Schema(description = "展示层叠加：会长异议/纠错")
+    private Boolean presidentCorrectionDisplay;
+
+    @Schema(description = "列表状态列：仅展示会长异议/纠错（未重新发起）")
+    private Boolean presidentCorrectionAwaitingResubmit;
+
     @Schema(description = "发起时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime startTime;
 

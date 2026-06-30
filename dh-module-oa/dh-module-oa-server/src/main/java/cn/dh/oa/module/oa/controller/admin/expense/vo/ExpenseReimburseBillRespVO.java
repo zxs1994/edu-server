@@ -31,6 +31,12 @@ public class ExpenseReimburseBillRespVO {
     @ExcelProperty("单据状态")
     private Integer processStatus;
 
+    @Schema(description = "展示层叠加：会长异议/纠错")
+    private Boolean presidentCorrectionDisplay;
+
+    @Schema(description = "列表状态列：仅展示会长异议/纠错（未重新发起）")
+    private Boolean presidentCorrectionAwaitingResubmit;
+
     @Schema(description = "单据类型（1-日常报销 2-差旅报销）", example = "2")
     @ExcelProperty("单据类型")
     private Integer billType;

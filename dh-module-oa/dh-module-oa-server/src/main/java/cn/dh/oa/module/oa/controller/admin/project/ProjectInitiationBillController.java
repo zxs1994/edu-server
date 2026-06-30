@@ -9,6 +9,7 @@ import cn.dh.oa.framework.excel.core.util.ExcelUtils;
 import cn.dh.oa.module.oa.controller.admin.project.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.project.ProjectInitiationBillDO;
 import cn.dh.oa.module.oa.service.project.ProjectInitiationBillService;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +34,8 @@ public class ProjectInitiationBillController {
 
     @Resource
     private ProjectInitiationBillService projectInitiationBillService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
     @PostMapping("/create")
     @Operation(summary = "创建项目立项单")
@@ -87,6 +90,7 @@ public class ProjectInitiationBillController {
     @PreAuthorize("@ss.hasAnyPermissions('oa:project-initiation-bill:create', 'oa:project-initiation-bill:query', 'oa:project-initiation-bill:submit')")
     public CommonResult<ProjectInitiationBillRespVO> getProjectInitiationBill(@RequestParam("id") Long id) {
         ProjectInitiationBillRespVO respVO = projectInitiationBillService.getProjectInitiationBillInfo(id);
+        billCorrectionDisplayEnricher.enrichProjectBills(List.of(respVO));
         return success(respVO);
     }
 
@@ -95,7 +99,9 @@ public class ProjectInitiationBillController {
     @PreAuthorize("@ss.hasPermission('oa:project-initiation-bill:query')")
     public CommonResult<PageResult<ProjectInitiationBillRespVO>> getProjectInitiationBillPage(@Valid ProjectInitiationBillPageReqVO pageReqVO) {
         PageResult<ProjectInitiationBillDO> pageResult = projectInitiationBillService.getProjectInitiationBillPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, ProjectInitiationBillRespVO.class));
+        PageResult<ProjectInitiationBillRespVO> voPage = BeanUtils.toBean(pageResult, ProjectInitiationBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichProjectBills(voPage.getList());
+        return success(voPage);
     }
 
     @GetMapping("/export-excel")

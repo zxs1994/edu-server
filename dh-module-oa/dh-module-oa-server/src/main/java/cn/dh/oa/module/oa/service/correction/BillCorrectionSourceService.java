@@ -1,5 +1,6 @@
 package cn.dh.oa.module.oa.service.correction;
 
+import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
 import cn.dh.oa.module.oa.service.correction.dto.BillCorrectionSourceDTO;
 
 import java.util.Set;
@@ -9,17 +10,17 @@ import java.util.Set;
  */
 public interface BillCorrectionSourceService {
 
-  Set<String> SUPPORTED_BILL_TYPES = Set.of(
-          "oa_contract_bill",
-          "oa_expense_reimburse_bill",
-          "oa_seal_apply_bill",
-          "oa_project_initiation_bill",
-          "oa_document_dispatch_bill");
+  Set<String> SUPPORTED_BILL_TYPES = OaBillTypeEnum.presidentCorrectionBillTypeKeys();
 
   BillCorrectionSourceDTO loadRequired(String billType, Long billId);
 
   void updateForReApproval(BillCorrectionSourceDTO source, String newProcessInstanceId);
 
+  void applyReApprovalCompleted(String billType, Long billId, String processInstanceId, Integer status);
+
   void updateForCouncilOverride(BillCorrectionSourceDTO source);
+
+  /** 理事会决议推翻：原单据流程状态置为不通过 */
+  void applyCouncilReject(String billType, Long billId);
 
 }

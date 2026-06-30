@@ -28,6 +28,7 @@ import static cn.dh.oa.framework.apilog.core.enums.OperateTypeEnum.*;
 import cn.dh.oa.module.oa.controller.admin.contract.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.contract.ContractBillDO;
 import cn.dh.oa.module.oa.service.contract.ContractBillService;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 
 @Tag(name = "管理后台 - 合同审批单")
 @RestController
@@ -37,6 +38,8 @@ public class ContractBillController {
 
     @Resource
     private ContractBillService contractBillService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
     @PostMapping("/create")
     @Operation(summary = "创建合同审批单")
@@ -91,6 +94,7 @@ public class ContractBillController {
     @PreAuthorize("@ss.hasAnyPermissions('oa:contract-bill:create', 'oa:contract-bill:query', 'oa:contract-bill:submit')")
     public CommonResult<ContractBillRespVO> getContractBill(@RequestParam("id") Long id) {
         ContractBillRespVO respVO = contractBillService.getContractBillInfo(id);
+        billCorrectionDisplayEnricher.enrichContractBills(List.of(respVO));
         return success(respVO);
     }
 
@@ -99,7 +103,9 @@ public class ContractBillController {
     @PreAuthorize("@ss.hasPermission('oa:contract-bill:query')")
     public CommonResult<PageResult<ContractBillRespVO>> getContractBillPage(@Valid ContractBillPageReqVO pageReqVO) {
         PageResult<ContractBillDO> pageResult = contractBillService.getContractBillPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, ContractBillRespVO.class));
+        PageResult<ContractBillRespVO> voPage = BeanUtils.toBean(pageResult, ContractBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichContractBills(voPage.getList());
+        return success(voPage);
     }
 
     @GetMapping("/export-excel")

@@ -4,7 +4,6 @@ import cn.dh.oa.framework.common.enums.SystemEnum;
 import cn.dh.oa.framework.common.util.object.BeanUtils;
 import cn.dh.oa.framework.common.util.bill.BillCodeUtils;
 import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
-import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmProcessInstanceStatusEnum;
 import cn.dh.oa.module.bpm.enums.task.BpmReasonEnum;
 import cn.dh.oa.module.oa.controller.admin.correction.vo.PresidentCorrectionInitiateReqVO;
@@ -29,9 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
@@ -40,10 +37,6 @@ import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
 @Service
 @Validated
 public class PresidentCorrectionServiceImpl implements PresidentCorrectionService {
-
-    private static final String VAR_IS_RE_APPROVAL = "isReApproval";
-    private static final String VAR_CORRECTION_BILL_ID = "correctionBillId";
-    private static final String VAR_PREVIOUS_PROCESS_INSTANCE_ID = "previousProcessInstanceId";
 
     @Resource
     private CorrectionBillMapper correctionBillMapper;
@@ -88,33 +81,14 @@ public class PresidentCorrectionServiceImpl implements PresidentCorrectionServic
 
     private void handleObjectionPath(CorrectionBillDO correction, BillCorrectionSourceDTO source,
                                      AdminUserRespDTO president) {
-        Map<String, Object> variables = new HashMap<>(
-                processInstanceApi.getHistoricProcessVariables(source.getProcessInstanceId()).getCheckedData());
-        variables.put(VAR_IS_RE_APPROVAL, true);
-        variables.put(VAR_CORRECTION_BILL_ID, correction.getId());
-        variables.put(VAR_PREVIOUS_PROCESS_INSTANCE_ID, source.getProcessInstanceId());
-
-        String newProcessInstanceId = processInstanceApi.createProcessInstance(source.getCreatorUserId(),
-                new BpmProcessInstanceCreateReqDTO()
-                        .setProcessDefinitionKey(source.getBillType())
-                        .setBusinessKey(String.valueOf(source.getBillId()))
-                        .setVariables(variables)
-                        .setPreserveHistory(true)
-        ).getCheckedData();
-
-        correctionBillMapper.updateById(new CorrectionBillDO()
-                .setId(correction.getId())
-                .setNewProcessInstanceId(newProcessInstanceId)
-                .setCorrectionStatus(OaBillCorrectionStatusEnum.IN_PROGRESS.getStatus())
-                .setFreezeStatus(1));
-
-        billCorrectionSourceService.updateForReApproval(source, newProcessInstanceId);
-
         processInstanceApi.cancelProcessInstanceByReason(source.getProcessInstanceId(),
                 BpmReasonEnum.PRESIDENT_CORRECTION_REVOKE.format(president.getNickname(), correction.getCorrectionReason()))
                 .checkError();
 
-        log.info("[handleObjectionPath] 会长纠错重审已发起 correctionId={}, newPi={}", correction.getId(), newProcessInstanceId);
+        // 单据退回未提交，由申请人修改后完全重新发起流程（不在此处自动创建重审副本）
+        billCorrectionSourceService.updateForReApproval(source, null);
+
+        log.info("[handleObjectionPath] 会长异议纠错已发起，待申请人重新提交 correctionId={}", correction.getId());
     }
 
     private void handleCouncilPath(CorrectionBillDO correction, BillCorrectionSourceDTO source,
@@ -187,9 +161,6 @@ public class PresidentCorrectionServiceImpl implements PresidentCorrectionServic
         }
         if (StrUtil.isBlank(reqVO.getCorrectionResult())) {
             throw exception(CORRECTION_COUNCIL_RESULT_REQUIRED);
-        }
-        if (StrUtil.isBlank(reqVO.getCouncilDecisionFile())) {
-            throw exception(CORRECTION_COUNCIL_FILE_REQUIRED);
         }
     }
 

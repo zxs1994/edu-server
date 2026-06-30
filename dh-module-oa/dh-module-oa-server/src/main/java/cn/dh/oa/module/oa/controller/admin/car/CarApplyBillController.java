@@ -27,6 +27,7 @@ import static cn.dh.oa.framework.apilog.core.enums.OperateTypeEnum.*;
 import cn.dh.oa.module.oa.controller.admin.car.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.car.CarApplyBillDO;
 import cn.dh.oa.module.oa.service.car.CarApplyBillService;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 
 @Tag(name = "OA协同办公 - 用车申请单")
 @RestController
@@ -36,6 +37,8 @@ public class CarApplyBillController {
 
     @Resource
     private CarApplyBillService carApplyBillService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
 
     @PostMapping("/save")
@@ -84,6 +87,7 @@ public class CarApplyBillController {
     @PreAuthorize("@ss.hasAnyPermissions('oa:car-apply-bill:create', 'oa:car-apply-bill:query', 'oa:car-apply-bill:save', 'oa:car-apply-bill:submit')")
     public CommonResult<CarApplyBillRespVO> getCarApplyBill(@RequestParam("id") Long id) {
         CarApplyBillRespVO respVO = carApplyBillService.getCarApplyBillInfo(id);
+        billCorrectionDisplayEnricher.enrichCarApplyBills(List.of(respVO));
         return success(respVO);
     }
 
@@ -92,7 +96,9 @@ public class CarApplyBillController {
     @PreAuthorize("@ss.hasPermission('oa:car-apply-bill:query')")
     public CommonResult<PageResult<CarApplyBillRespVO>> getCarApplyBillPage(@Valid CarApplyBillPageReqVO pageReqVO) {
         PageResult<CarApplyBillDO> pageResult = carApplyBillService.getCarApplyBillPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, CarApplyBillRespVO.class));
+        PageResult<CarApplyBillRespVO> voPage = BeanUtils.toBean(pageResult, CarApplyBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichCarApplyBills(voPage.getList());
+        return success(voPage);
     }
 
     @GetMapping("/export-excel")

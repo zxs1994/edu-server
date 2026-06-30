@@ -26,6 +26,7 @@ import static cn.dh.oa.framework.apilog.core.enums.OperateTypeEnum.*;
 
 import cn.dh.oa.module.oa.controller.admin.correction.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.correction.CorrectionBillDO;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 import cn.dh.oa.module.oa.service.correction.CorrectionBillService;
 
 @Tag(name = "管理后台 - 纠错申请单")
@@ -36,6 +37,8 @@ public class CorrectionBillController {
 
     @Resource
     private CorrectionBillService correctionBillService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
     @PostMapping("/save")
     @Operation(summary = "保存纠错申请单")
@@ -91,7 +94,9 @@ public class CorrectionBillController {
     @PreAuthorize("@ss.hasPermission('oa:correction-bill:query')")
     public CommonResult<PageResult<CorrectionBillRespVO>> getCorrectionBillPage(@Valid CorrectionBillPageReqVO pageReqVO) {
         PageResult<CorrectionBillDO> pageResult = correctionBillService.getCorrectionBillPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, CorrectionBillRespVO.class));
+        PageResult<CorrectionBillRespVO> resp = BeanUtils.toBean(pageResult, CorrectionBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichCorrectionBills(resp.getList());
+        return success(resp);
     }
 
     @PostMapping("/freeze")
@@ -120,9 +125,9 @@ public class CorrectionBillController {
               HttpServletResponse response) throws IOException {
         pageReqVO.setPageSize(PageParam.PAGE_SIZE_NONE);
         List<CorrectionBillDO> list = correctionBillService.getCorrectionBillPage(pageReqVO).getList();
-        // 导出 Excel
-        ExcelUtils.write(response, "纠错申请单.xls", "数据", CorrectionBillRespVO.class,
-                        BeanUtils.toBean(list, CorrectionBillRespVO.class));
+        List<CorrectionBillRespVO> respList = BeanUtils.toBean(list, CorrectionBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichCorrectionBills(respList);
+        ExcelUtils.write(response, "纠错申请单.xls", "数据", CorrectionBillRespVO.class, respList);
     }
 
 }

@@ -35,6 +35,12 @@ public class MeetingRoomBookingRespVO {
     @DictFormat("oa_process_status")
     private Integer processStatus;
 
+    @Schema(description = "展示层叠加：会长异议/纠错")
+    private Boolean presidentCorrectionDisplay;
+
+    @Schema(description = "列表状态列：仅展示会长异议/纠错（未重新发起）")
+    private Boolean presidentCorrectionAwaitingResubmit;
+
     @Schema(description = "会议室ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @ExcelProperty("会议室ID")
     private Long roomId;

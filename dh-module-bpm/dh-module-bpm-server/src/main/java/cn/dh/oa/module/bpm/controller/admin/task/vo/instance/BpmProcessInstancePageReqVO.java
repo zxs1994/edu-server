@@ -65,4 +65,7 @@ public class BpmProcessInstancePageReqVO extends PageParam {
     @Schema(description = "动态表单字段查询 JSON Str", example = "{}")
     private String formFieldsParams; // SpringMVC 在 get 请求下，无法方便的定义 Map 类型的参数，所以通过 String 接收后，逻辑里面转换
 
+    @Schema(description = "排除会长纠错重审流程（isReApproval=true）")
+    private Boolean excludeReApproval;
+
 }

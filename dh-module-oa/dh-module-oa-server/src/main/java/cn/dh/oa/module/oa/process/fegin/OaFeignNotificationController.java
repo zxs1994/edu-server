@@ -5,9 +5,12 @@ import cn.dh.oa.framework.common.enums.SystemEnum;
 import cn.dh.oa.framework.common.pojo.CommonResult;
 import cn.dh.oa.framework.common.service.FlowBillServiceFactory;
 import cn.dh.oa.module.bpm.api.event.BpmProcessInstanceStatusMessage;
+import cn.dh.oa.module.oa.api.correction.OaPresidentCorrectionApi;
 import cn.dh.oa.module.oa.enums.ApiConstants;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
 import cn.dh.oa.module.oa.service.OaFlowBillServiceFactory;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionSourceService;
+import cn.hutool.core.util.StrUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -33,6 +36,8 @@ public class OaFeignNotificationController extends AbstractFlowNotificationContr
 
     @Resource
     private OaFlowBillServiceFactory flowBillServiceFactory;
+    @Resource
+    private OaPresidentCorrectionApi oaPresidentCorrectionApi;
 
     @Override
     protected SystemEnum getSystem() {
@@ -42,6 +47,26 @@ public class OaFeignNotificationController extends AbstractFlowNotificationContr
     @Override
     protected FlowBillServiceFactory<OaBillTypeEnum> getFlowBillServiceFactory() {
         return flowBillServiceFactory;
+    }
+
+    @Override
+    protected CommonResult<Boolean> handleProcessInstanceEvent(BpmProcessInstanceStatusMessage message) {
+        String processDefinitionKey = message.getProcessDefinitionKey();
+        String businessKey = message.getBusinessKey();
+        if (StrUtil.isNotBlank(businessKey)
+                && BillCorrectionSourceService.SUPPORTED_BILL_TYPES.contains(processDefinitionKey)) {
+            Long billId = Long.parseLong(businessKey);
+            if (oaPresidentCorrectionApi.isBillFrozen(processDefinitionKey, billId)) {
+                String processInstanceId = message.getProcessInstanceId();
+                if (!oaPresidentCorrectionApi.shouldSyncFrozenBillProcessStatus(
+                        processDefinitionKey, billId, processInstanceId)) {
+                    log.info("[handleProcessInstanceEvent] 会长纠错冻结中，跳过非重审流程状态同步 billId={}, pi={}",
+                            billId, processInstanceId);
+                    return CommonResult.success(true);
+                }
+            }
+        }
+        return super.handleProcessInstanceEvent(message);
     }
 
     @PostMapping("/bpm-event")

@@ -28,6 +28,7 @@ import static cn.dh.oa.framework.apilog.core.enums.OperateTypeEnum.*;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.expense.ExpenseReimburseBillDO;
 import cn.dh.oa.module.oa.service.expense.ExpenseReimburseBillService;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 
 @Tag(name = "管理后台 - 费用报销单")
 @RestController
@@ -37,6 +38,8 @@ public class ExpenseReimburseBillController {
 
     @Resource
     private ExpenseReimburseBillService expenseReimburseBillService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
     @PostMapping("/create")
     @Operation(summary = "创建费用报销单")
@@ -91,6 +94,7 @@ public class ExpenseReimburseBillController {
     @PreAuthorize("@ss.hasAnyPermissions('oa:expense-reimburse-bill:create', 'oa:expense-reimburse-bill:query', 'oa:expense-reimburse-bill:submit')")
     public CommonResult<ExpenseReimburseBillRespVO> getExpenseReimburseBill(@RequestParam("id") Long id) {
         ExpenseReimburseBillRespVO respVO = expenseReimburseBillService.getExpenseReimburseBillInfo(id);
+        billCorrectionDisplayEnricher.enrichExpenseBills(List.of(respVO));
         return success(respVO);
     }
 
@@ -99,7 +103,9 @@ public class ExpenseReimburseBillController {
     @PreAuthorize("@ss.hasPermission('oa:expense-reimburse-bill:query')")
     public CommonResult<PageResult<ExpenseReimburseBillRespVO>> getExpenseReimburseBillPage(@Valid ExpenseReimburseBillPageReqVO pageReqVO) {
         PageResult<ExpenseReimburseBillDO> pageResult = expenseReimburseBillService.getExpenseReimburseBillPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, ExpenseReimburseBillRespVO.class));
+        PageResult<ExpenseReimburseBillRespVO> voPage = BeanUtils.toBean(pageResult, ExpenseReimburseBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichExpenseBills(voPage.getList());
+        return success(voPage);
     }
 
     @GetMapping("/export-excel")

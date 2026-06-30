@@ -28,6 +28,7 @@ import static cn.dh.oa.framework.apilog.core.enums.OperateTypeEnum.*;
 import cn.dh.oa.module.oa.controller.admin.car.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.car.CarReturnBillDO;
 import cn.dh.oa.module.oa.service.car.CarReturnBillService;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 
 @Tag(name = "管理后台 - 还车申请单")
 @RestController
@@ -37,6 +38,8 @@ public class CarReturnBillController {
 
     @Resource
     private CarReturnBillService carReturnBillService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
     @PostMapping("/save")
     @Operation(summary = "保存还车申请单")
@@ -91,6 +94,7 @@ public class CarReturnBillController {
     @PreAuthorize("@ss.hasAnyPermissions('oa:car-return-bill:create', 'oa:car-return-bill:query', 'oa:car-return-bill:save', 'oa:car-return-bill:submit')")
     public CommonResult<CarReturnBillRespVO> getCarReturnBill(@RequestParam("id") Long id) {
         CarReturnBillRespVO respVO = carReturnBillService.getCarReturnBillInfo(id);
+        billCorrectionDisplayEnricher.enrichCarReturnBills(List.of(respVO));
         return success(respVO);
     }
 
@@ -99,7 +103,9 @@ public class CarReturnBillController {
     @PreAuthorize("@ss.hasPermission('oa:car-return-bill:query')")
     public CommonResult<PageResult<CarReturnBillRespVO>> getCarReturnBillPage(@Valid CarReturnBillPageReqVO pageReqVO) {
         PageResult<CarReturnBillDO> pageResult = carReturnBillService.getCarReturnBillPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, CarReturnBillRespVO.class));
+        PageResult<CarReturnBillRespVO> voPage = BeanUtils.toBean(pageResult, CarReturnBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichCarReturnBills(voPage.getList());
+        return success(voPage);
     }
 
     @GetMapping("/export-excel")

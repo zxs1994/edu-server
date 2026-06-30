@@ -2,6 +2,10 @@ package cn.dh.oa.module.oa.enums;
 
 import cn.dh.oa.framework.common.enums.BillTypeEnum;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * 单据类型枚举
  *
@@ -125,6 +129,18 @@ public enum OaBillTypeEnum implements BillTypeEnum {
             }
         }
         return null;
+    }
+
+    /** 会长纠错支持的单据类型（协同办公全部流程单据，不含纠错单自身） */
+    public static Set<String> presidentCorrectionBillTypeKeys() {
+        return Arrays.stream(values())
+                .filter(type -> type != OA_CORRECTION_BILL)
+                .map(OaBillTypeEnum::getProcessDefinitionKey)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public static boolean isPresidentCorrectionSupported(String billType) {
+        return billType != null && presidentCorrectionBillTypeKeys().contains(billType);
     }
 
 }

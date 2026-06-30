@@ -9,6 +9,7 @@ import cn.dh.oa.framework.excel.core.util.ExcelUtils;
 import cn.dh.oa.module.oa.controller.admin.travel.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.travel.TravelApplyBillDO;
 import cn.dh.oa.module.oa.service.travel.TravelApplyBillService;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +34,8 @@ public class TravelApplyBillController {
 
     @Resource
     private TravelApplyBillService travelApplyBillService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
     @PostMapping("/create")
     @Operation(summary = "创建差旅申请单")
@@ -87,6 +90,7 @@ public class TravelApplyBillController {
     @PreAuthorize("@ss.hasAnyPermissions('oa:travel-apply-bill:create', 'oa:travel-apply-bill:query', 'oa:travel-apply-bill:submit')")
     public CommonResult<TravelApplyBillRespVO> getTravelApplyBill(@RequestParam("id") Long id) {
         TravelApplyBillRespVO respVO = travelApplyBillService.getTravelApplyBillInfo(id);
+        billCorrectionDisplayEnricher.enrichTravelBills(List.of(respVO));
         return success(respVO);
     }
 
@@ -94,7 +98,9 @@ public class TravelApplyBillController {
     @Operation(summary = "获得差旅申请单分页")
     public CommonResult<PageResult<TravelApplyBillRespVO>> getTravelApplyBillPage(@Valid TravelApplyBillPageReqVO pageReqVO) {
         PageResult<TravelApplyBillDO> pageResult = travelApplyBillService.getTravelApplyBillPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, TravelApplyBillRespVO.class));
+        PageResult<TravelApplyBillRespVO> voPage = BeanUtils.toBean(pageResult, TravelApplyBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichTravelBills(voPage.getList());
+        return success(voPage);
     }
 
     @GetMapping("/export-excel")

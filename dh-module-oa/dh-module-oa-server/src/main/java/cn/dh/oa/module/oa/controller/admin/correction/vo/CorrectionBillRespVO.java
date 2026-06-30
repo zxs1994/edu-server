@@ -29,6 +29,15 @@ public class CorrectionBillRespVO {
     @ExcelProperty("单据状态")
     private Integer processStatus;
 
+    @Schema(description = "来源单据流程状态（列表展示用）")
+    private Integer sourceBillProcessStatus;
+
+    @Schema(description = "是否展示会长纠错叠加标记")
+    private Boolean presidentCorrectionDisplay;
+
+    @Schema(description = "纠错中且尚未重新发起流程")
+    private Boolean presidentCorrectionAwaitingResubmit;
+
     @Schema(description = "原单据类型", example = "103")
     @ExcelProperty("原单据类型")
     private String sourceBillType;

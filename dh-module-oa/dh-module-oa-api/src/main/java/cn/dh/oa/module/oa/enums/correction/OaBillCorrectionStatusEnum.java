@@ -22,4 +22,9 @@ public enum OaBillCorrectionStatusEnum {
         return IN_PROGRESS.status.equals(status);
     }
 
+    /** 展示层叠加「会长异议/纠错」：纠错进行中或理事会推翻且仍冻结 */
+    public static boolean shouldDisplayOverlay(Integer status) {
+        return IN_PROGRESS.status.equals(status) || COUNCIL_OVERRIDE.status.equals(status);
+    }
+
 }

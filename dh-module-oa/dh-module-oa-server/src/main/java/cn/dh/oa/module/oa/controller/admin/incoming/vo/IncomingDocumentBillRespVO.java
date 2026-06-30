@@ -30,6 +30,12 @@ public class IncomingDocumentBillRespVO {
     @Schema(description = "单据状态")
     private Integer processStatus;
 
+    @Schema(description = "展示层叠加：会长异议/纠错")
+    private Boolean presidentCorrectionDisplay;
+
+    @Schema(description = "列表状态列：仅展示会长异议/纠错（未重新发起）")
+    private Boolean presidentCorrectionAwaitingResubmit;
+
     // ========== 业务字段 ==========
 
     @ExcelProperty("公文标题")

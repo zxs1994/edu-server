@@ -31,6 +31,12 @@ public class ContractBillRespVO {
     @ExcelProperty("单据状态")
     private Integer processStatus;
 
+    @Schema(description = "展示层叠加：会长异议/纠错")
+    private Boolean presidentCorrectionDisplay;
+
+    @Schema(description = "列表状态列：仅展示会长异议/纠错（未重新发起）")
+    private Boolean presidentCorrectionAwaitingResubmit;
+
     @Schema(description = "合同标题", requiredMode = Schema.RequiredMode.REQUIRED, example = "采购合同")
     @ExcelProperty("合同标题")
     private String contractTitle;

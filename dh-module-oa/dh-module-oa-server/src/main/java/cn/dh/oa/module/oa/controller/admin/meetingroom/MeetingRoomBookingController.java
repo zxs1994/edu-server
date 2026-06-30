@@ -28,6 +28,7 @@ import static cn.dh.oa.framework.apilog.core.enums.OperateTypeEnum.*;
 import cn.dh.oa.module.oa.controller.admin.meetingroom.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.meetingroom.MeetingRoomBookingDO;
 import cn.dh.oa.module.oa.service.meetingroom.MeetingRoomBookingService;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 
 @Tag(name = "管理后台 - 会议室预定申请单")
 @RestController
@@ -37,6 +38,8 @@ public class MeetingRoomBookingController {
 
     @Resource
     private MeetingRoomBookingService meetingRoomBookingService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
     @PostMapping("/save")
     @Operation(summary = "保存会议室预定申请单（草稿）")
@@ -67,6 +70,7 @@ public class MeetingRoomBookingController {
     @PreAuthorize("@ss.hasPermission('oa:meeting-room-booking:query')")
     public CommonResult<MeetingRoomBookingRespVO> getMeetingRoomBooking(@RequestParam("id") Long id) {
         MeetingRoomBookingRespVO meetingRoomBooking = meetingRoomBookingService.getMeetingRoomBooking(id);
+        billCorrectionDisplayEnricher.enrichMeetingRoomBookings(List.of(meetingRoomBooking));
         return success(meetingRoomBooking);
     }
 
@@ -75,7 +79,9 @@ public class MeetingRoomBookingController {
     @PreAuthorize("@ss.hasPermission('oa:meeting-room-booking:query')")
     public CommonResult<PageResult<MeetingRoomBookingRespVO>> getMeetingRoomBookingPage(@Valid MeetingRoomBookingPageReqVO pageReqVO) {
         PageResult<MeetingRoomBookingDO> pageResult = meetingRoomBookingService.getMeetingRoomBookingPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, MeetingRoomBookingRespVO.class));
+        PageResult<MeetingRoomBookingRespVO> voPage = BeanUtils.toBean(pageResult, MeetingRoomBookingRespVO.class);
+        billCorrectionDisplayEnricher.enrichMeetingRoomBookings(voPage.getList());
+        return success(voPage);
     }
 
     @GetMapping("/export-excel")

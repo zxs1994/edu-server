@@ -28,6 +28,7 @@ import static cn.dh.oa.framework.apilog.core.enums.OperateTypeEnum.*;
 import cn.dh.oa.module.oa.controller.admin.seal.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.seal.SealApplyBillDO;
 import cn.dh.oa.module.oa.service.seal.SealApplyBillService;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 
 @Tag(name = "管理后台 - 用印申请单")
 @RestController
@@ -37,6 +38,8 @@ public class SealApplyBillController {
 
     @Resource
     private SealApplyBillService sealApplyBillService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
     @PostMapping("/create")
     @Operation(summary = "创建用印申请单")
@@ -91,6 +94,7 @@ public class SealApplyBillController {
     @PreAuthorize("@ss.hasAnyPermissions('oa:seal-apply-bill:create', 'oa:seal-apply-bill:query', 'oa:seal-apply-bill:submit')")
     public CommonResult<SealApplyBillRespVO> getSealApplyBill(@RequestParam("id") Long id) {
         SealApplyBillRespVO respVO = sealApplyBillService.getSealApplyBillInfo(id);
+        billCorrectionDisplayEnricher.enrichSealApplyBills(List.of(respVO));
         return success(respVO);
     }
 
@@ -99,7 +103,9 @@ public class SealApplyBillController {
     @PreAuthorize("@ss.hasPermission('oa:seal-apply-bill:query')")
     public CommonResult<PageResult<SealApplyBillRespVO>> getSealApplyBillPage(@Valid SealApplyBillPageReqVO pageReqVO) {
         PageResult<SealApplyBillDO> pageResult = sealApplyBillService.getSealApplyBillPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, SealApplyBillRespVO.class));
+        PageResult<SealApplyBillRespVO> voPage = BeanUtils.toBean(pageResult, SealApplyBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichSealApplyBills(voPage.getList());
+        return success(voPage);
     }
 
     @PostMapping("/check-time-conflict")

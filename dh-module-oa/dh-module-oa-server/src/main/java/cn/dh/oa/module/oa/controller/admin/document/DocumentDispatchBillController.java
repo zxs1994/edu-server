@@ -28,6 +28,7 @@ import static cn.dh.oa.framework.apilog.core.enums.OperateTypeEnum.*;
 import cn.dh.oa.module.oa.controller.admin.document.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.document.DocumentDispatchBillDO;
 import cn.dh.oa.module.oa.service.document.DocumentDispatchBillService;
+import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 
 @Tag(name = "管理后台 - 公文发文单")
 @RestController
@@ -37,6 +38,8 @@ public class DocumentDispatchBillController {
 
     @Resource
     private DocumentDispatchBillService documentDispatchBillService;
+    @Resource
+    private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
 
     @PostMapping("/create")
     @Operation(summary = "创建公文发文单")
@@ -91,6 +94,7 @@ public class DocumentDispatchBillController {
     @PreAuthorize("@ss.hasAnyPermissions('oa:document-dispatch-bill:create', 'oa:document-dispatch-bill:query', 'oa:document-dispatch-bill:submit')")
     public CommonResult<DocumentDispatchBillRespVO> getDocumentDispatchBill(@RequestParam("id") Long id) {
         DocumentDispatchBillRespVO respVO = documentDispatchBillService.getDocumentDispatchBillInfo(id);
+        billCorrectionDisplayEnricher.enrichDocumentBills(List.of(respVO));
         return success(respVO);
     }
 
@@ -99,7 +103,9 @@ public class DocumentDispatchBillController {
     @PreAuthorize("@ss.hasPermission('oa:document-dispatch-bill:query')")
     public CommonResult<PageResult<DocumentDispatchBillRespVO>> getDocumentDispatchBillPage(@Valid DocumentDispatchBillPageReqVO pageReqVO) {
         PageResult<DocumentDispatchBillDO> pageResult = documentDispatchBillService.getDocumentDispatchBillPage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, DocumentDispatchBillRespVO.class));
+        PageResult<DocumentDispatchBillRespVO> voPage = BeanUtils.toBean(pageResult, DocumentDispatchBillRespVO.class);
+        billCorrectionDisplayEnricher.enrichDocumentBills(voPage.getList());
+        return success(voPage);
     }
 
     @GetMapping("/export-excel")

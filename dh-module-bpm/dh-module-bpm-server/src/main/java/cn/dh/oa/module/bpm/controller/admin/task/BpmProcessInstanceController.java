@@ -16,6 +16,7 @@ import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
 import cn.dh.oa.module.bpm.service.bill.BpmBillDeletedService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceService;
 import cn.dh.oa.module.bpm.service.task.BpmTaskService;
+import cn.dh.oa.module.oa.api.correction.OaPresidentCorrectionApi;
 import cn.dh.oa.module.system.api.dept.DeptApi;
 import cn.dh.oa.module.system.api.dept.PostApi;
 import cn.dh.oa.module.system.api.dept.dto.DeptRespDTO;
@@ -70,6 +71,8 @@ public class BpmProcessInstanceController {
     private PostApi postApi;
     @Resource
     private BpmBillDeletedService billDeletedService;
+    @Resource
+    private OaPresidentCorrectionApi oaPresidentCorrectionApi;
 
     @GetMapping("/my-page")
     @Operation(summary = "获得我的实例分页列表", description = "在【我的流程】菜单中，进行调用")
@@ -103,6 +106,7 @@ public class BpmProcessInstanceController {
                 processDefinitionMap, categoryMap, taskMap, userMap, deptMap, postMap, processDefinitionInfoMap);
         billDeletedService.fillProcessInstancePage(result, pageResult.getList());
         billDeletedService.removeDeletedFromProcessInstancePage(result);
+        enrichPresidentCorrectionDisplay(result.getList(), processDefinitionMap);
         return success(result);
     }
 
@@ -162,8 +166,28 @@ public class BpmProcessInstanceController {
                 convertSetByFlatMap(userMap.values(), AdminUserRespDTO::getPostIds, Collection::stream));
         Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
                 convertSet(pageResult.getList(), HistoricProcessInstance::getProcessDefinitionId));
-        return success(BpmProcessInstanceConvert.INSTANCE.buildProcessInstancePage(pageResult,
-                processDefinitionMap, categoryMap, taskMap, userMap, deptMap, postMap, processDefinitionInfoMap));
+        PageResult<BpmProcessInstanceRespVO> voPage = BpmProcessInstanceConvert.INSTANCE.buildProcessInstancePage(pageResult,
+                processDefinitionMap, categoryMap, taskMap, userMap, deptMap, postMap, processDefinitionInfoMap);
+        enrichPresidentCorrectionDisplay(voPage.getList(), processDefinitionMap);
+        return success(voPage);
+    }
+
+    private void enrichPresidentCorrectionDisplay(List<BpmProcessInstanceRespVO> list,
+                                                  Map<String, ProcessDefinition> processDefinitionMap) {
+        if (CollUtil.isEmpty(list)) {
+            return;
+        }
+        list.forEach(vo -> {
+            ProcessDefinition pd = processDefinitionMap.get(vo.getProcessDefinitionId());
+            Long billId = NumberUtils.parseLong(vo.getBusinessKey());
+            if (pd == null || billId == null) {
+                return;
+            }
+            vo.setPresidentCorrectionDisplay(
+                    oaPresidentCorrectionApi.shouldDisplayCorrectionOverlay(pd.getKey(), billId));
+            vo.setPresidentCorrectionAwaitingResubmit(
+                    oaPresidentCorrectionApi.isAwaitingResubmitAfterCorrection(pd.getKey(), billId));
+        });
     }
 
     @PostMapping("/create")
