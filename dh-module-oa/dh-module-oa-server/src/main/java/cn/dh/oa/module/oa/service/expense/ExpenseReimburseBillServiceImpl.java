@@ -239,10 +239,8 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
 
     @Override
     public ExpenseReimburseBillRespVO getExpenseReimburseBillInfo(Long id) {
+        validateExpenseReimburseBillExists(id);
         ExpenseReimburseBillDO expenseReimburseBill = expenseReimburseBillMapper.selectById(id);
-        if (expenseReimburseBill == null) {
-            return null;
-        }
 
         ExpenseReimburseBillRespVO respVO = BeanUtils.toBean(expenseReimburseBill, ExpenseReimburseBillRespVO.class);
         if (respVO.getTotalAmount() == null) {

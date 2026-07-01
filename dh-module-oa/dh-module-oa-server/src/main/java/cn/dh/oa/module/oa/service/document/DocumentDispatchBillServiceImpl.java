@@ -151,10 +151,8 @@ public class DocumentDispatchBillServiceImpl implements DocumentDispatchBillServ
 
     @Override
     public DocumentDispatchBillRespVO getDocumentDispatchBillInfo(Long id) {
+        validateDocumentDispatchBillExists(id);
         DocumentDispatchBillDO documentDispatchBill = documentDispatchBillMapper.selectById(id);
-        if (documentDispatchBill == null) {
-            return null;
-        }
 
         DocumentDispatchBillRespVO respVO = BeanUtils.toBean(documentDispatchBill, DocumentDispatchBillRespVO.class);
 

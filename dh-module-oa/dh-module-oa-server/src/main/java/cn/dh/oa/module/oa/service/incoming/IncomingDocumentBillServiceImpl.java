@@ -111,10 +111,8 @@ public class IncomingDocumentBillServiceImpl implements IncomingDocumentBillServ
 
     @Override
     public IncomingDocumentBillRespVO getIncomingDocumentBillInfo(Long id) {
+        validateIncomingDocumentBillExists(id);
         IncomingDocumentBillDO bill = incomingDocumentBillMapper.selectById(id);
-        if (bill == null) {
-            return null;
-        }
         IncomingDocumentBillRespVO respVO = BeanUtils.toBean(bill, IncomingDocumentBillRespVO.class);
         respVO.setAttachments(BeanUtils.toBean(
             attachmentService.getAttachmentListByBusiness(OaBillTypeEnum.OA_INCOMING_DOCUMENT_BILL.getTypeCode(), id),

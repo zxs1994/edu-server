@@ -163,10 +163,8 @@ public class CarApplyBillServiceImpl implements CarApplyBillService, FlowBillSer
 
     @Override
     public CarApplyBillRespVO getCarApplyBillInfo(Long id) {
+        validateCarApplyBillExists(id);
         CarApplyBillDO carApplyBill = carApplyBillMapper.selectById(id);
-        if (carApplyBill == null) {
-            return null;
-        }
         
         CarApplyBillRespVO respVO = BeanUtils.toBean(carApplyBill, CarApplyBillRespVO.class);
         

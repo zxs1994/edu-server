@@ -135,10 +135,8 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
 
     @Override
     public TravelApplyBillRespVO getTravelApplyBillInfo(Long id) {
+        validateTravelApplyBillExists(id);
         TravelApplyBillDO bill = travelApplyBillMapper.selectById(id);
-        if (bill == null) {
-            return null;
-        }
         TravelApplyBillRespVO respVO = BeanUtils.toBean(bill, TravelApplyBillRespVO.class);
         respVO.setAttachments(BeanUtils.toBean(
             attachmentService.getAttachmentListByBusiness(OaBillTypeEnum.OA_TRAVEL_APPLY_BILL.getTypeCode(), id),

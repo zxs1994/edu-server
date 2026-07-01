@@ -165,10 +165,8 @@ public class CarReturnBillServiceImpl implements CarReturnBillService, FlowBillS
 
     @Override
     public CarReturnBillRespVO getCarReturnBillInfo(Long id) {
+        validateCarReturnBillExists(id);
         CarReturnBillDO carReturnBill = carReturnBillMapper.selectById(id);
-        if (carReturnBill == null) {
-            return null;
-        }
         
         CarReturnBillRespVO respVO = BeanUtils.toBean(carReturnBill, CarReturnBillRespVO.class);
         

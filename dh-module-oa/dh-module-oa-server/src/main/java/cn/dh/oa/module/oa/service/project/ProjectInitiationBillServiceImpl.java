@@ -108,10 +108,8 @@ public class ProjectInitiationBillServiceImpl implements ProjectInitiationBillSe
 
     @Override
     public ProjectInitiationBillRespVO getProjectInitiationBillInfo(Long id) {
+        validateProjectInitiationBillExists(id);
         ProjectInitiationBillDO bill = projectInitiationBillMapper.selectById(id);
-        if (bill == null) {
-            return null;
-        }
         ProjectInitiationBillRespVO respVO = BeanUtils.toBean(bill, ProjectInitiationBillRespVO.class);
         respVO.setAttachments(BeanUtils.toBean(
             attachmentService.getAttachmentListByBusiness(OaBillTypeEnum.OA_PROJECT_INITIATION_BILL.getTypeCode(), id),

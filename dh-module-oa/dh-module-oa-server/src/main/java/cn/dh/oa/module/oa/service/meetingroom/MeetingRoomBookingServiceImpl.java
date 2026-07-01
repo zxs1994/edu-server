@@ -195,10 +195,8 @@ public class MeetingRoomBookingServiceImpl implements MeetingRoomBookingService,
 
     @Override
     public MeetingRoomBookingRespVO getMeetingRoomBooking(Long id) {
+        validateMeetingRoomBookingExists(id);
         MeetingRoomBookingDO meetingRoomBooking = meetingRoomBookingMapper.selectById(id);
-        if (meetingRoomBooking == null) {
-            return null;
-        }
 
         MeetingRoomBookingRespVO respVO = BeanUtils.toBean(meetingRoomBooking, MeetingRoomBookingRespVO.class);
 

@@ -187,10 +187,8 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
 
     @Override
     public ContractBillRespVO getContractBillInfo(Long id) {
+        validateContractBillExists(id);
         ContractBillDO contractBill = contractBillMapper.selectById(id);
-        if (contractBill == null) {
-            return null;
-        }
 
         ContractBillRespVO respVO = BeanUtils.toBean(contractBill, ContractBillRespVO.class);
 

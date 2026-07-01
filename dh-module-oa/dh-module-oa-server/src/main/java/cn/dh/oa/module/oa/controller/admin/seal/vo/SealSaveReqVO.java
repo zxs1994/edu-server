@@ -17,7 +17,8 @@ public class SealSaveReqVO {
     @NotEmpty(message = "印章编号不能为空")
     private String sealNo;
 
-    @Schema(description = "印章名称", example = "公司公章")
+    @Schema(description = "印章名称", requiredMode = Schema.RequiredMode.REQUIRED, example = "公司公章")
+    @NotEmpty(message = "印章名称不能为空")
     private String sealName;
 
     @Schema(description = "印章类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

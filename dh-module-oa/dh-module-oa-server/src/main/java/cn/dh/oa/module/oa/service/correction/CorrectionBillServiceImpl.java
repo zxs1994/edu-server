@@ -135,10 +135,8 @@ public class CorrectionBillServiceImpl implements CorrectionBillService {
 
     @Override
     public CorrectionBillRespVO getCorrectionBillInfo(Long id) {
+        validateCorrectionBillExists(id);
         CorrectionBillDO correctionBill = correctionBillMapper.selectById(id);
-        if (correctionBill == null) {
-            return null;
-        }
 
         CorrectionBillRespVO respVO = BeanUtils.toBean(correctionBill, CorrectionBillRespVO.class);
 

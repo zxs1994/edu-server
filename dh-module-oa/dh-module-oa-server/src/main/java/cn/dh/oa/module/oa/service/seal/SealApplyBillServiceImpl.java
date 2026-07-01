@@ -192,10 +192,8 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
 
     @Override
     public SealApplyBillRespVO getSealApplyBillInfo(Long id) {
+        validateSealApplyBillExists(id);
         SealApplyBillDO sealApplyBill = sealApplyBillMapper.selectById(id);
-        if (sealApplyBill == null) {
-            return null;
-        }
         
         SealApplyBillRespVO respVO = BeanUtils.toBean(sealApplyBill, SealApplyBillRespVO.class);
         
