@@ -103,8 +103,7 @@ public class PresidentCorrectionServiceImpl implements PresidentCorrectionServic
         if (state != null) {
             billCorrectionStateMapper.updateById(new BillCorrectionStateDO()
                     .setId(state.getId())
-                    .setCorrectionStatus(OaBillCorrectionStatusEnum.COUNCIL_OVERRIDE.getStatus())
-                    .setActiveCorrectionBillId(null));
+                    .setCorrectionStatus(OaBillCorrectionStatusEnum.COUNCIL_OVERRIDE.getStatus()));
         }
         log.info("[handleCouncilPath] 理事会决议纠错完成 correctionId={}, billId={}", correction.getId(), source.getBillId());
     }
@@ -194,7 +193,11 @@ public class PresidentCorrectionServiceImpl implements PresidentCorrectionServic
             resp.setCorrectionStatus(state.getCorrectionStatus());
         }
         List<CorrectionBillDO> list = correctionBillMapper.selectListBySourceBill(sourceBillType, sourceBillId);
-        resp.setItems(BeanUtils.toBean(list, BillCorrectionHistoryItemVO.class));
+        List<BillCorrectionHistoryItemVO> items = BeanUtils.toBean(list, BillCorrectionHistoryItemVO.class);
+        for (int i = 0; i < items.size(); i++) {
+            items.get(i).setCorrectionId(list.get(i).getId());
+        }
+        resp.setItems(items);
         return resp;
     }
 

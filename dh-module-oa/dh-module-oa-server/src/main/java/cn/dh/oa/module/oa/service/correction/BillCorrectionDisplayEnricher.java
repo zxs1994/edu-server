@@ -58,19 +58,16 @@ public class BillCorrectionDisplayEnricher {
                         vo.getSourceBillType(), vo.getSourceBillId());
                 vo.setSourceBillProcessStatus(source.getProcessStatus());
             }
-            boolean displayOverlay = Objects.equals(vo.getFreezeStatus(), 1)
-                    && OaBillCorrectionStatusEnum.shouldDisplayOverlay(vo.getCorrectionStatus());
-            vo.setPresidentCorrectionDisplay(displayOverlay);
-            vo.setPresidentCorrectionAwaitingResubmit(shouldAwaitResubmitOnCorrectionBill(vo, displayOverlay));
+            boolean awaitingResubmit = shouldAwaitResubmitOnCorrectionBill(vo);
+            vo.setPresidentCorrectionDisplay(awaitingResubmit);
+            vo.setPresidentCorrectionAwaitingResubmit(awaitingResubmit);
         });
     }
 
-    private boolean shouldAwaitResubmitOnCorrectionBill(CorrectionBillRespVO vo, boolean displayOverlay) {
-        if (!displayOverlay) {
+    private boolean shouldAwaitResubmitOnCorrectionBill(CorrectionBillRespVO vo) {
+        if (!Objects.equals(vo.getFreezeStatus(), 1)
+                || !OaBillCorrectionStatusEnum.shouldDisplayOverlay(vo.getCorrectionStatus())) {
             return false;
-        }
-        if (OaBillCorrectionStatusEnum.COUNCIL_OVERRIDE.getStatus().equals(vo.getCorrectionStatus())) {
-            return true;
         }
         return StrUtil.isBlank(vo.getNewProcessInstanceId());
     }
@@ -176,9 +173,11 @@ public class BillCorrectionDisplayEnricher {
                 .stream().collect(Collectors.toMap(BillCorrectionStateDO::getBillId, s -> s, (a, b) -> a));
         Map<Long, CorrectionBillDO> correctionMap = loadActiveCorrectionMap(stateMap.values());
         list.forEach(vo -> {
-            BillCorrectionStateDO state = stateMap.get(idGetter.apply(vo));
-            displaySetter.accept(vo, shouldDisplay(state));
-            awaitingSetter.accept(vo, shouldAwaitResubmit(state, correctionMap));
+            Long billId = idGetter.apply(vo);
+            BillCorrectionStateDO state = stateMap.get(billId);
+            boolean awaitingResubmit = shouldAwaitResubmit(billType, billId, state, correctionMap);
+            displaySetter.accept(vo, awaitingResubmit);
+            awaitingSetter.accept(vo, awaitingResubmit);
         });
     }
 
@@ -200,18 +199,30 @@ public class BillCorrectionDisplayEnricher {
                 && OaBillCorrectionStatusEnum.shouldDisplayOverlay(state.getCorrectionStatus());
     }
 
-    private boolean shouldAwaitResubmit(BillCorrectionStateDO state, Map<Long, CorrectionBillDO> correctionMap) {
+    private boolean shouldAwaitResubmit(String billType, Long billId, BillCorrectionStateDO state,
+                                        Map<Long, CorrectionBillDO> correctionMap) {
         if (!shouldDisplay(state)) {
             return false;
         }
-        if (OaBillCorrectionStatusEnum.COUNCIL_OVERRIDE.getStatus().equals(state.getCorrectionStatus())) {
+        CorrectionBillDO correction = resolveCurrentCorrection(billType, billId, state, correctionMap);
+        return correction == null || !hasResubmittedProcess(correction, billType, billId);
+    }
+
+    private CorrectionBillDO resolveCurrentCorrection(String billType, Long billId, BillCorrectionStateDO state,
+                                                      Map<Long, CorrectionBillDO> correctionMap) {
+        if (state.getActiveCorrectionBillId() != null) {
+            return correctionMap.get(state.getActiveCorrectionBillId());
+        }
+        return correctionBillMapper.selectLatestBySourceBill(billType, billId);
+    }
+
+    private boolean hasResubmittedProcess(CorrectionBillDO correction, String billType, Long billId) {
+        if (StrUtil.isNotBlank(correction.getNewProcessInstanceId())) {
             return true;
         }
-        if (state.getActiveCorrectionBillId() == null) {
-            return true;
-        }
-        CorrectionBillDO correction = correctionMap.get(state.getActiveCorrectionBillId());
-        return correction == null || StrUtil.isBlank(correction.getNewProcessInstanceId());
+        BillCorrectionSourceDTO source = billCorrectionSourceService.loadRequired(billType, billId);
+        return StrUtil.isNotBlank(source.getProcessInstanceId())
+                && !Objects.equals(source.getProcessInstanceId(), correction.getSourceProcessInstanceId());
     }
 
 }

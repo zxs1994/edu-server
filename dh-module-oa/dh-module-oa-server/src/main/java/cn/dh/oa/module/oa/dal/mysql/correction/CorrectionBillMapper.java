@@ -42,6 +42,15 @@ public interface CorrectionBillMapper extends BaseMapperX<CorrectionBillDO> {
                 .eq(CorrectionBillDO::getSourceBillId, sourceBillId));
     }
 
+    default CorrectionBillDO selectLatestBySourceBill(String sourceBillType, Long sourceBillId) {
+        return selectOne(new LambdaQueryWrapperX<CorrectionBillDO>()
+                .eq(CorrectionBillDO::getSourceBillType, sourceBillType)
+                .eq(CorrectionBillDO::getSourceBillId, sourceBillId)
+                .orderByDesc(CorrectionBillDO::getApprovalVersion)
+                .orderByDesc(CorrectionBillDO::getId)
+                .last("LIMIT 1"));
+    }
+
     default List<CorrectionBillDO> selectListBySourceBill(String sourceBillType, Long sourceBillId) {
         return selectList(new LambdaQueryWrapperX<CorrectionBillDO>()
                 .eq(CorrectionBillDO::getSourceBillType, sourceBillType)

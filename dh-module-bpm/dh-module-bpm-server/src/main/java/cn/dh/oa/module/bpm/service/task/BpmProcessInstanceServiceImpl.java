@@ -67,7 +67,6 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.runtime.ProcessInstanceBuilder;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstance;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -402,7 +401,10 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         // 2.2 查询列表
         List<HistoricProcessInstance> processInstanceList = processInstanceQuery.listPage(PageUtils.getStart(pageReqVO),
                 pageReqVO.getPageSize());
-        return new PageResult<>(processInstanceList, processInstanceCount);
+        int beforeFilterSize = processInstanceList.size();
+        processInstanceList = filterReplacedPresidentCorrectionSourceInstances(processInstanceList);
+        long removed = beforeFilterSize - processInstanceList.size();
+        return new PageResult<>(processInstanceList, Math.max(0, processInstanceCount - removed));
     }
 
     @Override
@@ -435,6 +437,30 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         }
         Object value = processInstance.getProcessVariables().get(VAR_IS_RE_APPROVAL);
         return Boolean.TRUE.equals(value) || Objects.equals(value, 1);
+    }
+
+    private List<HistoricProcessInstance> filterReplacedPresidentCorrectionSourceInstances(
+            List<HistoricProcessInstance> list) {
+        if (CollUtil.isEmpty(list)) {
+            return list;
+        }
+        Map<String, ProcessDefinition> processDefinitionMap = processDefinitionService.getProcessDefinitionMap(
+                convertSet(list, HistoricProcessInstance::getProcessDefinitionId));
+        return CollectionUtils.filterList(list, processInstance -> {
+            ProcessDefinition definition = processDefinitionMap.get(processInstance.getProcessDefinitionId());
+            Long billId = parseLongOrNull(processInstance.getBusinessKey());
+            return definition == null || billId == null
+                    || !oaPresidentCorrectionApi.shouldHideCorrectedSourceProcessInstance(
+                    definition.getKey(), billId, processInstance.getId());
+        });
+    }
+
+    private Long parseLongOrNull(String value) {
+        try {
+            return StrUtil.isBlank(value) ? null : Long.parseLong(value);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 
     private void applyProcessDefinitionKeyFilter(HistoricProcessInstanceQuery query,
@@ -935,6 +961,7 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         return FlowableUtils.executeAuthenticatedUserId(userId, () -> {
             ProcessInstance existingInstance = findActiveProcessInstanceByBusinessKey(
                     createReqDTO.getProcessDefinitionKey(), createReqDTO.getBusinessKey());
+            boolean presidentCorrectionFrozen = isPresidentCorrectionFrozen(createReqDTO);
 
             // 会长纠错遗留的重审副本：撤销后由申请人完全重新发起
             if (existingInstance != null && isReApprovalProcessInstance(existingInstance)) {
@@ -945,7 +972,17 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             }
 
             String processInstanceId;
-            if (existingInstance != null) {
+            if (presidentCorrectionFrozen) {
+                log.info("[submitProcessInstance] 会长纠错冻结中，创建新流程并保留原审批历史，businessKey={}",
+                        createReqDTO.getBusinessKey());
+
+                ProcessDefinition definition = processDefinitionService
+                        .getActiveProcessDefinition(createReqDTO.getProcessDefinitionKey());
+                processInstanceId = createProcessInstance0(userId, definition, createReqDTO.getVariables(),
+                        createReqDTO.getBusinessKey(),
+                        createReqDTO.getStartUserSelectAssignees(),
+                        true);
+            } else if (existingInstance != null) {
                 log.info("[submitProcessInstance] 找到现有流程实例，processInstanceId: {}, businessKey: {}",
                         existingInstance.getId(), createReqDTO.getBusinessKey());
 
@@ -983,6 +1020,22 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
             notifyPresidentCorrectionResubmit(createReqDTO, processInstanceId);
             return processInstanceId;
         });
+    }
+
+    private boolean isPresidentCorrectionFrozen(BpmProcessInstanceCreateReqDTO createReqDTO) {
+        if (StrUtil.isBlank(createReqDTO.getBusinessKey()) || StrUtil.isBlank(createReqDTO.getProcessDefinitionKey())) {
+            return false;
+        }
+        if (!cn.dh.oa.module.oa.enums.OaBillTypeEnum.isPresidentCorrectionSupported(
+                createReqDTO.getProcessDefinitionKey())) {
+            return false;
+        }
+        try {
+            return oaPresidentCorrectionApi.isBillFrozen(createReqDTO.getProcessDefinitionKey(),
+                    Long.parseLong(createReqDTO.getBusinessKey()));
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
     }
 
     private void notifyPresidentCorrectionResubmit(BpmProcessInstanceCreateReqDTO createReqDTO, String processInstanceId) {

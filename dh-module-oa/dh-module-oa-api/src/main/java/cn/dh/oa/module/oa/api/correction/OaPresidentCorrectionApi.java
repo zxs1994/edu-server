@@ -49,4 +49,9 @@ public interface OaPresidentCorrectionApi {
      */
     Set<String> listProtectedSourceProcessInstanceIds(String billType, Long billId);
 
+    /**
+     * 原流程已被纠错重提的新流程替代时，列表不再展示该原流程实例
+     */
+    boolean shouldHideCorrectedSourceProcessInstance(String billType, Long billId, String processInstanceId);
+
 }

@@ -1,7 +1,9 @@
 package cn.dh.oa.module.oa.dal.dataobject.correction;
 
 import cn.dh.oa.framework.mybatis.core.dataobject.BaseDO;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
@@ -38,6 +40,7 @@ public class BillCorrectionStateDO extends BaseDO {
     private String lastProcessInstanceId;
 
     /** 进行中的纠错单 ID */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private Long activeCorrectionBillId;
 
 }
