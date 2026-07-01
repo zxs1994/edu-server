@@ -298,7 +298,7 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
     /**
      * 校验印章使用时间冲突（现场用章和外借用章都需要校验）
      * - 现场用章：检查预计用章时间是否落在其他申请的时间段内
-     * - 外借用章：检查预计用章时间~预计归还时间段是否与其他申请的时间段重叠
+     * - 外借用章：检查预计用章时间~预计归还时间段是否与其他借用时间段重叠，或与已有现场用印时间点冲突
      *
      * @param saveReqVO 保存请求VO
      */
@@ -356,7 +356,7 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
     /**
      * 添加时间重叠条件
      * - 现场用章(useMode==1)：只有一个时间点(expectedUseTime)，检查是否落在已有时间段内
-     * - 外借用章(useMode==2)：检查两个时间段是否重叠
+     * - 外借用章(useMode==2)：检查两个时间段是否重叠，或已有现场用印时间点是否落在当前借用时段内
      */
     private void addTimeOverlapCondition(LambdaQueryWrapper<SealApplyBillDO> wrapper, SealApplyBillSaveReqVO saveReqVO) {
 
@@ -367,7 +367,7 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
                     .ge(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedUseTime())
             );
         } else {
-            // 外借用章：检查两个时间段是否重叠
+            // 外借用章：与已有借用时段重叠，或已有现场用印时间点落在当前借用时段内
             wrapper.and(timeWrapper -> timeWrapper
                     .and(tw -> tw
                             .le(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
@@ -380,6 +380,11 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
                     .or(tw -> tw
                             .ge(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
                             .le(SealApplyBillDO::getExpectedReturnTime, saveReqVO.getExpectedReturnTime())
+                    )
+                    .or(tw -> tw
+                            .eq(SealApplyBillDO::getUseMode, 1)
+                            .ge(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedUseTime())
+                            .le(SealApplyBillDO::getExpectedUseTime, saveReqVO.getExpectedReturnTime())
                     )
             );
         }

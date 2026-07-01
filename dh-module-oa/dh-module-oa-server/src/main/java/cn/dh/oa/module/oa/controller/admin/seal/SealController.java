@@ -82,7 +82,7 @@ public class SealController {
 
     @GetMapping("/page")
     @Operation(summary = "获得印章信息分页")
-    @PreAuthorize("@ss.hasPermission('oa:seal:query')")
+    @PreAuthorize("@ss.hasAnyPermissions('oa:seal:query', 'oa:seal-apply-bill:create', 'oa:seal-apply-bill:query', 'oa:seal-apply-bill:submit')")
     public CommonResult<PageResult<SealRespVO>> getSealPage(@Valid SealPageReqVO pageReqVO) {
         PageResult<SealDO> pageResult = sealService.getSealPage(pageReqVO);
         return success(BeanUtils.toBean(pageResult, SealRespVO.class));
