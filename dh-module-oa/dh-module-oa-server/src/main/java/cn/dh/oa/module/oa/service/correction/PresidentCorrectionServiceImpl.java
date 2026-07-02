@@ -29,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.dh.oa.module.oa.enums.ErrorCodeConstants.*;
@@ -138,6 +139,9 @@ public class PresidentCorrectionServiceImpl implements PresidentCorrectionServic
     }
 
     private void validateSourceBill(BillCorrectionSourceDTO source) {
+        if (hasBlockingCorrection(source)) {
+            throw exception(CORRECTION_BILL_ALREADY_IN_PROGRESS);
+        }
         Integer processStatus = source.getProcessStatus();
         if (processStatus == null
                 || BpmProcessInstanceStatusEnum.NOT_START.getStatus().equals(processStatus)) {
@@ -146,12 +150,34 @@ public class PresidentCorrectionServiceImpl implements PresidentCorrectionServic
         if (StrUtil.isBlank(source.getProcessInstanceId())) {
             throw exception(CORRECTION_SOURCE_BILL_NOT_EXISTS);
         }
-        if (billCorrectionStateMapper.existsActiveCorrection(source.getBillType(), source.getBillId())) {
-            throw exception(CORRECTION_BILL_ALREADY_IN_PROGRESS);
-        }
         if (source.getCreatorUserId() == null) {
             throw exception(CORRECTION_SOURCE_BILL_NOT_EXISTS);
         }
+    }
+
+    private boolean hasBlockingCorrection(BillCorrectionSourceDTO source) {
+        BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(source.getBillType(), source.getBillId());
+        if (state == null || !Objects.equals(state.getFreezeStatus(), 1)
+                || !OaBillCorrectionStatusEnum.shouldDisplayOverlay(state.getCorrectionStatus())) {
+            return false;
+        }
+        CorrectionBillDO correction = resolveCurrentCorrection(state, source.getBillType(), source.getBillId());
+        return correction == null || !hasResubmittedProcess(correction, source);
+    }
+
+    private CorrectionBillDO resolveCurrentCorrection(BillCorrectionStateDO state, String billType, Long billId) {
+        if (state.getActiveCorrectionBillId() != null) {
+            return correctionBillMapper.selectById(state.getActiveCorrectionBillId());
+        }
+        return correctionBillMapper.selectLatestBySourceBill(billType, billId);
+    }
+
+    private boolean hasResubmittedProcess(CorrectionBillDO correction, BillCorrectionSourceDTO source) {
+        if (StrUtil.isNotBlank(correction.getNewProcessInstanceId())) {
+            return true;
+        }
+        return StrUtil.isNotBlank(source.getProcessInstanceId())
+                && !Objects.equals(source.getProcessInstanceId(), correction.getSourceProcessInstanceId());
     }
 
     private void validateCouncilFields(PresidentCorrectionInitiateReqVO reqVO) {
