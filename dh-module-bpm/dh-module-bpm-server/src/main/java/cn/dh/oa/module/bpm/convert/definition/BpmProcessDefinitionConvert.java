@@ -58,7 +58,8 @@ public interface BpmProcessDefinitionConvert {
             return buildProcessDefinition(definition, deployment, processDefinitionInfo, form, category, null);
         });
         // 排序
-        result.sort(Comparator.comparing(BpmProcessDefinitionRespVO::getSort));
+        result.sort(Comparator.comparing(BpmProcessDefinitionRespVO::getSort,
+                Comparator.nullsLast(Comparator.naturalOrder())));
         return result;
     }
 

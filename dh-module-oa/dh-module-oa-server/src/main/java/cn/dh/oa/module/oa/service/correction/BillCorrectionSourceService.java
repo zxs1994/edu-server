@@ -14,6 +14,8 @@ public interface BillCorrectionSourceService {
 
   BillCorrectionSourceDTO loadRequired(String billType, Long billId);
 
+  boolean exists(String billType, Long billId);
+
   void updateForReApproval(BillCorrectionSourceDTO source, String newProcessInstanceId);
 
   void applyReApprovalCompleted(String billType, Long billId, String processInstanceId, Integer status);

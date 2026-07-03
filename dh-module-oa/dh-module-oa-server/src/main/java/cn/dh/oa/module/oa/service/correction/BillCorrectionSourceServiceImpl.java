@@ -82,6 +82,32 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
     }
 
     @Override
+    public boolean exists(String billType, Long billId) {
+        if (billId == null || !OaBillTypeEnum.isPresidentCorrectionSupported(billType)) {
+            return false;
+        }
+        OaBillTypeEnum typeEnum = OaBillTypeEnum.getByProcessDefinitionKey(billType);
+        if (typeEnum == null) {
+            return false;
+        }
+        return switch (typeEnum) {
+            case OA_CONTRACT_BILL -> contractBillMapper.selectById(billId) != null;
+            case OA_EXPENSE_REIMBURSE_BILL, OA_DAILY_EXPENSE_BILL ->
+                    expenseReimburseBillMapper.selectById(billId) != null;
+            case OA_SEAL_APPLY_BILL -> sealApplyBillMapper.selectById(billId) != null;
+            case OA_PROJECT_INITIATION_BILL -> projectInitiationBillMapper.selectById(billId) != null;
+            case OA_DOCUMENT_DISPATCH_BILL -> documentDispatchBillMapper.selectById(billId) != null;
+            case OA_TRAVEL_APPLY_BILL, OA_OVERSEAS_TRAVEL_APPLY_BILL ->
+                    travelApplyBillMapper.selectById(billId) != null;
+            case OA_CAR_APPLY_BILL -> carApplyBillMapper.selectById(billId) != null;
+            case OA_CAR_RETURN_BILL -> carReturnBillMapper.selectById(billId) != null;
+            case OA_MEETING_ROOM_BOOKING -> meetingRoomBookingMapper.selectById(billId) != null;
+            case OA_INCOMING_DOCUMENT_BILL -> incomingDocumentBillMapper.selectById(billId) != null;
+            default -> false;
+        };
+    }
+
+    @Override
     public void updateForReApproval(BillCorrectionSourceDTO source, String newProcessInstanceId) {
         resetBillProcess(source);
     }

@@ -59,7 +59,8 @@ public interface BpmModelConvert {
             return buildModel0(model, metaInfo, form, category, deployment, processDefinition, startUsers, startDepts);
         });
         // 排序
-        result.sort(Comparator.comparing(BpmModelMetaInfoVO::getSort));
+        result.sort(Comparator.comparing(BpmModelMetaInfoVO::getSort,
+                Comparator.nullsLast(Comparator.naturalOrder())));
         return result;
     }
 

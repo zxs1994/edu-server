@@ -2,7 +2,6 @@ package cn.dh.oa.module.oa.service.correction;
 
 import cn.dh.oa.framework.common.enums.SystemEnum;
 import cn.dh.oa.framework.common.util.bill.BillCodeUtils;
-import cn.dh.oa.framework.security.core.util.SecurityFrameworkUtils;
 import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
@@ -50,6 +49,8 @@ public class CorrectionBillServiceImpl implements CorrectionBillService {
 
     @Resource
     private cn.dh.oa.module.oa.service.correction.freeze.BillFreezeHandlerRegistry billFreezeHandlerRegistry;
+    @Resource
+    private BillCorrectionSourceService billCorrectionSourceService;
 
     @Override
     public Long saveCorrectionBill(CorrectionBillSaveReqVO saveReqVO) {
@@ -151,7 +152,19 @@ public class CorrectionBillServiceImpl implements CorrectionBillService {
 
     @Override
     public PageResult<CorrectionBillDO> getCorrectionBillPage(CorrectionBillPageReqVO pageReqVO) {
-        return correctionBillMapper.selectPage(pageReqVO);
+        PageResult<CorrectionBillDO> pageResult = correctionBillMapper.selectPage(pageReqVO);
+        List<CorrectionBillDO> filteredList = pageResult.getList().stream()
+                .filter(this::sourceBillExists)
+                .toList();
+        long removed = pageResult.getList().size() - filteredList.size();
+        return new PageResult<>(filteredList, Math.max(0, pageResult.getTotal() - removed));
+    }
+
+    private boolean sourceBillExists(CorrectionBillDO correctionBill) {
+        if (StringUtils.isBlank(correctionBill.getSourceBillType()) || correctionBill.getSourceBillId() == null) {
+            return true;
+        }
+        return billCorrectionSourceService.exists(correctionBill.getSourceBillType(), correctionBill.getSourceBillId());
     }
 
     // ==================== 纠错特殊方法实现 ====================

@@ -85,12 +85,18 @@ public class OaPresidentCorrectionApiImpl implements OaPresidentCorrectionApi {
 
     @Override
     public boolean shouldDisplayCorrectionOverlay(String billType, Long billId) {
+        if (!billCorrectionSourceService.exists(billType, billId)) {
+            return false;
+        }
         BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(billType, billId);
         return isAwaitingResubmit(state, billType, billId);
     }
 
     @Override
     public boolean isAwaitingResubmitAfterCorrection(String billType, Long billId) {
+        if (!billCorrectionSourceService.exists(billType, billId)) {
+            return false;
+        }
         BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(billType, billId);
         return isAwaitingResubmit(state, billType, billId);
     }
@@ -121,6 +127,9 @@ public class OaPresidentCorrectionApiImpl implements OaPresidentCorrectionApi {
     @Override
     public boolean shouldSyncFrozenBillProcessStatus(String billType, Long billId, String processInstanceId) {
         if (StrUtil.isBlank(processInstanceId)) {
+            return false;
+        }
+        if (!billCorrectionSourceService.exists(billType, billId)) {
             return false;
         }
         BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(billType, billId);
@@ -157,6 +166,9 @@ public class OaPresidentCorrectionApiImpl implements OaPresidentCorrectionApi {
                 || !Objects.equals(correction.getSourceBillType(), billType)
                 || !Objects.equals(correction.getSourceBillId(), billId)) {
             return false;
+        }
+        if (!billCorrectionSourceService.exists(billType, billId)) {
+            return true;
         }
         try {
             return hasResubmittedProcess(correction, billType, billId);

@@ -365,7 +365,8 @@ public class GlobalExceptionHandler {
         Assert.notEmpty(stackTraceElements, "异常 stackTraceElements 不能为空");
         StackTraceElement stackTraceElement = stackTraceElements[0];
         errorLog.setExceptionClassName(stackTraceElement.getClassName());
-        errorLog.setExceptionFileName(stackTraceElement.getFileName());
+        // getFileName() 在代理类、Lambda 等场景可能为 null，数据库字段 NOT NULL
+        errorLog.setExceptionFileName(StrUtil.blankToDefault(stackTraceElement.getFileName(), ""));
         errorLog.setExceptionMethodName(stackTraceElement.getMethodName());
         errorLog.setExceptionLineNumber(stackTraceElement.getLineNumber());
         // 设置其它字段
