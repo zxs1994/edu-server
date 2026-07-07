@@ -88,6 +88,15 @@ public class BpmTaskRespVO {
     @Schema(description = "节点类型", example = "10")
     private Integer nodeType; // 参见 BpmSimpleModelNodeTypeEnum 枚举。
 
+    @Schema(description = "会长纠错待重提待办（非 Flowable 任务，todo-page 合并展示）")
+    private Boolean presidentCorrectionResubmitTodo;
+
+    @Schema(description = "原业务单据 ID（会长纠错待重提）")
+    private Long sourceBillId;
+
+    @Schema(description = "原业务单据流程定义 Key（会长纠错待重提）")
+    private String sourceBillType;
+
     @Data
     @Schema(description = "流程实例")
     public static class ProcessInstance {
@@ -103,6 +112,9 @@ public class BpmTaskRespVO {
 
         @Schema(description = "流程定义的编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "2048")
         private String processDefinitionId;
+
+        @Schema(description = "流程实例状态", example = "3")
+        private Integer status;
 
         @Schema(description = "单据编号", example = "CAR2024010001")
         private String billCode;

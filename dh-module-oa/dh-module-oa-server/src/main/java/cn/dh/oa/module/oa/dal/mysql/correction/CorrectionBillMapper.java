@@ -4,6 +4,8 @@ import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.module.oa.dal.dataobject.correction.CorrectionBillDO;
+import cn.dh.oa.module.oa.enums.correction.OaBillCorrectionStatusEnum;
+import cn.dh.oa.module.oa.enums.correction.OaCorrectionTypeEnum;
 import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.correction.vo.CorrectionBillPageReqVO;
 
@@ -56,6 +58,19 @@ public interface CorrectionBillMapper extends BaseMapperX<CorrectionBillDO> {
                 .eq(CorrectionBillDO::getSourceBillType, sourceBillType)
                 .eq(CorrectionBillDO::getSourceBillId, sourceBillId)
                 .orderByAsc(CorrectionBillDO::getApprovalVersion));
+    }
+
+    /** 异议纠错且尚未重提流程的纠错单 */
+    default List<CorrectionBillDO> selectListAwaitingObjectionResubmit() {
+        return selectList(new LambdaQueryWrapperX<CorrectionBillDO>()
+                .eq(CorrectionBillDO::getCorrectionType, OaCorrectionTypeEnum.OBJECTION.getType())
+                .eq(CorrectionBillDO::getFreezeStatus, 1)
+                .eq(CorrectionBillDO::getCorrectionStatus, OaBillCorrectionStatusEnum.IN_PROGRESS.getStatus())
+                .and(w -> w.isNull(CorrectionBillDO::getNewProcessInstanceId)
+                        .or()
+                        .eq(CorrectionBillDO::getNewProcessInstanceId, ""))
+                .orderByDesc(CorrectionBillDO::getRevokeTime)
+                .orderByDesc(CorrectionBillDO::getId));
     }
 
 }

@@ -2,6 +2,8 @@ package cn.dh.oa.module.oa.service.correction;
 
 import cn.dh.oa.module.bpm.enums.task.BpmProcessInstanceStatusEnum;
 import cn.dh.oa.module.oa.api.correction.OaPresidentCorrectionApi;
+import cn.dh.oa.module.oa.api.correction.dto.OaCorrectionResubmitTodoDTO;
+import cn.dh.oa.module.oa.api.correction.dto.OaCorrectionResubmitTodoQueryDTO;
 import cn.dh.oa.module.oa.api.correction.dto.OaCorrectionRevokeNodeDTO;
 import cn.dh.oa.module.oa.dal.dataobject.correction.BillCorrectionStateDO;
 import cn.dh.oa.module.oa.dal.dataobject.correction.CorrectionBillDO;
@@ -15,6 +17,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -230,6 +233,77 @@ public class OaPresidentCorrectionApiImpl implements OaPresidentCorrectionApi {
         BillCorrectionSourceDTO source = billCorrectionSourceService.loadRequired(billType, billId);
         return StrUtil.isNotBlank(source.getProcessInstanceId())
                 && !Objects.equals(source.getProcessInstanceId(), correction.getSourceProcessInstanceId());
+    }
+
+    @Override
+    public List<OaCorrectionResubmitTodoDTO> listResubmitTodos(Long userId, OaCorrectionResubmitTodoQueryDTO query) {
+        if (userId == null) {
+            return List.of();
+        }
+        OaCorrectionResubmitTodoQueryDTO safeQuery = query != null ? query : new OaCorrectionResubmitTodoQueryDTO();
+        List<OaCorrectionResubmitTodoDTO> result = new ArrayList<>();
+        for (CorrectionBillDO correction : correctionBillMapper.selectListAwaitingObjectionResubmit()) {
+            if (!billCorrectionSourceService.exists(correction.getSourceBillType(), correction.getSourceBillId())) {
+                continue;
+            }
+            BillCorrectionSourceDTO source = billCorrectionSourceService.loadRequired(
+                    correction.getSourceBillType(), correction.getSourceBillId());
+            if (!Objects.equals(source.getCreatorUserId(), userId)) {
+                continue;
+            }
+            if (!matchesResubmitTodoQuery(correction, source, safeQuery)) {
+                continue;
+            }
+            result.add(toResubmitTodo(correction, source));
+        }
+        return result;
+    }
+
+    private boolean matchesResubmitTodoQuery(CorrectionBillDO correction, BillCorrectionSourceDTO source,
+                                           OaCorrectionResubmitTodoQueryDTO query) {
+        if (StrUtil.isNotBlank(query.getBillType())
+                && !Objects.equals(query.getBillType(), correction.getSourceBillType())) {
+            return false;
+        }
+        if (StrUtil.isNotBlank(query.getBillCode())
+                && (StrUtil.isBlank(correction.getSourceBillCode())
+                || !correction.getSourceBillCode().contains(query.getBillCode()))) {
+            return false;
+        }
+        if (query.getCompanyId() != null && !Objects.equals(query.getCompanyId(), source.getCompanyId())) {
+            return false;
+        }
+        if (query.getDeptId() != null && !Objects.equals(query.getDeptId(), source.getDeptId())) {
+            return false;
+        }
+        if (query.getReceiveTimeStart() != null && correction.getRevokeTime() != null
+                && correction.getRevokeTime().isBefore(query.getReceiveTimeStart())) {
+            return false;
+        }
+        if (query.getReceiveTimeEnd() != null && correction.getRevokeTime() != null
+                && correction.getRevokeTime().isAfter(query.getReceiveTimeEnd())) {
+            return false;
+        }
+        return true;
+    }
+
+    private OaCorrectionResubmitTodoDTO toResubmitTodo(CorrectionBillDO correction, BillCorrectionSourceDTO source) {
+        OaCorrectionResubmitTodoDTO dto = new OaCorrectionResubmitTodoDTO();
+        dto.setCorrectionBillId(correction.getId());
+        dto.setSourceBillType(correction.getSourceBillType());
+        dto.setSourceBillId(correction.getSourceBillId());
+        dto.setSourceBillCode(correction.getSourceBillCode());
+        dto.setSourceBillTitle(correction.getSourceBillTitle());
+        dto.setSourceProcessInstanceId(correction.getSourceProcessInstanceId());
+        dto.setCorrectionReason(correction.getCorrectionReason());
+        dto.setRevokeTime(correction.getRevokeTime());
+        dto.setCreatorUserId(source.getCreatorUserId());
+        dto.setCreatorName(source.getCreatorName());
+        dto.setCompanyId(source.getCompanyId());
+        dto.setCompanyName(source.getCompanyName());
+        dto.setDeptId(source.getDeptId());
+        dto.setDeptName(source.getDeptName());
+        return dto;
     }
 
 }

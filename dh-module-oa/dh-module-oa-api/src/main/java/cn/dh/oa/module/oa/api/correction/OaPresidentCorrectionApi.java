@@ -1,7 +1,10 @@
 package cn.dh.oa.module.oa.api.correction;
 
+import cn.dh.oa.module.oa.api.correction.dto.OaCorrectionResubmitTodoDTO;
+import cn.dh.oa.module.oa.api.correction.dto.OaCorrectionResubmitTodoQueryDTO;
 import cn.dh.oa.module.oa.api.correction.dto.OaCorrectionRevokeNodeDTO;
 
+import java.util.List;
 import java.util.Set;
 /**
  * 会长纠错 API（供 BPM 审批详情增强、流程完成回调）
@@ -53,5 +56,10 @@ public interface OaPresidentCorrectionApi {
      * 原流程已被纠错重提的新流程替代时，列表不再展示该原流程实例
      */
     boolean shouldHideCorrectedSourceProcessInstance(String billType, Long billId, String processInstanceId);
+
+    /**
+     * 查询当前用户待重提的会长异议纠错待办（未写入 Flowable，由 todo-page 合并展示）
+     */
+    List<OaCorrectionResubmitTodoDTO> listResubmitTodos(Long userId, OaCorrectionResubmitTodoQueryDTO query);
 
 }

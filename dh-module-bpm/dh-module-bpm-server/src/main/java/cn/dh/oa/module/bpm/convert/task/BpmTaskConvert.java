@@ -58,6 +58,7 @@ public interface BpmTaskConvert {
             AdminUserRespDTO startUser = userMap.get(NumberUtils.parseLong(processInstance.getStartUserId()));
             taskVO.getProcessInstance().setStartUser(BeanUtils.toBean(startUser, UserSimpleBaseVO.class));
             taskVO.getProcessInstance().setCreateTime(DateUtils.of(processInstance.getStartTime()));
+            taskVO.getProcessInstance().setStatus(FlowableUtils.getProcessInstanceStatus(processInstance));
 
             // 摘要和单号
             makeProcessInstanceData(processDefinitionInfoMap, taskVO, processInstance.getProcessVariables(), processInstance.getProcessDefinitionId());

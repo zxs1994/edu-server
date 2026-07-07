@@ -12,6 +12,7 @@ import cn.dh.oa.module.bpm.service.definition.BpmFormService;
 import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
 import cn.dh.oa.module.bpm.service.bill.BpmBillDeletedService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceService;
+import cn.dh.oa.module.bpm.service.task.BpmPresidentCorrectionTodoService;
 import cn.dh.oa.module.bpm.service.task.BpmTaskService;
 import cn.dh.oa.module.bpm.service.task.BpmWorkbenchService;
 import cn.dh.oa.module.system.api.dept.DeptApi;
@@ -66,25 +67,30 @@ public class BpmTaskController {
     private DeptApi deptApi;
     @Resource
     private BpmBillDeletedService billDeletedService;
+    @Resource
+    private BpmPresidentCorrectionTodoService presidentCorrectionTodoService;
 
     @GetMapping("todo-page")
     @Operation(summary = "获取 Todo 待办任务分页")
     @PreAuthorize("@ss.hasPermission('bpm:task:query')")
     public CommonResult<PageResult<BpmTaskRespVO>> getTaskTodoPage(@Valid BpmTaskPageReqVO pageVO) {
-        PageResult<Task> pageResult = taskService.getTaskTodoPage(getLoginUserId(), pageVO);
-        if (CollUtil.isEmpty(pageResult.getList())) {
-            return success(PageResult.empty());
-        }
+        Long userId = getLoginUserId();
+        PageResult<Task> pageResult = taskService.getTaskTodoPage(userId, pageVO);
 
-        // 拼接数据
-        Map<String, ProcessInstance> processInstanceMap = processInstanceService.getProcessInstanceMap(
-                convertSet(pageResult.getList(), Task::getProcessInstanceId));
-        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
-                convertSet(processInstanceMap.values(), instance -> Long.valueOf(instance.getStartUserId())));
-        Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
-                convertSet(pageResult.getList(), Task::getProcessDefinitionId));
-        PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap);
-        billDeletedService.fillTodoTaskPage(result, processInstanceMap);
+        PageResult<BpmTaskRespVO> result;
+        if (CollUtil.isEmpty(pageResult.getList())) {
+            result = new PageResult<>(new ArrayList<>(), pageResult.getTotal());
+        } else {
+            Map<String, ProcessInstance> processInstanceMap = processInstanceService.getProcessInstanceMap(
+                    convertSet(pageResult.getList(), Task::getProcessInstanceId));
+            Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(
+                    convertSet(processInstanceMap.values(), instance -> Long.valueOf(instance.getStartUserId())));
+            Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
+                    convertSet(pageResult.getList(), Task::getProcessDefinitionId));
+            result = BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap);
+            billDeletedService.fillTodoTaskPage(result, processInstanceMap);
+        }
+        presidentCorrectionTodoService.mergeIntoTodoPage(userId, pageVO, result);
         return success(result);
     }
 
