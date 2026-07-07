@@ -27,8 +27,7 @@ public class ContractBillSaveReqVO {
     @NotEmpty(message = "合同标题不能为空")
     private String contractTitle;
 
-    @Schema(description = "合同编号", requiredMode = Schema.RequiredMode.REQUIRED, example = "HT-2026-001")
-    @NotEmpty(message = "合同编号不能为空")
+    @Schema(description = "合同编号（审批通过后自动生成）", example = "2026CMPA-C-001")
     private String contractCode;
 
     @Schema(description = "合同类型（1采购 2销售 3服务 4合作 5其他）", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")

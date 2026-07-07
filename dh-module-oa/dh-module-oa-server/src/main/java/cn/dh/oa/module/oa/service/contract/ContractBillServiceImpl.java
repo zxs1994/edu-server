@@ -2,7 +2,6 @@ package cn.dh.oa.module.oa.service.contract;
 
 import cn.dh.oa.framework.common.enums.SystemEnum;
 import cn.dh.oa.framework.common.util.bill.BillCodeUtils;
-import cn.dh.oa.framework.security.core.util.SecurityFrameworkUtils;
 import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
@@ -18,17 +17,19 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.*;
 import cn.dh.oa.module.oa.controller.admin.contract.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.contract.ContractBillDO;
+import cn.dh.oa.module.oa.dal.dataobject.contract.ContractCodeSeqDO;
 import cn.dh.oa.module.oa.dal.dataobject.contract.ContractDetailDO;
 import cn.dh.oa.module.oa.dal.dataobject.contract.ContractPaymentPlanDO;
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.common.util.object.BeanUtils;
 
 import cn.dh.oa.module.oa.dal.mysql.contract.ContractBillMapper;
+import cn.dh.oa.module.oa.dal.mysql.contract.ContractCodeSeqMapper;
 import cn.dh.oa.module.oa.dal.mysql.contract.ContractDetailMapper;
 import cn.dh.oa.module.oa.dal.mysql.contract.ContractPaymentPlanMapper;
 
@@ -61,6 +62,9 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
 
+    @Resource
+    private ContractCodeSeqMapper contractCodeSeqMapper;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long saveContractBill(ContractBillSaveReqVO saveReqVO) {
@@ -69,6 +73,8 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_CONTRACT_BILL));
         }
 
+        // 合同编号由审批通过后自动生成，保存阶段不允许手填
+        saveReqVO.setContractCode(null);
         // 插入或更新
         ContractBillDO contractBill = BeanUtils.toBean(saveReqVO, ContractBillDO.class);
         contractBillMapper.insertOrUpdate(contractBill);
@@ -96,6 +102,8 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_CONTRACT_BILL));
         }
 
+        // 合同编号由审批通过后自动生成，提交阶段不允许手填
+        saveReqVO.setContractCode(null);
         // 保存或更新
         ContractBillDO contractBill = BeanUtils.toBean(saveReqVO, ContractBillDO.class)
                 .setProcessStatus(BpmTaskStatusEnum.RUNNING.getStatus());
@@ -266,20 +274,60 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateProcessStatus(String businessKey, Integer status) {
         Long id = Long.parseLong(businessKey);
         log.info("[updateProcessStatus] 更新合同审批单流程状态，id: {}, status: {}", id, status);
 
-        // 校验合同审批单存在
-        validateContractBillExists(id);
+        ContractBillDO contractBill = contractBillMapper.selectById(id);
+        if (contractBill == null) {
+            throw exception(CONTRACT_BILL_NOT_EXISTS);
+        }
 
-        // 更新流程状态
-        ContractBillDO updateObj = new ContractBillDO();
-        updateObj.setId(id);
-        updateObj.setProcessStatus(status);
+        ContractBillDO updateObj = new ContractBillDO().setId(id).setProcessStatus(status);
+        if (BpmTaskStatusEnum.APPROVE.getStatus().equals(status) && StringUtils.isBlank(contractBill.getContractCode())) {
+            updateObj.setContractCode(generateContractCode(contractBill));
+        }
         contractBillMapper.updateById(updateObj);
 
         log.info("[updateProcessStatus] 合同审批单流程状态更新成功，id: {}, status: {}", id, status);
+    }
+
+    private String generateContractCode(ContractBillDO contractBill) {
+        String typeCode = resolveContractTypeCode(contractBill);
+        int year = contractBill.getSignDate() == null ? LocalDate.now().getYear() : contractBill.getSignDate().getYear();
+        ContractCodeSeqDO seq = contractCodeSeqMapper.selectByYearAndTypeForUpdate(year, typeCode);
+        if (seq == null) {
+            contractCodeSeqMapper.insert(ContractCodeSeqDO.builder()
+                    .bizYear(year)
+                    .typeCode(typeCode)
+                    .currentSeq(0)
+                    .build());
+            seq = contractCodeSeqMapper.selectByYearAndTypeForUpdate(year, typeCode);
+        }
+        int nextSeq = seq.getCurrentSeq() + 1;
+        if (nextSeq > 999) {
+            throw exception(CONTRACT_BILL_NOT_EXISTS, "合同编号已超过当年该类型上限(999)");
+        }
+        contractCodeSeqMapper.updateById(ContractCodeSeqDO.builder().id(seq.getId()).currentSeq(nextSeq).build());
+        return String.format("%dCMPA-%s-%03d", year, typeCode, nextSeq);
+    }
+
+    private String resolveContractTypeCode(ContractBillDO contractBill) {
+        // 按当前字典实际顺序映射：1项目服务(X) 2采购(C) 3服务外包(F) 4劳动/人事(H) 5合作(Z) 6其他(Q)
+        Integer contractType = contractBill.getContractType();
+        if (contractType == null) {
+            throw exception(CONTRACT_BILL_NOT_EXISTS, "合同类型为空，无法生成合同编号");
+        }
+        return switch (contractType) {
+            case 1 -> "X";
+            case 2 -> "C";
+            case 3 -> "F";
+            case 4 -> "H";
+            case 5 -> "Z";
+            case 6 -> "Q";
+            default -> throw exception(CONTRACT_BILL_NOT_EXISTS, "合同类型不支持自动生成编号");
+        };
     }
 
 }
