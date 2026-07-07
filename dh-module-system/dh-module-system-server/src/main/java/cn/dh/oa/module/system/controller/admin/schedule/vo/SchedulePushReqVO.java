@@ -3,7 +3,6 @@ package cn.dh.oa.module.system.controller.admin.schedule.vo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
@@ -15,8 +14,7 @@ public class SchedulePushReqVO {
     @NotNull(message = "日程ID不能为空")
     private Long scheduleId;
 
-    @Schema(description = "接收人ID列表", requiredMode = Schema.RequiredMode.REQUIRED, example = "[1, 2, 3]")
-    @NotEmpty(message = "接收人ID列表不能为空")
+    @Schema(description = "接收人ID列表", example = "[1, 2, 3]")
     private List<Long> receiverIds;
 
 }

@@ -3,7 +3,9 @@ package cn.dh.oa.module.system.dal.mysql.schedule;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.module.system.dal.dataobject.schedule.ScheduleReceiverDO;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -59,6 +61,15 @@ public interface ScheduleReceiverMapper extends BaseMapperX<ScheduleReceiverDO> 
     default void deleteByScheduleId(Long scheduleId) {
         delete(ScheduleReceiverDO::getScheduleId, scheduleId);
     }
+
+    /**
+     * 根据日程ID物理删除接收人关系（绕过逻辑删除）
+     * <p>
+     * 表有唯一键 uk_schedule_receiver(schedule_id, receiver_id, deleted)，
+     * 反复更新接收人时软删除会撞唯一键，替换接收人场景需物理删除。
+     */
+    @Delete("DELETE FROM system_schedule_receiver WHERE schedule_id = #{scheduleId}")
+    int physicalDeleteByScheduleId(@Param("scheduleId") Long scheduleId);
 
     /**
      * 查询用户是否已读指定日程

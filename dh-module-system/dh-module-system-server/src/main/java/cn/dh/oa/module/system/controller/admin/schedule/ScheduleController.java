@@ -108,7 +108,16 @@ public class ScheduleController {
     @PreAuthorize("@ss.hasPermission('system:schedule:query')")
     public CommonResult<PageResult<ScheduleRespVO>> getMySchedulePage(@Valid SchedulePageReqVO pageReqVO) {
         PageResult<ScheduleDO> pageResult = scheduleService.getMySchedulePage(pageReqVO);
-        return success(BeanUtils.toBean(pageResult, ScheduleRespVO.class));
+        PageResult<ScheduleRespVO> voResult = BeanUtils.toBean(pageResult, ScheduleRespVO.class);
+        if (voResult.getList() != null) {
+            voResult.getList().forEach(vo -> {
+                List<ScheduleReceiverDO> receivers = scheduleReceiverMapper.selectListByScheduleId(vo.getId());
+                vo.setPendingReceiverIds(receivers.stream()
+                        .map(ScheduleReceiverDO::getReceiverId)
+                        .toList());
+            });
+        }
+        return success(voResult);
     }
 
     @PostMapping("/push")

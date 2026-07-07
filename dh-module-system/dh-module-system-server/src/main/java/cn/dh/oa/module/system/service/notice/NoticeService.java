@@ -57,4 +57,12 @@ public interface NoticeService {
      */
     NoticeDO getNotice(Long id);
 
+    /**
+     * 推送通知公告（仅开启状态可推送）
+     *
+     * @param id 编号
+     * @return 通知公告
+     */
+    NoticeDO pushNotice(Long id);
+
 }

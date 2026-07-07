@@ -35,6 +35,9 @@ public interface ScheduleConvert {
     default ScheduleRespVO convert(ScheduleDO schedule, List<ScheduleReceiverDO> receivers) {
         ScheduleRespVO respVO = BeanUtils.toBean(schedule, ScheduleRespVO.class);
         if (receivers != null && !receivers.isEmpty()) {
+            respVO.setPendingReceiverIds(receivers.stream()
+                    .map(ScheduleReceiverDO::getReceiverId)
+                    .toList());
             respVO.setReceivers(CollectionUtils.convertList(receivers, receiver -> {
                 ScheduleRespVO.ReceiverVO receiverVO = new ScheduleRespVO.ReceiverVO();
                 receiverVO.setReceiverId(receiver.getReceiverId());

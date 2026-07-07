@@ -2,6 +2,7 @@ package cn.dh.oa.module.system.service.notice;
 
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.common.util.object.BeanUtils;
+import cn.dh.oa.framework.common.enums.CommonStatusEnum;
 import cn.dh.oa.module.system.controller.admin.notice.vo.NoticePageReqVO;
 import cn.dh.oa.module.system.controller.admin.notice.vo.NoticeSaveReqVO;
 import cn.dh.oa.module.system.dal.dataobject.notice.NoticeDO;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.dh.oa.module.system.enums.ErrorCodeConstants.NOTICE_NOT_FOUND;
+import static cn.dh.oa.module.system.enums.ErrorCodeConstants.NOTICE_DISABLED;
 
 /**
  * 通知公告 Service 实现类
@@ -65,16 +67,26 @@ public class NoticeServiceImpl implements NoticeService {
         return noticeMapper.selectById(id);
     }
 
+    @Override
+    public NoticeDO pushNotice(Long id) {
+        NoticeDO notice = validateNoticeExists(id);
+        if (CommonStatusEnum.isDisable(notice.getStatus())) {
+            throw exception(NOTICE_DISABLED);
+        }
+        return notice;
+    }
+
 
     @VisibleForTesting
-    public void validateNoticeExists(Long id) {
+    public NoticeDO validateNoticeExists(Long id) {
         if (id == null) {
-            return;
+            throw exception(NOTICE_NOT_FOUND);
         }
         NoticeDO notice = noticeMapper.selectById(id);
         if (notice == null) {
             throw exception(NOTICE_NOT_FOUND);
         }
+        return notice;
     }
 
 }

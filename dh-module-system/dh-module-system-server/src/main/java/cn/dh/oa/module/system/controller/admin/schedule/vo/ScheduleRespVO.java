@@ -61,6 +61,9 @@ public class ScheduleRespVO {
     @Schema(description = "接收人列表")
     private List<ReceiverVO> receivers;
 
+    @Schema(description = "待推送接收人ID列表", example = "[1, 2, 3]")
+    private List<Long> pendingReceiverIds;
+
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private LocalDateTime createTime;
 

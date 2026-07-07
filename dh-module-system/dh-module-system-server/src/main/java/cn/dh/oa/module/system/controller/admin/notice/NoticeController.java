@@ -1,6 +1,5 @@
 package cn.dh.oa.module.system.controller.admin.notice;
 
-import cn.hutool.core.lang.Assert;
 import cn.dh.oa.framework.common.enums.UserTypeEnum;
 import cn.dh.oa.framework.common.pojo.CommonResult;
 import cn.dh.oa.framework.common.pojo.PageResult;
@@ -186,8 +185,7 @@ public class NoticeController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('system:notice:update')")
     public CommonResult<Boolean> push(@RequestParam("id") Long id) {
-        NoticeDO notice = noticeService.getNotice(id);
-        Assert.notNull(notice, "公告不能为空");
+        NoticeDO notice = noticeService.pushNotice(id);
         // 通过 websocket 推送给在线的用户
         webSocketSenderApi.sendObject(UserTypeEnum.ADMIN.getValue(), "notice-push", notice);
         return success(true);

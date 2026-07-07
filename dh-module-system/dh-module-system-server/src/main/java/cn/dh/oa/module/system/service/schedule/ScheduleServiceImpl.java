@@ -19,6 +19,7 @@ import org.springframework.validation.annotation.Validated;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
@@ -58,7 +59,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         schedule.setTenantId(TenantContextHolder.getTenantId());
         scheduleMapper.insert(schedule);
 
-        // 注意：创建时不自动推送，需要用户点击"确认并立即推送"按钮才会推送
+        saveReceivers(schedule.getId(), createReqVO.getReceiverIds());
 
         return schedule.getId();
     }
@@ -79,7 +80,9 @@ public class ScheduleServiceImpl implements ScheduleService {
         ScheduleDO updateObj = BeanUtils.toBean(updateReqVO, ScheduleDO.class);
         scheduleMapper.updateById(updateObj);
 
-        // 注意：更新时不自动推送，需要用户点击"确认并立即推送"按钮才会推送
+        if (updateReqVO.getReceiverIds() != null) {
+            appendReceivers(updateReqVO.getId(), updateReqVO.getReceiverIds());
+        }
     }
 
     @Override
@@ -95,7 +98,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
 
         // 删除接收人关系
-        scheduleReceiverMapper.deleteByScheduleId(id);
+        scheduleReceiverMapper.physicalDeleteByScheduleId(id);
 
         // 删除日程
         scheduleMapper.deleteById(id);
@@ -147,8 +150,10 @@ public class ScheduleServiceImpl implements ScheduleService {
             throw exception(SCHEDULE_NOT_EDITABLE);
         }
 
-        // 推送日程给接收人
-        pushScheduleToReceivers(pushReqVO.getScheduleId(), pushReqVO.getReceiverIds());
+        // 仅向未接收的用户推送
+        List<Long> receiverIds = resolveReceiverIds(pushReqVO.getScheduleId(), pushReqVO.getReceiverIds());
+        List<Long> newReceiverIds = filterNewReceiverIds(pushReqVO.getScheduleId(), receiverIds);
+        appendReceivers(pushReqVO.getScheduleId(), newReceiverIds);
 
         // 更新日程为已推送
         schedule.setIsPushed(true);
@@ -156,16 +161,36 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     /**
-     * 推送日程给接收人
-     *
-     * @param scheduleId 日程ID
-     * @param receiverIds 接收人ID列表
+     * 保存待推送接收人（仅追加未接收的用户）
      */
-    private void pushScheduleToReceivers(Long scheduleId, List<Long> receiverIds) {
-        // 删除旧的接收人关系
-        scheduleReceiverMapper.deleteByScheduleId(scheduleId);
+    private void saveReceivers(Long scheduleId, List<Long> receiverIds) {
+        if (receiverIds == null || receiverIds.isEmpty()) {
+            return;
+        }
+        appendReceivers(scheduleId, filterNewReceiverIds(scheduleId, receiverIds));
+    }
 
-        // 创建新的接收人关系
+    /**
+     * 过滤掉已接收的用户
+     */
+    private List<Long> filterNewReceiverIds(Long scheduleId, List<Long> receiverIds) {
+        Set<Long> existingReceiverIds = scheduleReceiverMapper.selectListByScheduleId(scheduleId).stream()
+                .map(ScheduleReceiverDO::getReceiverId)
+                .collect(Collectors.toSet());
+        return receiverIds.stream()
+                .distinct()
+                .filter(receiverId -> !existingReceiverIds.contains(receiverId))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 追加接收人（不删除已接收记录）
+     */
+    private void appendReceivers(Long scheduleId, List<Long> receiverIds) {
+        if (receiverIds == null || receiverIds.isEmpty()) {
+            return;
+        }
+
         Long tenantId = TenantContextHolder.getTenantId();
         List<ScheduleReceiverDO> receivers = receiverIds.stream()
                 .map(receiverId -> {
@@ -173,13 +198,29 @@ public class ScheduleServiceImpl implements ScheduleService {
                     receiver.setScheduleId(scheduleId);
                     receiver.setReceiverId(receiverId);
                     receiver.setReceiverName(adminUserService.getUser(receiverId).getNickname());
-                    receiver.setReadStatus(0); // 未读
+                    receiver.setReadStatus(0);
                     receiver.setTenantId(tenantId);
                     return receiver;
                 })
                 .collect(Collectors.toList());
 
         scheduleReceiverMapper.insertBatch(receivers);
+    }
+
+    /**
+     * 解析推送接收人：优先使用请求参数，否则使用已保存的接收人
+     */
+    private List<Long> resolveReceiverIds(Long scheduleId, List<Long> receiverIds) {
+        if (receiverIds != null && !receiverIds.isEmpty()) {
+            return receiverIds;
+        }
+        List<Long> savedReceiverIds = scheduleReceiverMapper.selectListByScheduleId(scheduleId).stream()
+                .map(ScheduleReceiverDO::getReceiverId)
+                .collect(Collectors.toList());
+        if (savedReceiverIds.isEmpty()) {
+            throw exception(SCHEDULE_RECEIVERS_EMPTY);
+        }
+        return savedReceiverIds;
     }
 
     @VisibleForTesting
