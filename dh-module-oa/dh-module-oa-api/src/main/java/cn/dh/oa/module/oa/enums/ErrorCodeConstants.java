@@ -86,4 +86,8 @@ public interface ErrorCodeConstants {
 
     // ========== 日常报销 1-101-014-000 ============
     ErrorCode DAILY_EXPENSE_BILL_NOT_EXISTS = new ErrorCode(1_101_014_000, "日常报销单不存在");
+
+    // ========== 费用支出申请 1-101-015-000 ============
+    ErrorCode EXPENSE_PAYMENT_BILL_NOT_EXISTS = new ErrorCode(1_101_015_000, "费用支出申请单不存在");
+    ErrorCode EXPENSE_PAYMENT_BILL_DETAIL_REQUIRED = new ErrorCode(1_101_015_001, "请至少添加一条费用明细");
 }

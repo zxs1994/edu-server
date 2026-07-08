@@ -5,6 +5,7 @@ import cn.dh.oa.module.oa.dal.dataobject.car.CarReturnBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.contract.ContractBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.document.DocumentDispatchBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.expense.ExpenseReimburseBillDO;
+import cn.dh.oa.module.oa.dal.dataobject.expensepayment.ExpensePaymentBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.incoming.IncomingDocumentBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.meetingroom.MeetingRoomBookingDO;
 import cn.dh.oa.module.oa.dal.dataobject.project.ProjectInitiationBillDO;
@@ -15,6 +16,7 @@ import cn.dh.oa.module.oa.dal.mysql.car.CarReturnBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.contract.ContractBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.document.DocumentDispatchBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.expense.ExpenseReimburseBillMapper;
+import cn.dh.oa.module.oa.dal.mysql.expensepayment.ExpensePaymentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.incoming.IncomingDocumentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.meetingroom.MeetingRoomBookingMapper;
 import cn.dh.oa.module.oa.dal.mysql.project.ProjectInitiationBillMapper;
@@ -38,6 +40,8 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
     private ContractBillMapper contractBillMapper;
     @Resource
     private ExpenseReimburseBillMapper expenseReimburseBillMapper;
+    @Resource
+    private ExpensePaymentBillMapper expensePaymentBillMapper;
     @Resource
     private SealApplyBillMapper sealApplyBillMapper;
     @Resource
@@ -68,6 +72,7 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
             case OA_CONTRACT_BILL -> fromContract(contractBillMapper.selectById(billId));
             case OA_EXPENSE_REIMBURSE_BILL -> fromExpense(expenseReimburseBillMapper.selectById(billId));
             case OA_DAILY_EXPENSE_BILL -> fromDailyExpense(expenseReimburseBillMapper.selectById(billId));
+            case OA_EXPENSE_PAYMENT_BILL -> fromExpensePayment(expensePaymentBillMapper.selectById(billId));
             case OA_SEAL_APPLY_BILL -> fromSeal(sealApplyBillMapper.selectById(billId));
             case OA_PROJECT_INITIATION_BILL -> fromProject(projectInitiationBillMapper.selectById(billId));
             case OA_DOCUMENT_DISPATCH_BILL -> fromDocument(documentDispatchBillMapper.selectById(billId));
@@ -94,6 +99,7 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
             case OA_CONTRACT_BILL -> contractBillMapper.selectById(billId) != null;
             case OA_EXPENSE_REIMBURSE_BILL, OA_DAILY_EXPENSE_BILL ->
                     expenseReimburseBillMapper.selectById(billId) != null;
+            case OA_EXPENSE_PAYMENT_BILL -> expensePaymentBillMapper.selectById(billId) != null;
             case OA_SEAL_APPLY_BILL -> sealApplyBillMapper.selectById(billId) != null;
             case OA_PROJECT_INITIATION_BILL -> projectInitiationBillMapper.selectById(billId) != null;
             case OA_DOCUMENT_DISPATCH_BILL -> documentDispatchBillMapper.selectById(billId) != null;
@@ -131,6 +137,8 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
                     .setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
             case OA_EXPENSE_REIMBURSE_BILL, OA_DAILY_EXPENSE_BILL -> expenseReimburseBillMapper.updateById(
                     new ExpenseReimburseBillDO().setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
+            case OA_EXPENSE_PAYMENT_BILL -> expensePaymentBillMapper.updateById(new ExpensePaymentBillDO()
+                    .setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
             case OA_SEAL_APPLY_BILL -> sealApplyBillMapper.updateById(new SealApplyBillDO()
                     .setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
             case OA_PROJECT_INITIATION_BILL -> projectInitiationBillMapper.updateById(new ProjectInitiationBillDO()
@@ -269,6 +277,17 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
         }
         String title = StrUtil.blankToDefault(bill.getCause(), bill.getBillCode());
         return build(bill.getId(), OaBillTypeEnum.OA_DAILY_EXPENSE_BILL.getProcessDefinitionKey(),
+                bill.getBillCode(), title, bill.getProcessInstanceId(), bill.getProcessStatus(),
+                bill.getCreator(), bill.getCreatorName(), bill.getCompanyId(), bill.getCompanyName(),
+                bill.getDeptId(), bill.getDeptName());
+    }
+
+    private BillCorrectionSourceDTO fromExpensePayment(ExpensePaymentBillDO bill) {
+        if (bill == null) {
+            throw exception(EXPENSE_PAYMENT_BILL_NOT_EXISTS);
+        }
+        String title = StrUtil.blankToDefault(bill.getCause(), bill.getBillCode());
+        return build(bill.getId(), OaBillTypeEnum.OA_EXPENSE_PAYMENT_BILL.getProcessDefinitionKey(),
                 bill.getBillCode(), title, bill.getProcessInstanceId(), bill.getProcessStatus(),
                 bill.getCreator(), bill.getCreatorName(), bill.getCompanyId(), bill.getCompanyName(),
                 bill.getDeptId(), bill.getDeptName());

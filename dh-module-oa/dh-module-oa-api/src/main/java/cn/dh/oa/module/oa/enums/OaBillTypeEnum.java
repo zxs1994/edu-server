@@ -75,7 +75,12 @@ public enum OaBillTypeEnum implements BillTypeEnum {
     /**
      * 日常报销单
      */
-    OA_DAILY_EXPENSE_BILL("112", "日常报销单", "oa_daily_expense_bill");
+    OA_DAILY_EXPENSE_BILL("112", "日常报销单", "oa_daily_expense_bill"),
+
+    /**
+     * 费用支出申请
+     */
+    OA_EXPENSE_PAYMENT_BILL("114", "费用支出申请", "oa_expense_payment_bill");
 
     /**
      * 单据类型代码

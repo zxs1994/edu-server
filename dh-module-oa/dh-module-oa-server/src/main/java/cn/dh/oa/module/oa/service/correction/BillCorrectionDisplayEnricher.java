@@ -6,6 +6,7 @@ import cn.dh.oa.module.oa.controller.admin.car.vo.CarReturnBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.contract.vo.ContractBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.document.vo.DocumentDispatchBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseBillRespVO;
+import cn.dh.oa.module.oa.controller.admin.expensepayment.vo.ExpensePaymentBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.incoming.vo.IncomingDocumentBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.meetingroom.vo.MeetingRoomBookingRespVO;
 import cn.dh.oa.module.oa.controller.admin.project.vo.ProjectInitiationBillRespVO;
@@ -101,6 +102,13 @@ public class BillCorrectionDisplayEnricher {
                 ExpenseReimburseBillRespVO::getId,
                 ExpenseReimburseBillRespVO::setPresidentCorrectionDisplay,
                 ExpenseReimburseBillRespVO::setPresidentCorrectionAwaitingResubmit);
+    }
+
+    public void enrichExpensePaymentBills(List<ExpensePaymentBillRespVO> list) {
+        enrich(list, OaBillTypeEnum.OA_EXPENSE_PAYMENT_BILL.getProcessDefinitionKey(),
+                ExpensePaymentBillRespVO::getId,
+                ExpensePaymentBillRespVO::setPresidentCorrectionDisplay,
+                ExpensePaymentBillRespVO::setPresidentCorrectionAwaitingResubmit);
     }
 
     public void enrichSealApplyBills(List<SealApplyBillRespVO> list) {

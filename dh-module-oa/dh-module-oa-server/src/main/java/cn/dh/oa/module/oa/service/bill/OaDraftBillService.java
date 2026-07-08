@@ -10,6 +10,7 @@ import cn.dh.oa.module.oa.dal.dataobject.contract.ContractBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.correction.CorrectionBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.document.DocumentDispatchBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.expense.ExpenseReimburseBillDO;
+import cn.dh.oa.module.oa.dal.dataobject.expensepayment.ExpensePaymentBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.incoming.IncomingDocumentBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.meetingroom.MeetingRoomBookingDO;
 import cn.dh.oa.module.oa.dal.dataobject.project.ProjectInitiationBillDO;
@@ -21,6 +22,7 @@ import cn.dh.oa.module.oa.dal.mysql.contract.ContractBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.correction.CorrectionBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.document.DocumentDispatchBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.expense.ExpenseReimburseBillMapper;
+import cn.dh.oa.module.oa.dal.mysql.expensepayment.ExpensePaymentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.incoming.IncomingDocumentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.meetingroom.MeetingRoomBookingMapper;
 import cn.dh.oa.module.oa.dal.mysql.project.ProjectInitiationBillMapper;
@@ -57,6 +59,8 @@ public class OaDraftBillService implements OaDraftBillApi {
     private DocumentDispatchBillMapper documentDispatchBillMapper;
     @Resource
     private ExpenseReimburseBillMapper expenseReimburseBillMapper;
+    @Resource
+    private ExpensePaymentBillMapper expensePaymentBillMapper;
     @Resource
     private ProjectInitiationBillMapper projectInitiationBillMapper;
     @Resource
@@ -135,6 +139,13 @@ public class OaDraftBillService implements OaDraftBillApi {
             expenseReimburseBillMapper.selectList(wrapper)
                     .forEach(bill -> result.add(toDto(bill.getId(), bill.getBillCode(),
                             OaBillTypeEnum.OA_DAILY_EXPENSE_BILL.getProcessDefinitionKey(), bill.getCause(),
+                            bill.getCreateTime(), bill.getCompanyId(), bill.getCompanyName(),
+                            bill.getDeptId(), bill.getDeptName())));
+        }
+        if (shouldQuery(OaBillTypeEnum.OA_EXPENSE_PAYMENT_BILL.getProcessDefinitionKey(), safeQuery)) {
+            expensePaymentBillMapper.selectList(draftWrapper(ExpensePaymentBillDO.class, creator, notStart, safeQuery, true))
+                    .forEach(bill -> result.add(toDto(bill.getId(), bill.getBillCode(),
+                            OaBillTypeEnum.OA_EXPENSE_PAYMENT_BILL.getProcessDefinitionKey(), bill.getCause(),
                             bill.getCreateTime(), bill.getCompanyId(), bill.getCompanyName(),
                             bill.getDeptId(), bill.getDeptName())));
         }
