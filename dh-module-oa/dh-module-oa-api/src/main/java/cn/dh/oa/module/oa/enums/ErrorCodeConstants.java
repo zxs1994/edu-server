@@ -90,4 +90,7 @@ public interface ErrorCodeConstants {
     // ========== 费用支出申请 1-101-015-000 ============
     ErrorCode EXPENSE_PAYMENT_BILL_NOT_EXISTS = new ErrorCode(1_101_015_000, "费用支出申请单不存在");
     ErrorCode EXPENSE_PAYMENT_BILL_DETAIL_REQUIRED = new ErrorCode(1_101_015_001, "请至少添加一条费用明细");
+
+    // ========== 接待申请单 1-101-016-000 ============
+    ErrorCode RECEPTION_APPLY_BILL_NOT_EXISTS = new ErrorCode(1_101_016_000, "接待申请单不存在");
 }

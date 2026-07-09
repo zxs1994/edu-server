@@ -12,6 +12,7 @@ import cn.dh.oa.module.oa.dal.mysql.incoming.IncomingDocumentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.meetingroom.MeetingRoomBookingMapper;
 import cn.dh.oa.module.oa.dal.mysql.project.ProjectInitiationBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.seal.SealApplyBillMapper;
+import cn.dh.oa.module.oa.dal.mysql.reception.ReceptionApplyBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.travel.TravelApplyBillMapper;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
 import cn.hutool.core.util.StrUtil;
@@ -48,6 +49,8 @@ public class OaBillExistenceService implements OaBillExistenceApi {
     private IncomingDocumentBillMapper incomingDocumentBillMapper;
     @Resource
     private CorrectionBillMapper correctionBillMapper;
+    @Resource
+    private ReceptionApplyBillMapper receptionApplyBillMapper;
 
     @Override
     public boolean exists(String processDefinitionKey, String businessKey) {
@@ -77,6 +80,7 @@ public class OaBillExistenceService implements OaBillExistenceApi {
             case OA_TRAVEL_APPLY_BILL, OA_OVERSEAS_TRAVEL_APPLY_BILL -> travelApplyBillMapper.selectById(id) != null;
             case OA_INCOMING_DOCUMENT_BILL -> incomingDocumentBillMapper.selectById(id) != null;
             case OA_CORRECTION_BILL -> correctionBillMapper.selectById(id) != null;
+            case OA_RECEPTION_APPLY_BILL -> receptionApplyBillMapper.selectById(id) != null;
         };
     }
 

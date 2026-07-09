@@ -9,6 +9,7 @@ import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseBillRespVO
 import cn.dh.oa.module.oa.controller.admin.expensepayment.vo.ExpensePaymentBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.incoming.vo.IncomingDocumentBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.meetingroom.vo.MeetingRoomBookingRespVO;
+import cn.dh.oa.module.oa.controller.admin.reception.vo.ReceptionApplyBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.project.vo.ProjectInitiationBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.seal.vo.SealApplyBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.travel.vo.TravelApplyBillRespVO;
@@ -154,6 +155,13 @@ public class BillCorrectionDisplayEnricher {
                 IncomingDocumentBillRespVO::getId,
                 IncomingDocumentBillRespVO::setPresidentCorrectionDisplay,
                 IncomingDocumentBillRespVO::setPresidentCorrectionAwaitingResubmit);
+    }
+
+    public void enrichReceptionApplyBills(List<ReceptionApplyBillRespVO> list) {
+        enrich(list, OaBillTypeEnum.OA_RECEPTION_APPLY_BILL.getProcessDefinitionKey(),
+                ReceptionApplyBillRespVO::getId,
+                ReceptionApplyBillRespVO::setPresidentCorrectionDisplay,
+                ReceptionApplyBillRespVO::setPresidentCorrectionAwaitingResubmit);
     }
 
     private <T> void enrichByBillType(List<T> list, Function<T, String> billTypeGetter, Function<T, Long> idGetter,

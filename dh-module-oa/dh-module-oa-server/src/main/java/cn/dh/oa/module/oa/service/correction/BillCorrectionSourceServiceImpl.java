@@ -8,6 +8,7 @@ import cn.dh.oa.module.oa.dal.dataobject.expense.ExpenseReimburseBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.expensepayment.ExpensePaymentBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.incoming.IncomingDocumentBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.meetingroom.MeetingRoomBookingDO;
+import cn.dh.oa.module.oa.dal.dataobject.reception.ReceptionApplyBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.project.ProjectInitiationBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.seal.SealApplyBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.travel.TravelApplyBillDO;
@@ -19,6 +20,7 @@ import cn.dh.oa.module.oa.dal.mysql.expense.ExpenseReimburseBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.expensepayment.ExpensePaymentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.incoming.IncomingDocumentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.meetingroom.MeetingRoomBookingMapper;
+import cn.dh.oa.module.oa.dal.mysql.reception.ReceptionApplyBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.project.ProjectInitiationBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.seal.SealApplyBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.travel.TravelApplyBillMapper;
@@ -58,6 +60,8 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
     private MeetingRoomBookingMapper meetingRoomBookingMapper;
     @Resource
     private IncomingDocumentBillMapper incomingDocumentBillMapper;
+    @Resource
+    private ReceptionApplyBillMapper receptionApplyBillMapper;
 
     @Override
     public BillCorrectionSourceDTO loadRequired(String billType, Long billId) {
@@ -82,6 +86,7 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
             case OA_CAR_RETURN_BILL -> fromCarReturn(carReturnBillMapper.selectById(billId));
             case OA_MEETING_ROOM_BOOKING -> fromMeetingRoom(meetingRoomBookingMapper.selectById(billId));
             case OA_INCOMING_DOCUMENT_BILL -> fromIncoming(incomingDocumentBillMapper.selectById(billId));
+            case OA_RECEPTION_APPLY_BILL -> fromReception(receptionApplyBillMapper.selectById(billId));
             default -> throw exception(CORRECTION_BILL_TYPE_NOT_SUPPORTED);
         };
     }
@@ -109,6 +114,7 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
             case OA_CAR_RETURN_BILL -> carReturnBillMapper.selectById(billId) != null;
             case OA_MEETING_ROOM_BOOKING -> meetingRoomBookingMapper.selectById(billId) != null;
             case OA_INCOMING_DOCUMENT_BILL -> incomingDocumentBillMapper.selectById(billId) != null;
+            case OA_RECEPTION_APPLY_BILL -> receptionApplyBillMapper.selectById(billId) != null;
             default -> false;
         };
     }
@@ -154,6 +160,8 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
             case OA_MEETING_ROOM_BOOKING -> meetingRoomBookingMapper.updateById(new MeetingRoomBookingDO()
                     .setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
             case OA_INCOMING_DOCUMENT_BILL -> incomingDocumentBillMapper.updateById(new IncomingDocumentBillDO()
+                    .setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
+            case OA_RECEPTION_APPLY_BILL -> receptionApplyBillMapper.updateById(new ReceptionApplyBillDO()
                     .setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
             default -> throw exception(CORRECTION_BILL_TYPE_NOT_SUPPORTED);
         }
@@ -288,6 +296,17 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
         }
         String title = StrUtil.blankToDefault(bill.getCause(), bill.getBillCode());
         return build(bill.getId(), OaBillTypeEnum.OA_EXPENSE_PAYMENT_BILL.getProcessDefinitionKey(),
+                bill.getBillCode(), title, bill.getProcessInstanceId(), bill.getProcessStatus(),
+                bill.getCreator(), bill.getCreatorName(), bill.getCompanyId(), bill.getCompanyName(),
+                bill.getDeptId(), bill.getDeptName());
+    }
+
+    private BillCorrectionSourceDTO fromReception(ReceptionApplyBillDO bill) {
+        if (bill == null) {
+            throw exception(RECEPTION_APPLY_BILL_NOT_EXISTS);
+        }
+        String title = StrUtil.blankToDefault(bill.getCause(), bill.getBillCode());
+        return build(bill.getId(), OaBillTypeEnum.OA_RECEPTION_APPLY_BILL.getProcessDefinitionKey(),
                 bill.getBillCode(), title, bill.getProcessInstanceId(), bill.getProcessStatus(),
                 bill.getCreator(), bill.getCreatorName(), bill.getCompanyId(), bill.getCompanyName(),
                 bill.getDeptId(), bill.getDeptName());

@@ -80,7 +80,12 @@ public enum OaBillTypeEnum implements BillTypeEnum {
     /**
      * 费用支出申请
      */
-    OA_EXPENSE_PAYMENT_BILL("114", "费用支出申请", "oa_expense_payment_bill");
+    OA_EXPENSE_PAYMENT_BILL("114", "费用支出申请", "oa_expense_payment_bill"),
+
+    /**
+     * 接待申请单
+     */
+    OA_RECEPTION_APPLY_BILL("115", "接待申请单", "oa_reception_apply_bill");
 
     /**
      * 单据类型代码

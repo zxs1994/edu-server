@@ -13,6 +13,7 @@ import cn.dh.oa.module.oa.dal.dataobject.expense.ExpenseReimburseBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.expensepayment.ExpensePaymentBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.incoming.IncomingDocumentBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.meetingroom.MeetingRoomBookingDO;
+import cn.dh.oa.module.oa.dal.dataobject.reception.ReceptionApplyBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.project.ProjectInitiationBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.seal.SealApplyBillDO;
 import cn.dh.oa.module.oa.dal.dataobject.travel.TravelApplyBillDO;
@@ -25,6 +26,7 @@ import cn.dh.oa.module.oa.dal.mysql.expense.ExpenseReimburseBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.expensepayment.ExpensePaymentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.incoming.IncomingDocumentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.meetingroom.MeetingRoomBookingMapper;
+import cn.dh.oa.module.oa.dal.mysql.reception.ReceptionApplyBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.project.ProjectInitiationBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.seal.SealApplyBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.travel.TravelApplyBillMapper;
@@ -69,6 +71,8 @@ public class OaDraftBillService implements OaDraftBillApi {
     private IncomingDocumentBillMapper incomingDocumentBillMapper;
     @Resource
     private CorrectionBillMapper correctionBillMapper;
+    @Resource
+    private ReceptionApplyBillMapper receptionApplyBillMapper;
 
     @Override
     public List<OaDraftBillRespDTO> listMyDraftBills(Long userId, OaDraftBillQueryDTO query) {
@@ -185,6 +189,13 @@ public class OaDraftBillService implements OaDraftBillApi {
             correctionBillMapper.selectList(draftWrapper(CorrectionBillDO.class, creator, notStart, safeQuery, true))
                     .forEach(bill -> result.add(toDto(bill.getId(), bill.getBillCode(),
                             OaBillTypeEnum.OA_CORRECTION_BILL.getProcessDefinitionKey(), bill.getCorrectionReason(),
+                            bill.getCreateTime(), bill.getCompanyId(), bill.getCompanyName(),
+                            bill.getDeptId(), bill.getDeptName())));
+        }
+        if (shouldQuery(OaBillTypeEnum.OA_RECEPTION_APPLY_BILL.getProcessDefinitionKey(), safeQuery)) {
+            receptionApplyBillMapper.selectList(draftWrapper(ReceptionApplyBillDO.class, creator, notStart, safeQuery, true))
+                    .forEach(bill -> result.add(toDto(bill.getId(), bill.getBillCode(),
+                            OaBillTypeEnum.OA_RECEPTION_APPLY_BILL.getProcessDefinitionKey(), bill.getCause(),
                             bill.getCreateTime(), bill.getCompanyId(), bill.getCompanyName(),
                             bill.getDeptId(), bill.getDeptName())));
         }
