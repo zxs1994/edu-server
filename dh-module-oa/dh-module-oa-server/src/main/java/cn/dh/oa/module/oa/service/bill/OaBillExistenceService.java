@@ -68,7 +68,7 @@ public class OaBillExistenceService implements OaBillExistenceApi {
             return true;
         }
         return switch (billType) {
-            case OA_CAR_APPLY_BILL -> carApplyBillMapper.selectById(id) != null;
+            case OA_CAR_APPLY_BILL, OA_CAR_APPLY_BILL_COPY -> carApplyBillMapper.selectById(id) != null;
             case OA_CAR_RETURN_BILL -> carReturnBillMapper.selectById(id) != null;
             case OA_SEAL_APPLY_BILL -> sealApplyBillMapper.selectById(id) != null;
             case OA_MEETING_ROOM_BOOKING -> meetingRoomBookingMapper.selectById(id) != null;

@@ -695,6 +695,14 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         // 6. 调用 BPM complete 去完成任务
         taskService.complete(task.getId(), variables, true);
 
+        // 驳回后发起人重新提交：将流程实例状态恢复为审批中，避免状态长期停留在驳回
+        if (Objects.equals(task.getTaskDefinitionKey(), START_USER_NODE_ID)
+                && BpmProcessInstanceStatusEnum.isRejectStatus(FlowableUtils.getProcessInstanceStatus(instance))) {
+            runtimeService.setVariable(instance.getProcessInstanceId(),
+                    BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS,
+                    BpmProcessInstanceStatusEnum.RUNNING.getStatus());
+        }
+
         // 7. 发送任务审批通过事件通知
         notificationManager.sendTaskEventNotification(instance, task, BpmEventTypeEnum.TASK_APPROVED, 1, reqVO.getReason());
 

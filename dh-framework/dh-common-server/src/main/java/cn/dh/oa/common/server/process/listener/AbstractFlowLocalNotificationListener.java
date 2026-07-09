@@ -1,8 +1,6 @@
 package cn.dh.oa.common.server.process.listener;
 
-import cn.hutool.core.util.StrUtil;
 import cn.dh.oa.common.server.process.FlowProcessPrefixUtils;
-import cn.dh.oa.common.server.process.mq.BpmProcessInstanceStatusStreamMessage;
 import cn.dh.oa.framework.common.enums.BillTypeEnum;
 import cn.dh.oa.framework.common.enums.SystemEnum;
 import cn.dh.oa.framework.common.service.FlowBillService;
@@ -208,6 +206,16 @@ public abstract class AbstractFlowLocalNotificationListener<T extends BillTypeEn
                 message.getTaskInfo() != null ? message.getTaskInfo().getTaskId() : null,
                 message.getTaskInfo() != null ? message.getTaskInfo().getAssigneeId() : null,
                 message.getTaskInfo() != null ? message.getTaskInfo().getTaskReason() : null);
+
+        // 驳回后发起人重新提交成功：将单据状态恢复为审批中
+        BpmTaskInfo taskInfo = message.getTaskInfo();
+        BpmProcessInstanceInfo processInfo = message.getProcessInstanceInfo();
+        if (taskInfo != null
+                && processInfo != null
+                && START_USER_NODE_ID.equals(taskInfo.getTaskDefinitionKey())
+                && BpmProcessInstanceStatusEnum.isRejectStatus(processInfo.getStatus())) {
+            updateBillStatus(message, BpmProcessInstanceStatusEnum.RUNNING.getStatus());
+        }
 
         // 这里可以实现具体的业务逻辑，比如：
         // 1. 更新业务单据审批记录
