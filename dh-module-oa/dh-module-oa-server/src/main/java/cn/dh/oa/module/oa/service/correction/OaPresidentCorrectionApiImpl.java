@@ -9,6 +9,7 @@ import cn.dh.oa.module.oa.dal.dataobject.correction.BillCorrectionStateDO;
 import cn.dh.oa.module.oa.dal.dataobject.correction.CorrectionBillDO;
 import cn.dh.oa.module.oa.dal.mysql.correction.BillCorrectionStateMapper;
 import cn.dh.oa.module.oa.dal.mysql.correction.CorrectionBillMapper;
+import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
 import cn.dh.oa.module.oa.enums.correction.OaBillCorrectionStatusEnum;
 import cn.dh.oa.module.oa.service.correction.dto.BillCorrectionSourceDTO;
 import cn.dh.oa.module.oa.service.correction.freeze.BillFreezeHandlerRegistry;
@@ -82,7 +83,7 @@ public class OaPresidentCorrectionApiImpl implements OaPresidentCorrectionApi {
 
     @Override
     public boolean isBillFrozen(String billType, Long billId) {
-        BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(billType, billId);
+        BillCorrectionStateDO state = findStateByBillTypeWithFallback(billType, billId);
         return state != null && Objects.equals(state.getFreezeStatus(), 1);
     }
 
@@ -91,7 +92,7 @@ public class OaPresidentCorrectionApiImpl implements OaPresidentCorrectionApi {
         if (!billCorrectionSourceService.exists(billType, billId)) {
             return false;
         }
-        BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(billType, billId);
+        BillCorrectionStateDO state = findStateByBillTypeWithFallback(billType, billId);
         return isAwaitingResubmit(state, billType, billId);
     }
 
@@ -100,13 +101,13 @@ public class OaPresidentCorrectionApiImpl implements OaPresidentCorrectionApi {
         if (!billCorrectionSourceService.exists(billType, billId)) {
             return false;
         }
-        BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(billType, billId);
+        BillCorrectionStateDO state = findStateByBillTypeWithFallback(billType, billId);
         return isAwaitingResubmit(state, billType, billId);
     }
 
     @Override
     public void onSourceBillResubmitted(String billType, Long billId, String processInstanceId) {
-        BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(billType, billId);
+        BillCorrectionStateDO state = findStateByBillTypeWithFallback(billType, billId);
         if (state == null || !Objects.equals(state.getFreezeStatus(), 1)
                 || !OaBillCorrectionStatusEnum.shouldDisplayOverlay(state.getCorrectionStatus())) {
             return;
@@ -135,7 +136,7 @@ public class OaPresidentCorrectionApiImpl implements OaPresidentCorrectionApi {
         if (!billCorrectionSourceService.exists(billType, billId)) {
             return false;
         }
-        BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(billType, billId);
+        BillCorrectionStateDO state = findStateByBillTypeWithFallback(billType, billId);
         if (state == null) {
             return false;
         }
@@ -233,6 +234,34 @@ public class OaPresidentCorrectionApiImpl implements OaPresidentCorrectionApi {
         BillCorrectionSourceDTO source = billCorrectionSourceService.loadRequired(billType, billId);
         return StrUtil.isNotBlank(source.getProcessInstanceId())
                 && !Objects.equals(source.getProcessInstanceId(), correction.getSourceProcessInstanceId());
+    }
+
+    /**
+     * 兼容历史数据：日常报销与差旅报销曾共用同一数据表，纠错状态可能落在任一 billType 上。
+     */
+    private BillCorrectionStateDO findStateByBillTypeWithFallback(String billType, Long billId) {
+        if (billId == null || StrUtil.isBlank(billType)) {
+            return null;
+        }
+        BillCorrectionStateDO state = billCorrectionStateMapper.selectByBill(billType, billId);
+        if (state != null) {
+            return state;
+        }
+        String fallbackType = resolveFallbackBillType(billType);
+        if (StrUtil.isBlank(fallbackType)) {
+            return null;
+        }
+        return billCorrectionStateMapper.selectByBill(fallbackType, billId);
+    }
+
+    private String resolveFallbackBillType(String billType) {
+        if (Objects.equals(billType, OaBillTypeEnum.OA_DAILY_EXPENSE_BILL.getProcessDefinitionKey())) {
+            return OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getProcessDefinitionKey();
+        }
+        if (Objects.equals(billType, OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL.getProcessDefinitionKey())) {
+            return OaBillTypeEnum.OA_DAILY_EXPENSE_BILL.getProcessDefinitionKey();
+        }
+        return null;
     }
 
     @Override

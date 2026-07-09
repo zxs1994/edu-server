@@ -82,7 +82,8 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
             case OA_DOCUMENT_DISPATCH_BILL -> fromDocument(documentDispatchBillMapper.selectById(billId));
             case OA_TRAVEL_APPLY_BILL, OA_OVERSEAS_TRAVEL_APPLY_BILL -> fromTravel(
                     travelApplyBillMapper.selectById(billId), billType);
-            case OA_CAR_APPLY_BILL -> fromCarApply(carApplyBillMapper.selectById(billId));
+            case OA_CAR_APPLY_BILL, OA_CAR_APPLY_BILL_COPY -> fromCarApply(
+                    carApplyBillMapper.selectById(billId), billType);
             case OA_CAR_RETURN_BILL -> fromCarReturn(carReturnBillMapper.selectById(billId));
             case OA_MEETING_ROOM_BOOKING -> fromMeetingRoom(meetingRoomBookingMapper.selectById(billId));
             case OA_INCOMING_DOCUMENT_BILL -> fromIncoming(incomingDocumentBillMapper.selectById(billId));
@@ -110,7 +111,7 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
             case OA_DOCUMENT_DISPATCH_BILL -> documentDispatchBillMapper.selectById(billId) != null;
             case OA_TRAVEL_APPLY_BILL, OA_OVERSEAS_TRAVEL_APPLY_BILL ->
                     travelApplyBillMapper.selectById(billId) != null;
-            case OA_CAR_APPLY_BILL -> carApplyBillMapper.selectById(billId) != null;
+            case OA_CAR_APPLY_BILL, OA_CAR_APPLY_BILL_COPY -> carApplyBillMapper.selectById(billId) != null;
             case OA_CAR_RETURN_BILL -> carReturnBillMapper.selectById(billId) != null;
             case OA_MEETING_ROOM_BOOKING -> meetingRoomBookingMapper.selectById(billId) != null;
             case OA_INCOMING_DOCUMENT_BILL -> incomingDocumentBillMapper.selectById(billId) != null;
@@ -153,7 +154,7 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
                     .setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
             case OA_TRAVEL_APPLY_BILL, OA_OVERSEAS_TRAVEL_APPLY_BILL -> travelApplyBillMapper.updateById(
                     new TravelApplyBillDO().setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
-            case OA_CAR_APPLY_BILL -> carApplyBillMapper.updateById(new CarApplyBillDO()
+            case OA_CAR_APPLY_BILL, OA_CAR_APPLY_BILL_COPY -> carApplyBillMapper.updateById(new CarApplyBillDO()
                     .setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
             case OA_CAR_RETURN_BILL -> carReturnBillMapper.updateById(new CarReturnBillDO()
                     .setId(billId).setProcessInstanceId(processInstanceId).setProcessStatus(processStatus));
@@ -238,11 +239,14 @@ public class BillCorrectionSourceServiceImpl implements BillCorrectionSourceServ
                 bill.getDeptId(), bill.getDeptName());
     }
 
-    private BillCorrectionSourceDTO fromCarApply(CarApplyBillDO bill) {
+    private BillCorrectionSourceDTO fromCarApply(CarApplyBillDO bill, String billType) {
         if (bill == null) {
             throw exception(CAR_APPLY_BILL_NOT_EXISTS);
         }
-        return build(bill.getId(), OaBillTypeEnum.OA_CAR_APPLY_BILL.getProcessDefinitionKey(),
+        String sourceBillType = StrUtil.isNotBlank(billType)
+                ? billType
+                : OaBillTypeEnum.OA_CAR_APPLY_BILL.getProcessDefinitionKey();
+        return build(bill.getId(), sourceBillType,
                 bill.getBillCode(), bill.getCause(), bill.getProcessInstanceId(), bill.getProcessStatus(),
                 bill.getCreator(), bill.getCreatorName(), null, null,
                 bill.getDeptId(), bill.getDeptName());
