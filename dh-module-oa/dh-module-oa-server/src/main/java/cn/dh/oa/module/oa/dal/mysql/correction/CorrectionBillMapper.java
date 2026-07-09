@@ -5,7 +5,6 @@ import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.module.oa.dal.dataobject.correction.CorrectionBillDO;
 import cn.dh.oa.module.oa.enums.correction.OaBillCorrectionStatusEnum;
-import cn.dh.oa.module.oa.enums.correction.OaCorrectionTypeEnum;
 import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.correction.vo.CorrectionBillPageReqVO;
 
@@ -60,12 +59,13 @@ public interface CorrectionBillMapper extends BaseMapperX<CorrectionBillDO> {
                 .orderByAsc(CorrectionBillDO::getApprovalVersion));
     }
 
-    /** 异议纠错且尚未重提流程的纠错单 */
+    /** 纠错冻结中且尚未重提流程的纠错单（异议纠错 + 理事会决议） */
     default List<CorrectionBillDO> selectListAwaitingObjectionResubmit() {
         return selectList(new LambdaQueryWrapperX<CorrectionBillDO>()
-                .eq(CorrectionBillDO::getCorrectionType, OaCorrectionTypeEnum.OBJECTION.getType())
                 .eq(CorrectionBillDO::getFreezeStatus, 1)
-                .eq(CorrectionBillDO::getCorrectionStatus, OaBillCorrectionStatusEnum.IN_PROGRESS.getStatus())
+                .in(CorrectionBillDO::getCorrectionStatus,
+                        OaBillCorrectionStatusEnum.IN_PROGRESS.getStatus(),
+                        OaBillCorrectionStatusEnum.COUNCIL_OVERRIDE.getStatus())
                 .and(w -> w.isNull(CorrectionBillDO::getNewProcessInstanceId)
                         .or()
                         .eq(CorrectionBillDO::getNewProcessInstanceId, ""))
