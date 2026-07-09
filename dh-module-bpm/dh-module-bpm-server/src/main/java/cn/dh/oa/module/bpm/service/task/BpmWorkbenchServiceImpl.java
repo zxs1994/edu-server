@@ -3,19 +3,24 @@ package cn.dh.oa.module.bpm.service.task;
 import cn.dh.oa.framework.common.util.date.DateUtils;
 import cn.dh.oa.module.bpm.dal.dataobject.task.BpmWorkbenchReadDO;
 import cn.dh.oa.module.bpm.dal.mysql.task.BpmWorkbenchReadMapper;
+import cn.dh.oa.module.bpm.enums.task.BpmProcessInstanceStatusEnum;
+import cn.dh.oa.module.bpm.framework.flowable.core.enums.BpmnVariableConstants;
 import cn.dh.oa.module.bpm.framework.flowable.core.util.FlowableUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.history.HistoricProcessInstanceQuery;
-import org.flowable.task.api.TaskQuery;
+import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstanceQuery;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static cn.dh.oa.module.bpm.enums.task.BpmnModelConstants.START_USER_NODE_ID;
 
@@ -84,18 +89,37 @@ public class BpmWorkbenchServiceImpl implements BpmWorkbenchService {
     // ========== 内部计数方法 ==========
 
     /**
-     * 计算新增待办任务数（水位线之后创建的任务）
+     * 计算待办徽标数：水位线之后的新待办 + 始终计入的驳回待重提（StartUserNode 且流程已驳回）
      */
     private long countNewTodoTasks(Long userId) {
         LocalDateTime watermark = getWatermark(userId, TAB_TODO);
-        TaskQuery query = taskService.createTaskQuery()
+        List<Task> tasks = taskService.createTaskQuery()
                 .taskAssignee(String.valueOf(userId))
                 .active()
-                .taskTenantId(FlowableUtils.getTenantId());
-        if (watermark != null) {
-            query.taskCreatedAfter(DateUtils.of(watermark));
+                .taskTenantId(FlowableUtils.getTenantId())
+                .includeProcessVariables()
+                .list();
+        if (watermark == null) {
+            return tasks.size();
         }
-        return query.count();
+        Date watermarkDate = DateUtils.of(watermark);
+        return tasks.stream()
+                .filter(task -> isRejectedResubmitTodoTask(task)
+                        || (task.getCreateTime() != null && task.getCreateTime().after(watermarkDate)))
+                .count();
+    }
+
+    /** 驳回后退回发起人节点、待修改重提的待办（不受已读水位线影响） */
+    private boolean isRejectedResubmitTodoTask(Task task) {
+        if (!START_USER_NODE_ID.equals(task.getTaskDefinitionKey())) {
+            return false;
+        }
+        Map<String, Object> variables = task.getProcessVariables();
+        if (variables == null) {
+            return false;
+        }
+        Object status = variables.get(BpmnVariableConstants.PROCESS_INSTANCE_VARIABLE_STATUS);
+        return Objects.equals(status, BpmProcessInstanceStatusEnum.REJECT.getStatus());
     }
 
     /**
