@@ -6,8 +6,10 @@ import cn.dh.oa.framework.common.util.http.HttpUtils;
 import cn.dh.oa.framework.excel.core.handler.ColumnWidthMatchStyleStrategy;
 import cn.dh.oa.framework.excel.core.handler.SelectSheetWriteHandler;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -50,6 +52,22 @@ public class ExcelUtils {
             return FastExcelFactory.read(inputStream, head, null)
                     .autoCloseStream(false) // 不要自动关闭，交给 Servlet 自己处理
                     .doReadAllSync();
+        }
+    }
+
+    /**
+     * 直接输出 Workbook（模板导出场景）
+     */
+    public static void export(HttpServletResponse response, Workbook workbook, String fileName) throws IOException {
+        response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+        response.setHeader("Content-Disposition", "attachment;filename=" + HttpUtils.encodeUtf8(fileName));
+        response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+        try (BufferedOutputStream output = new BufferedOutputStream(response.getOutputStream())) {
+            workbook.write(output);
+            output.flush();
         }
     }
 

@@ -136,6 +136,18 @@ public enum OaBillTypeEnum implements BillTypeEnum {
         return null;
     }
 
+    public static OaBillTypeEnum getByCode(String code) {
+        if (code == null) {
+            return null;
+        }
+        for (OaBillTypeEnum value : values()) {
+            if (code.equals(value.code)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
     /** 会长纠错支持的单据类型（协同办公全部流程单据，不含纠错单自身） */
     public static Set<String> presidentCorrectionBillTypeKeys() {
         return Arrays.stream(values())
