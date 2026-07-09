@@ -1252,7 +1252,8 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
 
     /**
      * 根据BusinessKey删除历史流程实例
-     * 当重新提交相同单据时，删除之前的历史流程实例，避免重复显示
+     * 当重新提交相同单据时，删除同流程定义下该 businessKey 的历史流程实例，避免重复显示。
+     * 必须限定 processDefinitionKey：businessKey 仅为单据 id，不同单据类型会共用同一数字。
      *
      * @param businessKey 业务键（通常是单据ID）
      */
@@ -1260,11 +1261,13 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
         try {
             List<HistoricProcessInstance> historicalInstances = historyService.createHistoricProcessInstanceQuery()
                     .processInstanceTenantId(FlowableUtils.getTenantId())
+                    .processDefinitionKey(processDefinitionKey)
                     .processInstanceBusinessKey(businessKey)
                     .list();
 
             if (CollUtil.isEmpty(historicalInstances)) {
-                log.debug("[deleteHistoricalProcessInstancesByBusinessKey] 未找到BusinessKey为 {} 的历史流程实例", businessKey);
+                log.debug("[deleteHistoricalProcessInstancesByBusinessKey] 未找到流程 {} BusinessKey 为 {} 的历史流程实例",
+                        processDefinitionKey, businessKey);
                 return;
             }
 
@@ -1289,12 +1292,12 @@ public class BpmProcessInstanceServiceImpl implements BpmProcessInstanceService 
                 }
             }
 
-            log.info("[deleteHistoricalProcessInstancesByBusinessKey] 成功删除 {} 个历史流程实例，BusinessKey: {}",
-                    deletedCount, businessKey);
+            log.info("[deleteHistoricalProcessInstancesByBusinessKey] 成功删除 {} 个历史流程实例，processDefinitionKey: {}, BusinessKey: {}",
+                    deletedCount, processDefinitionKey, businessKey);
 
         } catch (Exception e) {
-            log.error("[deleteHistoricalProcessInstancesByBusinessKey] 删除历史流程实例失败，BusinessKey: {}, 错误: {}",
-                     businessKey, e.getMessage(), e);
+            log.error("[deleteHistoricalProcessInstancesByBusinessKey] 删除历史流程实例失败，processDefinitionKey: {}, BusinessKey: {}, 错误: {}",
+                     processDefinitionKey, businessKey, e.getMessage(), e);
             // 不抛出异常，避免影响新流程实例的创建
         }
     }
