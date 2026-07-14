@@ -15,23 +15,23 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * 差旅报销单详情导出
+ * 日常报销单详情导出
  */
 @Component
-public class ExpenseTravelBillDetailExportHandler implements BillDetailExportHandler {
+public class DailyExpenseBillDetailExportHandler implements BillDetailExportHandler {
 
-    private static final String TEMPLATE_CLASSPATH = "excel-templates/差旅报销单-支持打印A4.xlsx";
+    private static final String TEMPLATE_CLASSPATH = "excel-templates/日常报销单.xlsx";
 
     @Resource
     private ExpenseReimburseBillService expenseReimburseBillService;
     @Resource
-    private ExpenseTravelExportMapBuilder expenseTravelExportMapBuilder;
+    private DailyExpenseExportMapBuilder dailyExpenseExportMapBuilder;
     @Resource
     private BillTemplateExporter billTemplateExporter;
 
     @Override
     public OaBillTypeEnum supportBillType() {
-        return OaBillTypeEnum.OA_EXPENSE_REIMBURSE_BILL;
+        return OaBillTypeEnum.OA_DAILY_EXPENSE_BILL;
     }
 
     @Override
@@ -40,15 +40,9 @@ public class ExpenseTravelBillDetailExportHandler implements BillDetailExportHan
         if (bill == null) {
             throw ServiceExceptionUtil.invalidParamException("单据不存在，无法导出");
         }
-        List<BillExportData> pages = expenseTravelExportMapBuilder.buildPagedExportData(bill);
-        String billCode = bill.getBillCode() == null ? String.valueOf(id) : bill.getBillCode();
-        String baseName = "差旅报销单-" + billCode;
-        if (pages.size() <= 1) {
-            billTemplateExporter.export(response, TEMPLATE_CLASSPATH, baseName + ".xlsx", pages);
-            return;
-        }
-        billTemplateExporter.exportZip(response, TEMPLATE_CLASSPATH, baseName + ".zip", pages,
-                pageIndex -> baseName + "-" + (pageIndex + 1) + ".xlsx");
+        List<BillExportData> pages = dailyExpenseExportMapBuilder.buildExportData(bill);
+        String fileName = "日常报销单-" + (bill.getBillCode() == null ? id : bill.getBillCode()) + ".xlsx";
+        billTemplateExporter.export(response, TEMPLATE_CLASSPATH, fileName, pages);
     }
 
 }

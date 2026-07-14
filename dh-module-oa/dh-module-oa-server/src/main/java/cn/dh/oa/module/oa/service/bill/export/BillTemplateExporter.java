@@ -22,6 +22,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntFunction;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 单据模板导出引擎（FastExcel fill）
@@ -35,7 +38,7 @@ public class BillTemplateExporter {
     private BillExportSignatureInserter billExportSignatureInserter;
 
     /**
-     * 导出（支持多 sheet 分页，每页数据独立填充）
+     * 导出单文件 xlsx（仅 1 页数据时使用）
      */
     public void export(HttpServletResponse response, String templateClasspath, String fileName,
                        List<BillExportData> pages) throws IOException {
@@ -46,9 +49,32 @@ public class BillTemplateExporter {
         if (!template.exists()) {
             throw ServiceExceptionUtil.invalidParamException("导出模板不存在: " + templateClasspath);
         }
-
         byte[] fileBytes = buildWorkbookBytes(template, pages);
         writeExcelResponse(response, fileName, fileBytes);
+    }
+
+    /**
+     * 多页时每页独立一个 xlsx，打包 zip 下载
+     */
+    public void exportZip(HttpServletResponse response, String templateClasspath, String zipFileName,
+                          List<BillExportData> pages, IntFunction<String> entryNameFn) throws IOException {
+        if (pages == null || pages.isEmpty()) {
+            throw ServiceExceptionUtil.invalidParamException("导出数据为空");
+        }
+        ClassPathResource template = new ClassPathResource(templateClasspath);
+        if (!template.exists()) {
+            throw ServiceExceptionUtil.invalidParamException("导出模板不存在: " + templateClasspath);
+        }
+        ByteArrayOutputStream zipBuffer = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(zipBuffer)) {
+            for (int i = 0; i < pages.size(); i++) {
+                byte[] xlsxBytes = buildWorkbookBytes(template, List.of(pages.get(i)));
+                zos.putNextEntry(new ZipEntry(entryNameFn.apply(i)));
+                zos.write(xlsxBytes);
+                zos.closeEntry();
+            }
+        }
+        writeZipResponse(response, zipFileName, zipBuffer.toByteArray());
     }
 
     private byte[] buildWorkbookBytes(ClassPathResource template, List<BillExportData> pages) throws IOException {
@@ -59,9 +85,8 @@ public class BillTemplateExporter {
                      .withTemplate(templateIn)
                      .build()) {
             for (int i = 0; i < pages.size(); i++) {
-                WriteSheet sheet = pages.size() == 1
-                        ? FastExcelFactory.writerSheet().build()
-                        : FastExcelFactory.writerSheet(i, "报销单-" + (i + 1)).build();
+                // 多页时按索引填充，避免 fill 结束时按 sheet 名 setSheetOrder 触发 Index -1 / 损坏 xlsx
+                WriteSheet sheet = FastExcelFactory.writerSheet(i).build();
                 fillSheet(writer, sheet, pages.get(i));
             }
         } catch (Exception e) {
@@ -88,6 +113,21 @@ public class BillTemplateExporter {
             }
             workbook.write(out);
             return out.toByteArray();
+        }
+    }
+
+    private void writeZipResponse(HttpServletResponse response, String fileName, byte[] fileBytes)
+            throws IOException {
+        response.resetBuffer();
+        response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+        response.setHeader("Content-Disposition", "attachment;filename=" + HttpUtils.encodeUtf8(fileName));
+        response.setContentType("application/zip");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setDateHeader("Expires", 0);
+        try (OutputStream output = response.getOutputStream()) {
+            output.write(fileBytes);
+            output.flush();
         }
     }
 
@@ -125,7 +165,11 @@ public class BillTemplateExporter {
              Workbook workbook = WorkbookFactory.create(in);
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             for (int i = 1; i < sheetCount; i++) {
-                workbook.cloneSheet(0);
+                Sheet cloned = workbook.cloneSheet(0);
+                workbook.setSheetName(workbook.getSheetIndex(cloned), "报销单-" + (i + 1));
+            }
+            if (sheetCount > 1) {
+                workbook.setSheetName(0, "报销单-1");
             }
             workbook.write(out);
             return out.toByteArray();

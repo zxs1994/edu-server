@@ -42,40 +42,56 @@ public final class OaMoneyUtils {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) == 0) {
             return "零元整";
         }
-        String[] fraction = {"角", "分"};
         String[] digit = {"零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"};
-        String[][] unit = {{"元", "万", "亿"}, {"", "拾", "佰", "仟"}};
+        String[] unit = {"元", "拾", "佰", "仟", "万", "拾", "佰", "仟", "亿"};
         BigDecimal n = amount.abs().setScale(2, RoundingMode.HALF_UP);
+        long yuan = n.longValue();
+        int jiao = n.movePointRight(1).remainder(BigDecimal.TEN).intValue();
+        int fen = n.movePointRight(2).remainder(BigDecimal.TEN).intValue();
 
-        StringBuilder s = new StringBuilder();
-        int jiao = n.movePointRight(1).intValue() % 10;
-        int fen = n.movePointRight(2).intValue() % 10;
-        s.append((jiao == 0 ? "" : digit[jiao] + fraction[0]))
-                .append(fen == 0 ? "" : digit[fen] + fraction[1]);
-        if (s.length() == 0) {
-            s = new StringBuilder("整");
-        }
-        int integerPart = n.intValue();
-        for (int i = 0; i < unit[0].length && integerPart > 0; i++) {
-            StringBuilder p = new StringBuilder();
-            for (int j = 0; j < unit[1].length && integerPart > 0; j++) {
-                int num = integerPart % 10;
-                p.insert(0, num == 0 ? "零" : digit[num] + unit[1][j]);
-                integerPart = integerPart / 10;
+        StringBuilder sb = new StringBuilder();
+        if (yuan > 0) {
+            String yuanStr = String.valueOf(yuan);
+            int len = yuanStr.length();
+            boolean needZero = false;
+            for (int i = 0; i < len; i++) {
+                int num = yuanStr.charAt(i) - '0';
+                int pos = len - i - 1; // 当前位相对个位的偏移
+                if (num == 0) {
+                    needZero = true;
+                    // 万、亿位即使为 0，单位也要保留（如 10000 → 壹万元）
+                    if (pos == 4 || pos == 8) {
+                        sb.append(unit[pos]);
+                        needZero = false;
+                    }
+                } else {
+                    if (needZero) {
+                        sb.append("零");
+                        needZero = false;
+                    }
+                    sb.append(digit[num]).append(unit[pos]);
+                }
             }
-            String section = p.toString()
-                    .replaceAll("(零.)*零$", "")
-                    .replaceAll("^$", "零");
-            s.insert(0, section + unit[0][i]);
+            if (!sb.toString().endsWith("元")) {
+                sb.append("元");
+            }
+        } else {
+            sb.append("零元");
         }
-        String result = s.toString()
-                .replaceAll("(零.)*零元", "元")
-                .replaceAll("(零.)+", "零")
-                .replaceAll("^整$", "零元整");
-        if (!result.endsWith("分") && !result.endsWith("角")) {
-            result = result + "整";
+
+        if (jiao == 0 && fen == 0) {
+            sb.append("整");
+        } else {
+            if (jiao > 0) {
+                sb.append(digit[jiao]).append("角");
+            } else if (fen > 0 && yuan > 0) {
+                sb.append("零");
+            }
+            if (fen > 0) {
+                sb.append(digit[fen]).append("分");
+            }
         }
-        return result;
+        return sb.toString();
     }
 
 }

@@ -4,7 +4,6 @@ import cn.dh.oa.module.bpm.api.task.BpmTaskApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmHistoricTaskRespDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.service.system.SystemService;
-import cn.dh.oa.module.system.api.user.dto.AdminUserRespDTO;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
@@ -33,19 +32,55 @@ public class OaBillExportSignatureResolver {
     private OaSignatureTemplateLoader signatureTemplateLoader;
 
     public List<BillExportImage> resolve(String processInstanceId) {
+        return resolveInternal(processInstanceId, true, AUDIT_LABEL, APPROVE_LABEL);
+    }
+
+    /**
+     * 按关键字匹配已通过任务并落签名。
+     * 不含「审批人」链式拆分；审批匹配不含「终审/批准」等扩展词。
+     *
+     * @param auditKeyword    审核栏节点名需包含的字，如「审核」
+     * @param approveKeyword  审批栏节点名需包含的字，如「审批」
+     * @param auditLabel      模板定位标签，如「审核」
+     * @param approveLabel    模板定位标签，如「审批人」
+     */
+    public List<BillExportImage> resolveByKeywords(String processInstanceId,
+                                                   String auditKeyword,
+                                                   String approveKeyword,
+                                                   String auditLabel,
+                                                   String approveLabel) {
         if (processInstanceId == null || processInstanceId.isBlank()) {
             return List.of();
         }
-        List<BpmHistoricTaskRespDTO> tasks = bpmTaskApi.getFinishedTaskList(processInstanceId).getCheckedData();
-        if (tasks == null || tasks.isEmpty()) {
+        List<BpmHistoricTaskRespDTO> approvedTasks = loadApprovedTasks(processInstanceId);
+        if (approvedTasks.isEmpty()) {
             return List.of();
         }
-        List<BpmHistoricTaskRespDTO> approvedTasks = tasks.stream()
-                .filter(task -> Objects.equals(task.getStatus(), BpmTaskStatusEnum.APPROVE.getStatus()))
-                .filter(task -> !isStarterTask(task.getName()))
-                .sorted(Comparator.comparing(BpmHistoricTaskRespDTO::getEndTime,
-                        Comparator.nullsLast(Comparator.naturalOrder())))
-                .toList();
+        List<BpmHistoricTaskRespDTO> auditTasks = new ArrayList<>();
+        List<BpmHistoricTaskRespDTO> approveTasks = new ArrayList<>();
+        for (BpmHistoricTaskRespDTO task : approvedTasks) {
+            String taskName = task.getName();
+            if (taskName == null || taskName.isBlank()) {
+                continue;
+            }
+            if (taskName.contains(auditKeyword)) {
+                auditTasks.add(task);
+            } else if (taskName.contains(approveKeyword)) {
+                approveTasks.add(task);
+            }
+        }
+        List<BillExportImage> images = new ArrayList<>();
+        images.addAll(toImages(auditTasks, auditLabel));
+        images.addAll(toImages(approveTasks, approveLabel));
+        return images;
+    }
+
+    private List<BillExportImage> resolveInternal(String processInstanceId, boolean useGenericChain,
+                                                  String auditLabel, String approveLabel) {
+        if (processInstanceId == null || processInstanceId.isBlank()) {
+            return List.of();
+        }
+        List<BpmHistoricTaskRespDTO> approvedTasks = loadApprovedTasks(processInstanceId);
         if (approvedTasks.isEmpty()) {
             return List.of();
         }
@@ -55,7 +90,7 @@ public class OaBillExportSignatureResolver {
         List<BpmHistoricTaskRespDTO> genericApproverChain = new ArrayList<>();
         for (BpmHistoricTaskRespDTO task : approvedTasks) {
             String taskName = task.getName();
-            if (isGenericApproverName(taskName)) {
+            if (useGenericChain && isGenericApproverName(taskName)) {
                 genericApproverChain.add(task);
                 continue;
             }
@@ -65,12 +100,27 @@ public class OaBillExportSignatureResolver {
                 approveTasks.add(task);
             }
         }
-        appendGenericApproverChain(auditTasks, approveTasks, genericApproverChain);
+        if (useGenericChain) {
+            appendGenericApproverChain(auditTasks, approveTasks, genericApproverChain);
+        }
 
         List<BillExportImage> images = new ArrayList<>();
-        images.addAll(toImages(auditTasks, AUDIT_LABEL));
-        images.addAll(toImages(approveTasks, APPROVE_LABEL));
+        images.addAll(toImages(auditTasks, auditLabel));
+        images.addAll(toImages(approveTasks, approveLabel));
         return images;
+    }
+
+    private List<BpmHistoricTaskRespDTO> loadApprovedTasks(String processInstanceId) {
+        List<BpmHistoricTaskRespDTO> tasks = bpmTaskApi.getFinishedTaskList(processInstanceId).getCheckedData();
+        if (tasks == null || tasks.isEmpty()) {
+            return List.of();
+        }
+        return tasks.stream()
+                .filter(task -> Objects.equals(task.getStatus(), BpmTaskStatusEnum.APPROVE.getStatus()))
+                .filter(task -> !isStarterTask(task.getName()))
+                .sorted(Comparator.comparing(BpmHistoricTaskRespDTO::getEndTime,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
     }
 
     private void appendGenericApproverChain(List<BpmHistoricTaskRespDTO> auditTasks,
@@ -97,11 +147,11 @@ public class OaBillExportSignatureResolver {
             if (task.getAssigneeUserId() == null || !seenUserIds.add(task.getAssigneeUserId())) {
                 continue;
             }
-            AdminUserRespDTO user = systemService.getUser(task.getAssigneeUserId());
-            if (user == null || user.getNickname() == null || user.getNickname().isBlank()) {
+            String nickname = systemService.getUserNickname(task.getAssigneeUserId());
+            if (nickname == null || nickname.isBlank()) {
                 continue;
             }
-            signatureTemplateLoader.loadByNickname(user.getNickname().trim()).ifPresent(loaded -> {
+            signatureTemplateLoader.loadByNickname(nickname.trim()).ifPresent(loaded -> {
                 BillExportImage image = new BillExportImage();
                 image.setAnchorLabel(label);
                 image.setData(loaded.data());
@@ -131,7 +181,8 @@ public class OaBillExportSignatureResolver {
         if (taskName == null || taskName.isBlank()) {
             return false;
         }
-        return taskName.contains("审批");
+        // 最终审批/批准/终审 → 审批（用印单映射为「批准」）
+        return taskName.contains("审批") || taskName.contains("终审") || taskName.contains("批准");
     }
 
 }

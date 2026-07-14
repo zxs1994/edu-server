@@ -5,7 +5,11 @@ import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseBillRespVO
 import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseDetailRespVO;
 import cn.dh.oa.module.oa.controller.admin.travel.vo.TravelApplyBillRespVO;
 import cn.dh.oa.module.oa.service.bill.export.BillExportData;
+import cn.dh.oa.module.oa.service.bill.export.BillExportImage;
+import cn.dh.oa.module.oa.service.bill.export.OaBillExportSignatureResolver;
+import cn.dh.oa.module.oa.service.bill.export.OaSignatureTemplateLoader;
 import cn.dh.oa.module.oa.util.OaMoneyUtils;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -26,12 +30,20 @@ import java.util.Map;
 public class ExpenseTravelExportMapBuilder {
 
     private static final String TRAVEL_EXPENSE_TYPE_DICT = "oa_travel_expense_type";
+    private static final String AUDIT_LABEL = "审核";
+    private static final String APPROVE_LABEL = "审批";
+    private static final String PAYEE_LABEL = "领款人签字";
     private static final int DETAIL_MAX_ROWS = 8;
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MM");
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("dd");
     private static final BigDecimal CITY_STANDARD = new BigDecimal("80");
     private static final BigDecimal MEAL_STANDARD = new BigDecimal("100");
+
+    @Resource
+    private OaBillExportSignatureResolver oaBillExportSignatureResolver;
+    @Resource
+    private OaSignatureTemplateLoader signatureTemplateLoader;
 
     public List<BillExportData> buildPagedExportData(ExpenseReimburseBillRespVO bill) {
         List<ExpenseReimburseDetailRespVO> details = bill.getDetails() == null
@@ -42,6 +54,7 @@ public class ExpenseTravelExportMapBuilder {
         BigDecimal travelDays = sumTravelDays(bill.getTravelBills());
         BigDecimal citySubsidyAmount = citySubsidyAmount(people, travelDays);
         BigDecimal mealSubsidyAmount = mealSubsidyAmount(people, travelDays);
+        List<BillExportImage> signatureImages = buildSignatureImages(bill);
 
         List<BillExportData> pages = new ArrayList<>(totalPages);
         for (int pageIndex = 0; pageIndex < totalPages; pageIndex++) {
@@ -66,6 +79,7 @@ public class ExpenseTravelExportMapBuilder {
                     includeSubsidy
             ));
             page.setDetailList(buildDetailRows(pageDetails));
+            page.setSignatureImages(signatureImages);
             pages.add(page);
         }
         return pages;
@@ -170,7 +184,7 @@ public class ExpenseTravelExportMapBuilder {
                 total = total.add(travelBill.getTravelDays());
             }
         }
-        return total.setScale(1, RoundingMode.HALF_UP);
+        return total.setScale(0, RoundingMode.CEILING);
     }
 
     private BigDecimal citySubsidyAmount(BigDecimal people, BigDecimal days) {
@@ -179,6 +193,32 @@ public class ExpenseTravelExportMapBuilder {
 
     private BigDecimal mealSubsidyAmount(BigDecimal people, BigDecimal days) {
         return MEAL_STANDARD.multiply(people).multiply(days).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private List<BillExportImage> buildSignatureImages(ExpenseReimburseBillRespVO bill) {
+        List<BillExportImage> images = new ArrayList<>();
+        // 领款人签字：申请人；证明或验收、经手留空
+        addSignatureByNickname(images, PAYEE_LABEL, bill.getCreatorName());
+        // 审核←含「审核」；审批←含「审批」（与日常报销一致，模板标签为「审批」）
+        images.addAll(oaBillExportSignatureResolver.resolveByKeywords(
+                bill.getProcessInstanceId(), "审核", "审批", AUDIT_LABEL, APPROVE_LABEL));
+        return images;
+    }
+
+    private void addSignatureByNickname(List<BillExportImage> images, String label, String nickname) {
+        if (nickname == null || nickname.isBlank()) {
+            return;
+        }
+        signatureTemplateLoader.loadByNickname(nickname.trim()).ifPresent(loaded -> {
+            BillExportImage image = new BillExportImage();
+            image.setAnchorLabel(label);
+            image.setData(loaded.data());
+            image.setPictureType(loaded.pictureType());
+            // J19:K19 签名区较宽，铺满区域并允许放大
+            image.setMaxSignWidthPx(0);
+            image.setAllowUpscale(true);
+            images.add(image);
+        });
     }
 
     private String stripTrailingZeros(BigDecimal number) {
