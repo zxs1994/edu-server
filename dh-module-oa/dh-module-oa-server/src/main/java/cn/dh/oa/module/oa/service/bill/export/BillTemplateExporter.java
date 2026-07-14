@@ -7,10 +7,13 @@ import cn.idev.excel.FastExcelFactory;
 import cn.idev.excel.write.metadata.WriteSheet;
 import cn.idev.excel.write.metadata.fill.FillConfig;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+
+import jakarta.annotation.Resource;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,6 +30,9 @@ import java.util.Map;
 public class BillTemplateExporter {
 
     private static final FillConfig DETAIL_FILL_CONFIG = FillConfig.builder().forceNewRow(false).build();
+
+    @Resource
+    private BillExportSignatureInserter billExportSignatureInserter;
 
     /**
      * 导出（支持多 sheet 分页，每页数据独立填充）
@@ -61,7 +67,28 @@ public class BillTemplateExporter {
         } catch (Exception e) {
             throw ServiceExceptionUtil.invalidParamException("导出失败: " + e.getMessage());
         }
-        return buffer.toByteArray();
+        return insertSignatures(buffer.toByteArray(), pages);
+    }
+
+    private byte[] insertSignatures(byte[] filledBytes, List<BillExportData> pages) throws IOException {
+        boolean hasSignature = pages.stream().anyMatch(page -> page.getSignatureImages() != null
+                && !page.getSignatureImages().isEmpty());
+        if (!hasSignature) {
+            return filledBytes;
+        }
+        try (Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(filledBytes));
+             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            for (int i = 0; i < pages.size(); i++) {
+                BillExportData page = pages.get(i);
+                if (page.getSignatureImages() == null || page.getSignatureImages().isEmpty()) {
+                    continue;
+                }
+                Sheet sheet = workbook.getSheetAt(i);
+                billExportSignatureInserter.insert(sheet, page.getSignatureImages());
+            }
+            workbook.write(out);
+            return out.toByteArray();
+        }
     }
 
     private void writeExcelResponse(HttpServletResponse response, String fileName, byte[] fileBytes)
@@ -86,7 +113,10 @@ public class BillTemplateExporter {
         }
         List<Map<String, Object>> detailList = data.getDetailList();
         if (detailList != null && !detailList.isEmpty()) {
-            writer.fill(detailList, DETAIL_FILL_CONFIG, sheet);
+            FillConfig fillConfig = Boolean.TRUE.equals(data.getDetailForceNewRow())
+                    ? FillConfig.builder().forceNewRow(true).build()
+                    : DETAIL_FILL_CONFIG;
+            writer.fill(detailList, fillConfig, sheet);
         }
     }
 

@@ -21,6 +21,20 @@ public final class OaMoneyUtils {
         return MONEY_FORMAT.format(amount.setScale(2, RoundingMode.HALF_UP));
     }
 
+    /** 导出用金额数值（保留 2 位小数，供 Excel 单元格货币格式渲染） */
+    public static BigDecimal toMoneyValue(BigDecimal amount) {
+        if (amount == null) {
+            return null;
+        }
+        return amount.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /** 人民币金额文字版：￥1,234.56 */
+    public static String formatRmbText(BigDecimal amount) {
+        String formatted = formatWithComma(amount);
+        return formatted.isEmpty() ? "" : "￥" + formatted;
+    }
+
     /**
      * 人民币金额转中文大写
      */

@@ -1,5 +1,6 @@
 package cn.dh.oa.module.oa.service.bill.export.impl;
 
+import cn.dh.oa.framework.dict.core.DictFrameworkUtils;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseDetailRespVO;
 import cn.dh.oa.module.oa.controller.admin.travel.vo.TravelApplyBillRespVO;
@@ -24,6 +25,7 @@ import java.util.Map;
 @Component
 public class ExpenseTravelExportMapBuilder {
 
+    private static final String TRAVEL_EXPENSE_TYPE_DICT = "oa_travel_expense_type";
     private static final int DETAIL_MAX_ROWS = 8;
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MM");
@@ -98,21 +100,21 @@ public class ExpenseTravelExportMapBuilder {
         main.put("cause", cause);
         main.put("causeText", cause);
         main.put("pageTotalAmountCn", OaMoneyUtils.toChineseUpper(pageAmount));
-        main.put("pageTotalAmount", OaMoneyUtils.formatWithComma(pageAmount));
+        main.put("pageTotalAmount", OaMoneyUtils.toMoneyValue(pageAmount));
         main.put("totalAmountCn", OaMoneyUtils.toChineseUpper(pageAmount));
-        main.put("totalAmount", OaMoneyUtils.formatWithComma(pageAmount));
+        main.put("totalAmount", OaMoneyUtils.toMoneyValue(pageAmount));
         main.put("attachmentCount", bill.getAttachments() == null ? "0" : String.valueOf(bill.getAttachments().size()));
 
         if (includeSubsidy) {
             main.put("subsidyPeople", stripTrailingZeros(people));
             main.put("subsidyDays", stripTrailingZeros(travelDays));
-            main.put("subsidyCityAmount", OaMoneyUtils.formatWithComma(citySubsidyAmount));
-            main.put("subsidyMealAmount", OaMoneyUtils.formatWithComma(mealSubsidyAmount));
+            main.put("subsidyCityAmount", OaMoneyUtils.toMoneyValue(citySubsidyAmount));
+            main.put("subsidyMealAmount", OaMoneyUtils.toMoneyValue(mealSubsidyAmount));
         } else {
             main.put("subsidyPeople", "");
             main.put("subsidyDays", "");
-            main.put("subsidyCityAmount", "");
-            main.put("subsidyMealAmount", "");
+            main.put("subsidyCityAmount", null);
+            main.put("subsidyMealAmount", null);
         }
         return main;
     }
@@ -134,13 +136,14 @@ public class ExpenseTravelExportMapBuilder {
             }
             row.put("departure", valueOrEmpty(detail.getDeparture()));
             row.put("destination", valueOrEmpty(detail.getDestination()));
-            row.put("transportType", valueOrEmpty(detail.getExpenseType()));
-            row.put("expenseType", valueOrEmpty(detail.getExpenseType()));
+            String expenseTypeLabel = resolveTravelExpenseTypeLabel(detail.getExpenseType());
+            row.put("transportType", expenseTypeLabel);
+            row.put("expenseType", expenseTypeLabel);
             row.put("description", valueOrEmpty(detail.getDescription()));
-            row.put("trafficAmount", OaMoneyUtils.formatWithComma(detail.getAmount()));
-            row.put("hotelItem", valueOrEmpty(detail.getExpenseType()));
-            row.put("hotelAmount", OaMoneyUtils.formatWithComma(detail.getAmount()));
-            row.put("amount", OaMoneyUtils.formatWithComma(detail.getAmount()));
+            row.put("trafficAmount", OaMoneyUtils.toMoneyValue(detail.getAmount()));
+            row.put("hotelItem", expenseTypeLabel);
+            row.put("hotelAmount", OaMoneyUtils.toMoneyValue(detail.getAmount()));
+            row.put("amount", OaMoneyUtils.toMoneyValue(detail.getAmount()));
             rows.add(row);
         }
         return rows;
@@ -190,6 +193,14 @@ public class ExpenseTravelExportMapBuilder {
             return first;
         }
         return second == null ? "" : second;
+    }
+
+    private String resolveTravelExpenseTypeLabel(String expenseType) {
+        if (expenseType == null || expenseType.isBlank()) {
+            return "";
+        }
+        String label = DictFrameworkUtils.parseDictDataLabel(TRAVEL_EXPENSE_TYPE_DICT, expenseType);
+        return label != null ? label : expenseType;
     }
 
     private String valueOrEmpty(String value) {
