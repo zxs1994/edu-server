@@ -6,7 +6,6 @@ import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseDetailResp
 import cn.dh.oa.module.oa.controller.admin.travel.vo.TravelApplyBillRespVO;
 import cn.dh.oa.module.oa.service.bill.export.BillExportData;
 import cn.dh.oa.module.oa.service.bill.export.BillExportImage;
-import cn.dh.oa.module.oa.service.bill.export.OaBillExportSignatureResolver;
 import cn.dh.oa.module.oa.service.bill.export.OaSignatureTemplateLoader;
 import cn.dh.oa.module.oa.util.OaMoneyUtils;
 import jakarta.annotation.Resource;
@@ -30,9 +29,14 @@ import java.util.Map;
 public class ExpenseTravelExportMapBuilder {
 
     private static final String TRAVEL_EXPENSE_TYPE_DICT = "oa_travel_expense_type";
+    private static final String TRANSPORT_TYPE_DICT = "oa_transport_type";
     private static final String AUDIT_LABEL = "审核";
     private static final String APPROVE_LABEL = "审批";
-    private static final String PAYEE_LABEL = "领款人签字";
+    private static final String PROOF_LABEL = "证明或验收";
+    private static final String HANDLER_LABEL = "经手";
+    private static final String FIXED_AUDITOR = "胡建国";
+    private static final String FIXED_APPROVER = "沈建华";
+    private static final String FIXED_PROOF = "于芯菲";
     private static final int DETAIL_MAX_ROWS = 8;
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MM");
@@ -40,8 +44,6 @@ public class ExpenseTravelExportMapBuilder {
     private static final BigDecimal CITY_STANDARD = new BigDecimal("80");
     private static final BigDecimal MEAL_STANDARD = new BigDecimal("100");
 
-    @Resource
-    private OaBillExportSignatureResolver oaBillExportSignatureResolver;
     @Resource
     private OaSignatureTemplateLoader signatureTemplateLoader;
 
@@ -118,6 +120,8 @@ public class ExpenseTravelExportMapBuilder {
         main.put("totalAmountCn", OaMoneyUtils.toChineseUpper(pageAmount));
         main.put("totalAmount", OaMoneyUtils.toMoneyValue(pageAmount));
         main.put("attachmentCount", bill.getAttachments() == null ? "0" : String.valueOf(bill.getAttachments().size()));
+        // 附件总数量：费用明细「单据张数」之和
+        main.put("receiptCount", sumReceiptCount(bill.getDetails()));
 
         if (includeSubsidy) {
             main.put("subsidyPeople", stripTrailingZeros(people));
@@ -151,9 +155,13 @@ public class ExpenseTravelExportMapBuilder {
             row.put("departure", valueOrEmpty(detail.getDeparture()));
             row.put("destination", valueOrEmpty(detail.getDestination()));
             String expenseTypeLabel = resolveTravelExpenseTypeLabel(detail.getExpenseType());
-            row.put("transportType", expenseTypeLabel);
+            // 交通工具：取明细字段，字典转中文
+            row.put("transportType", resolveTransportTypeLabel(detail.getTransportType()));
             row.put("expenseType", expenseTypeLabel);
             row.put("description", valueOrEmpty(detail.getDescription()));
+            // 单据数量：取明细「单据张数」
+            row.put("receiptCount", detail.getReceiptCount() == null
+                    ? "" : Integer.valueOf(detail.getReceiptCount()));
             row.put("trafficAmount", OaMoneyUtils.toMoneyValue(detail.getAmount()));
             row.put("hotelItem", expenseTypeLabel);
             row.put("hotelAmount", OaMoneyUtils.toMoneyValue(detail.getAmount()));
@@ -172,6 +180,19 @@ public class ExpenseTravelExportMapBuilder {
             }
         }
         return total.setScale(2, RoundingMode.HALF_UP);
+    }
+
+    /** 费用明细单据张数合计（主表附件总数量） */
+    private String sumReceiptCount(List<ExpenseReimburseDetailRespVO> details) {
+        if (details == null || details.isEmpty()) {
+            return "";
+        }
+        int total = details.stream()
+                .map(ExpenseReimburseDetailRespVO::getReceiptCount)
+                .filter(count -> count != null)
+                .mapToInt(Integer::intValue)
+                .sum();
+        return String.valueOf(total);
     }
 
     private BigDecimal sumTravelDays(List<TravelApplyBillRespVO> travelBills) {
@@ -197,11 +218,11 @@ public class ExpenseTravelExportMapBuilder {
 
     private List<BillExportImage> buildSignatureImages(ExpenseReimburseBillRespVO bill) {
         List<BillExportImage> images = new ArrayList<>();
-        // 领款人签字：申请人；证明或验收、经手留空
-        addSignatureByNickname(images, PAYEE_LABEL, bill.getCreatorName());
-        // 审核←含「审核」；审批←含「审批」（与日常报销一致，模板标签为「审批」）
-        images.addAll(oaBillExportSignatureResolver.resolveByKeywords(
-                bill.getProcessInstanceId(), "审核", "审批", AUDIT_LABEL, APPROVE_LABEL));
+        // 经手：发起人；证明或验收/审核/审批：固定人员
+        addSignatureByNickname(images, HANDLER_LABEL, bill.getCreatorName());
+        addSignatureByNickname(images, PROOF_LABEL, FIXED_PROOF);
+        addSignatureByNickname(images, AUDIT_LABEL, FIXED_AUDITOR);
+        addSignatureByNickname(images, APPROVE_LABEL, FIXED_APPROVER);
         return images;
     }
 
@@ -241,6 +262,14 @@ public class ExpenseTravelExportMapBuilder {
         }
         String label = DictFrameworkUtils.parseDictDataLabel(TRAVEL_EXPENSE_TYPE_DICT, expenseType);
         return label != null ? label : expenseType;
+    }
+
+    private String resolveTransportTypeLabel(Integer transportType) {
+        if (transportType == null) {
+            return "";
+        }
+        String label = DictFrameworkUtils.parseDictDataLabel(TRANSPORT_TYPE_DICT, transportType);
+        return label != null ? label : String.valueOf(transportType);
     }
 
     private String valueOrEmpty(String value) {

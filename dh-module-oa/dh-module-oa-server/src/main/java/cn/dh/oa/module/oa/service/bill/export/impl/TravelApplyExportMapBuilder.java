@@ -4,7 +4,8 @@ import cn.dh.oa.framework.dict.core.DictFrameworkUtils;
 import cn.dh.oa.module.oa.controller.admin.travel.vo.TravelApplyBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.travel.vo.TravelItineraryRespVO;
 import cn.dh.oa.module.oa.service.bill.export.BillExportData;
-import cn.dh.oa.module.oa.service.bill.export.OaBillExportSignatureResolver;
+import cn.dh.oa.module.oa.service.bill.export.BillExportImage;
+import cn.dh.oa.module.oa.service.bill.export.OaSignatureTemplateLoader;
 import org.springframework.stereotype.Component;
 
 import jakarta.annotation.Resource;
@@ -18,13 +19,17 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 出差申请单模板导出数据组装
+ * 出差申请单模板导出数据组装（国内/出境共用）
  */
 @Component
 public class TravelApplyExportMapBuilder {
 
     private static final int MIN_ITINERARY_ROWS = 3;
     private static final String TRANSPORT_TYPE_DICT = "oa_transport_type";
+    private static final String AUDIT_LABEL = "审核";
+    private static final String APPROVE_LABEL = "审批";
+    private static final String FIXED_AUDITOR = "胡建国";
+    private static final String FIXED_APPROVER = "沈建华";
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("M");
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("d");
@@ -32,15 +37,35 @@ public class TravelApplyExportMapBuilder {
     private static final DateTimeFormatter DATE_RANGE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     @Resource
-    private OaBillExportSignatureResolver oaBillExportSignatureResolver;
+    private OaSignatureTemplateLoader signatureTemplateLoader;
 
     public List<BillExportData> buildExportData(TravelApplyBillRespVO bill) {
         BillExportData page = new BillExportData();
         page.setMainFields(buildMainFields(bill));
         page.setDetailList(buildDetailRows(bill));
         page.setDetailForceNewRow(true);
-        page.setSignatureImages(oaBillExportSignatureResolver.resolve(bill.getProcessInstanceId()));
+        page.setSignatureImages(buildSignatureImages());
         return List.of(page);
+    }
+
+    private List<BillExportImage> buildSignatureImages() {
+        List<BillExportImage> images = new ArrayList<>();
+        addSignatureByNickname(images, AUDIT_LABEL, FIXED_AUDITOR);
+        addSignatureByNickname(images, APPROVE_LABEL, FIXED_APPROVER);
+        return images;
+    }
+
+    private void addSignatureByNickname(List<BillExportImage> images, String label, String nickname) {
+        if (nickname == null || nickname.isBlank()) {
+            return;
+        }
+        signatureTemplateLoader.loadByNickname(nickname.trim()).ifPresent(loaded -> {
+            BillExportImage image = new BillExportImage();
+            image.setAnchorLabel(label);
+            image.setData(loaded.data());
+            image.setPictureType(loaded.pictureType());
+            images.add(image);
+        });
     }
 
     private Map<String, Object> buildMainFields(TravelApplyBillRespVO bill) {

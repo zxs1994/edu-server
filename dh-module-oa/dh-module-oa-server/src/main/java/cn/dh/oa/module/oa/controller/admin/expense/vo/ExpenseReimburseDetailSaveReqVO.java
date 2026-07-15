@@ -27,11 +27,17 @@ public class ExpenseReimburseDetailSaveReqVO {
     @Schema(description = "到达地")
     private String destination;
 
+    @Schema(description = "交通工具（字典 oa_transport_type）")
+    private Integer transportType;
+
     @Schema(description = "金额", example = "0.00")
     private BigDecimal amount;
 
     @Schema(description = "费用说明")
     private String description;
+
+    @Schema(description = "单据张数")
+    private Integer receiptCount;
 
     @Schema(description = "排序", example = "1")
     private Integer sortOrder;

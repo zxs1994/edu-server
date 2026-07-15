@@ -47,6 +47,10 @@ public class ExpenseReimburseDetailDO extends BaseDO {
      */
     private String destination;
     /**
+     * 交通工具（字典 oa_transport_type）
+     */
+    private Integer transportType;
+    /**
      * 金额
      */
     private BigDecimal amount;
@@ -54,6 +58,10 @@ public class ExpenseReimburseDetailDO extends BaseDO {
      * 费用说明
      */
     private String description;
+    /**
+     * 单据张数
+     */
+    private Integer receiptCount;
     /**
      * 排序
      */

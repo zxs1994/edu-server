@@ -37,6 +37,10 @@ public class ExpenseReimburseDetailRespVO {
     @ExcelProperty("到达地")
     private String destination;
 
+    @Schema(description = "交通工具（字典 oa_transport_type）")
+    @ExcelProperty("交通工具")
+    private Integer transportType;
+
     @Schema(description = "金额", example = "0.00")
     @ExcelProperty("金额")
     private BigDecimal amount;
@@ -44,6 +48,10 @@ public class ExpenseReimburseDetailRespVO {
     @Schema(description = "费用说明")
     @ExcelProperty("费用说明")
     private String description;
+
+    @Schema(description = "单据张数")
+    @ExcelProperty("单据张数")
+    private Integer receiptCount;
 
     @Schema(description = "排序", example = "1")
     @ExcelProperty("排序")

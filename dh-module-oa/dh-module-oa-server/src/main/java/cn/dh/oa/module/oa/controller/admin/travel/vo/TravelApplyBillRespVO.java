@@ -60,6 +60,10 @@ public class TravelApplyBillRespVO {
     @Schema(description = "同行人")
     private String companion;
 
+    @ExcelProperty("出行人数")
+    @Schema(description = "出行人数（含本人）", example = "2")
+    private Integer travelerCount;
+
     @ExcelProperty("预计费用")
     @Schema(description = "预计费用")
     private BigDecimal estimatedCost;

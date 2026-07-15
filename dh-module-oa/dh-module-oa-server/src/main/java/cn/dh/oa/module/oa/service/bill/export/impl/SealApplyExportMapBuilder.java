@@ -66,8 +66,9 @@ public class SealApplyExportMapBuilder {
         main.put("cause", valueOrEmpty(bill.getCause()));
         main.put("documentTitle", valueOrEmpty(bill.getDocumentTitle()));
         main.put("documentType", valueOrEmpty(bill.getDocumentType()));
-        // 印次留空（模板不填）
-        main.put("documentCount", "");
+        // 印次：取文件份数
+        main.put("documentCount", bill.getDocumentCount() == null
+                ? "" : Integer.valueOf(bill.getDocumentCount()));
         main.put("destinationUnit", firstNonBlank(bill.getContractParty(), bill.getDocumentTitle()));
         main.put("contractParty", valueOrEmpty(bill.getContractParty()));
         main.put("sealNo", valueOrEmpty(bill.getSealNo()));

@@ -57,6 +57,10 @@ public class TravelApplyBillDO extends BaseDO {
      */
     private String companion;
     /**
+     * 出行人数（含本人）
+     */
+    private Integer travelerCount;
+    /**
      * 预计费用
      */
     private BigDecimal estimatedCost;

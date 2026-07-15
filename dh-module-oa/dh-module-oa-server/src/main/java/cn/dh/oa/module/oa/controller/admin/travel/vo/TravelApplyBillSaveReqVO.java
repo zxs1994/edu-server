@@ -45,6 +45,10 @@ public class TravelApplyBillSaveReqVO {
     @Schema(description = "同行人")
     private String companion;
 
+    @Schema(description = "出行人数（含本人）", example = "2")
+    @Min(value = 1, message = "出行人数不能小于1")
+    private Integer travelerCount;
+
     @Schema(description = "预计费用")
     private BigDecimal estimatedCost;
 
