@@ -52,7 +52,7 @@ public class ExpenseTravelExportMapBuilder {
                 ? Collections.emptyList() : bill.getDetails();
         int totalPages = Math.max(1, (details.size() + DETAIL_MAX_ROWS - 1) / DETAIL_MAX_ROWS);
 
-        BigDecimal people = BigDecimal.ONE;
+        BigDecimal people = resolveTravelerCount(bill);
         BigDecimal travelDays = sumTravelDays(bill.getTravelBills());
         BigDecimal citySubsidyAmount = citySubsidyAmount(people, travelDays);
         BigDecimal mealSubsidyAmount = mealSubsidyAmount(people, travelDays);
@@ -122,6 +122,8 @@ public class ExpenseTravelExportMapBuilder {
         main.put("attachmentCount", bill.getAttachments() == null ? "0" : String.valueOf(bill.getAttachments().size()));
         // 附件总数量：费用明细「单据张数」之和
         main.put("receiptCount", sumReceiptCount(bill.getDetails()));
+        // 人数（含本人）
+        main.put("travelerCount", stripTrailingZeros(people));
 
         if (includeSubsidy) {
             main.put("subsidyPeople", stripTrailingZeros(people));
@@ -135,6 +137,15 @@ public class ExpenseTravelExportMapBuilder {
             main.put("subsidyMealAmount", null);
         }
         return main;
+    }
+
+    /** 表单填写的补贴领取人数，缺省按 1 */
+    private BigDecimal resolveTravelerCount(ExpenseReimburseBillRespVO bill) {
+        Integer count = bill.getTravelerCount();
+        if (count == null || count < 1) {
+            return BigDecimal.ONE;
+        }
+        return BigDecimal.valueOf(count);
     }
 
     private List<Map<String, Object>> buildDetailRows(List<ExpenseReimburseDetailRespVO> details) {

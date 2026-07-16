@@ -57,6 +57,10 @@ public class ExpenseReimburseBillRespVO {
     @ExcelProperty("报销总金额")
     private BigDecimal totalAmount;
 
+    @Schema(description = "人数（含本人），补贴领取人数", example = "2")
+    @ExcelProperty("人数（含本人）")
+    private Integer travelerCount;
+
     @Schema(description = "支付状态（0未支付 1已支付）", example = "0")
     @ExcelProperty("支付状态")
     private Integer paymentStatus;

@@ -78,7 +78,7 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_TRAVEL_APPLY_BILL));
         }
         validateAndFillTravelDays(saveReqVO);
-        validateOverseasFields(saveReqVO);
+        validateCompanionAndTravelerCount(saveReqVO);
         TravelApplyBillDO bill = BeanUtils.toBean(saveReqVO, TravelApplyBillDO.class).setProcessStatus(BpmTaskStatusEnum.RUNNING.getStatus());
         travelApplyBillMapper.insertOrUpdate(bill);
         Map<String, Object> vars = BpmProcessVariableUtils.buildBillVariables(saveReqVO);
@@ -184,16 +184,13 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
         return travelType != null && travelType == 2;
     }
 
-    /** 出境差旅：同行人、出行人数必填 */
-    private void validateOverseasFields(TravelApplyBillSaveReqVO saveReqVO) {
-        if (!isOverseasTravel(saveReqVO.getTravelType())) {
-            return;
-        }
+    /** 同行人、出行人数必填（国内/出境均适用） */
+    private void validateCompanionAndTravelerCount(TravelApplyBillSaveReqVO saveReqVO) {
         if (StringUtils.isBlank(saveReqVO.getCompanion())) {
-            throw exception(TRAVEL_OVERSEAS_COMPANION_REQUIRED);
+            throw exception(TRAVEL_COMPANION_REQUIRED);
         }
         if (saveReqVO.getTravelerCount() == null || saveReqVO.getTravelerCount() < 1) {
-            throw exception(TRAVEL_OVERSEAS_TRAVELER_COUNT_REQUIRED);
+            throw exception(TRAVEL_TRAVELER_COUNT_REQUIRED);
         }
     }
 

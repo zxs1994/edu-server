@@ -58,6 +58,10 @@ public class ExpenseReimburseBillDO extends BaseDO {
      */
     private BigDecimal totalAmount;
     /**
+     * 人数（含本人），补贴领取人数（差旅报销）
+     */
+    private Integer travelerCount;
+    /**
      * 支付状态（0未支付 1已支付）
      */
     private Integer paymentStatus;

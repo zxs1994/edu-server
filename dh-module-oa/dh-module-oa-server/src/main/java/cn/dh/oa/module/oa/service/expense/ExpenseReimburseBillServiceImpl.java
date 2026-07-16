@@ -113,6 +113,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     public Long submitExpenseReimburseBill(ExpenseReimburseBillSaveReqVO saveReqVO) {
         OaBillTypeEnum billTypeEnum = getBillTypeEnum(saveReqVO);
         fillTotalAmount(saveReqVO);
+        validateTravelTravelerCount(saveReqVO);
 
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
@@ -318,6 +319,16 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     private void fillTotalAmount(ExpenseReimburseBillSaveReqVO saveReqVO) {
         if (saveReqVO.getTotalAmount() == null) {
             saveReqVO.setTotalAmount(BigDecimal.ZERO);
+        }
+    }
+
+    /** 差旅报销：人数（含本人）必填且 ≥1 */
+    private void validateTravelTravelerCount(ExpenseReimburseBillSaveReqVO saveReqVO) {
+        if (!isTravelExpenseBill(saveReqVO.getBillType())) {
+            return;
+        }
+        if (saveReqVO.getTravelerCount() == null || saveReqVO.getTravelerCount() < 1) {
+            throw exception(EXPENSE_TRAVELER_COUNT_REQUIRED);
         }
     }
 
