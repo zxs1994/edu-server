@@ -3,13 +3,15 @@ package cn.dh.oa.module.oa.service.bill.export.impl;
 import cn.dh.oa.framework.dict.core.DictFrameworkUtils;
 import cn.dh.oa.module.oa.controller.admin.reception.vo.ReceptionApplyBillRespVO;
 import cn.dh.oa.module.oa.service.bill.export.BillExportData;
-import cn.dh.oa.module.oa.service.bill.export.OaBillExportSignatureResolver;
+import cn.dh.oa.module.oa.service.bill.export.BillExportImage;
+import cn.dh.oa.module.oa.service.bill.export.OaSignatureTemplateLoader;
 import cn.dh.oa.module.oa.util.OaMoneyUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,10 @@ import java.util.Map;
 public class ReceptionApplyExportMapBuilder {
 
     private static final String DINING_STANDARD_DICT = "oa_reception_dining_standard";
+    private static final String AUDIT_LABEL = "审核";
+    private static final String APPROVE_LABEL = "审批";
+    private static final String FIXED_AUDITOR = "胡建国";
+    private static final String FIXED_APPROVER = "沈建华";
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("M");
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("d");
@@ -28,13 +34,33 @@ public class ReceptionApplyExportMapBuilder {
     private static final DateTimeFormatter DINING_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @Resource
-    private OaBillExportSignatureResolver oaBillExportSignatureResolver;
+    private OaSignatureTemplateLoader signatureTemplateLoader;
 
     public List<BillExportData> buildExportData(ReceptionApplyBillRespVO bill) {
         BillExportData page = new BillExportData();
         page.setMainFields(buildMainFields(bill));
-        page.setSignatureImages(oaBillExportSignatureResolver.resolve(bill.getProcessInstanceId()));
+        page.setSignatureImages(buildSignatureImages());
         return List.of(page);
+    }
+
+    private List<BillExportImage> buildSignatureImages() {
+        List<BillExportImage> images = new ArrayList<>();
+        addSignatureByNickname(images, AUDIT_LABEL, FIXED_AUDITOR);
+        addSignatureByNickname(images, APPROVE_LABEL, FIXED_APPROVER);
+        return images;
+    }
+
+    private void addSignatureByNickname(List<BillExportImage> images, String label, String nickname) {
+        if (nickname == null || nickname.isBlank()) {
+            return;
+        }
+        signatureTemplateLoader.loadByNickname(nickname.trim()).ifPresent(loaded -> {
+            BillExportImage image = new BillExportImage();
+            image.setAnchorLabel(label);
+            image.setData(loaded.data());
+            image.setPictureType(loaded.pictureType());
+            images.add(image);
+        });
     }
 
     private Map<String, Object> buildMainFields(ReceptionApplyBillRespVO bill) {
