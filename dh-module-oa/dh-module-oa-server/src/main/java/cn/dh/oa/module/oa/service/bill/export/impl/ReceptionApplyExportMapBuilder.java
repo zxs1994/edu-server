@@ -43,19 +43,18 @@ public class ReceptionApplyExportMapBuilder {
         return List.of(page);
     }
 
-    /**
-     * 电子签名：无视审批流，强制固定人员。
-     * 审核=胡建国，审批=沈建华（与出差申请单一致）
-     */
     private List<BillExportImage> buildSignatureImages() {
-        List<BillExportImage> images = new ArrayList<>(2);
+        List<BillExportImage> images = new ArrayList<>();
         addSignatureByNickname(images, AUDIT_LABEL, FIXED_AUDITOR);
         addSignatureByNickname(images, APPROVE_LABEL, FIXED_APPROVER);
         return images;
     }
 
     private void addSignatureByNickname(List<BillExportImage> images, String label, String nickname) {
-        signatureTemplateLoader.loadByNickname(nickname).ifPresent(loaded -> {
+        if (nickname == null || nickname.isBlank()) {
+            return;
+        }
+        signatureTemplateLoader.loadByNickname(nickname.trim()).ifPresent(loaded -> {
             BillExportImage image = new BillExportImage();
             image.setAnchorLabel(label);
             image.setData(loaded.data());
