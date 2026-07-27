@@ -65,12 +65,13 @@ public class ReceptionApplyExportMapBuilder {
 
     private Map<String, Object> buildMainFields(ReceptionApplyBillRespVO bill) {
         Map<String, Object> main = new HashMap<>();
-        LocalDateTime createTime = bill.getCreateTime();
-        if (createTime != null) {
-            main.put("year", YEAR_FORMATTER.format(createTime));
-            main.put("month", MONTH_FORMATTER.format(createTime));
-            main.put("day", DAY_FORMATTER.format(createTime));
-            main.put("createDateText", DATE_TEXT_FORMATTER.format(createTime));
+        // 底部「年月日」取就餐时间，不用创建时间
+        LocalDateTime diningTime = bill.getDiningTime();
+        if (diningTime != null) {
+            main.put("year", YEAR_FORMATTER.format(diningTime));
+            main.put("month", MONTH_FORMATTER.format(diningTime));
+            main.put("day", DAY_FORMATTER.format(diningTime));
+            main.put("createDateText", DATE_TEXT_FORMATTER.format(diningTime));
         } else {
             main.put("year", "");
             main.put("month", "");
@@ -81,7 +82,7 @@ public class ReceptionApplyExportMapBuilder {
         main.put("cause", valueOrEmpty(bill.getCause()));
         main.put("creatorName", valueOrEmpty(bill.getCreatorName()));
         main.put("deptName", valueOrEmpty(bill.getDeptName()));
-        main.put("diningTime", formatDiningTime(bill.getDiningTime()));
+        main.put("diningTime", formatDiningTime(diningTime));
         main.put("diningStandard", resolveDiningStandardLabel(bill.getDiningStandard()));
         main.put("guestCount", formatCount(bill.getGuestCount()));
         main.put("accompanyCount", formatCount(bill.getAccompanyCount()));
