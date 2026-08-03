@@ -92,15 +92,13 @@ public class BillTemplateExporter {
         } catch (Exception e) {
             throw ServiceExceptionUtil.invalidParamException("导出失败: " + e.getMessage());
         }
-        return insertSignatures(buffer.toByteArray(), pages);
+        return postProcessWorkbook(buffer.toByteArray(), pages);
     }
 
-    private byte[] insertSignatures(byte[] filledBytes, List<BillExportData> pages) throws IOException {
-        boolean hasSignature = pages.stream().anyMatch(page -> page.getSignatureImages() != null
-                && !page.getSignatureImages().isEmpty());
-        if (!hasSignature) {
-            return filledBytes;
-        }
+    /**
+     * 填充后处理：插入签名图（如有）+ 工作表保护，防止导出后随意改单元格
+     */
+    private byte[] postProcessWorkbook(byte[] filledBytes, List<BillExportData> pages) throws IOException {
         try (Workbook workbook = WorkbookFactory.create(new ByteArrayInputStream(filledBytes));
              ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             for (int i = 0; i < pages.size(); i++) {
@@ -110,6 +108,10 @@ public class BillTemplateExporter {
                 }
                 Sheet sheet = workbook.getSheetAt(i);
                 billExportSignatureInserter.insert(sheet, page.getSignatureImages());
+            }
+            // 无密码保护：不能直接改单元格，取消保护时也不需要密码
+            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+                workbook.getSheetAt(i).protectSheet("");
             }
             workbook.write(out);
             return out.toByteArray();
