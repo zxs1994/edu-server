@@ -61,6 +61,22 @@ public class ExpenseReimburseBillRespVO {
     @ExcelProperty("人数（含本人）")
     private Integer travelerCount;
 
+    @Schema(description = "交通补贴领取天数", example = "3.0")
+    @ExcelProperty("交通补贴领取天数")
+    private BigDecimal trafficSubsidyDays;
+
+    @Schema(description = "交通补贴领取人数", example = "1")
+    @ExcelProperty("交通补贴领取人数")
+    private Integer trafficSubsidyPeople;
+
+    @Schema(description = "伙食补贴领取天数", example = "3.0")
+    @ExcelProperty("伙食补贴领取天数")
+    private BigDecimal mealSubsidyDays;
+
+    @Schema(description = "伙食补贴领取人数", example = "1")
+    @ExcelProperty("伙食补贴领取人数")
+    private Integer mealSubsidyPeople;
+
     @Schema(description = "支付状态（0未支付 1已支付）", example = "0")
     @ExcelProperty("支付状态")
     private Integer paymentStatus;

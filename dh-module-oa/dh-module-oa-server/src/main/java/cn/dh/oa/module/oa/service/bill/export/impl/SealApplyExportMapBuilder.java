@@ -69,7 +69,7 @@ public class SealApplyExportMapBuilder {
         // 印次：取文件份数
         main.put("documentCount", bill.getDocumentCount() == null
                 ? "" : Integer.valueOf(bill.getDocumentCount()));
-        main.put("destinationUnit", firstNonBlank(bill.getContractParty(), bill.getDocumentTitle()));
+        main.put("destinationUnit", valueOrEmpty(bill.getDestinationUnit()));
         main.put("contractParty", valueOrEmpty(bill.getContractParty()));
         main.put("sealNo", valueOrEmpty(bill.getSealNo()));
         main.put("sealName", valueOrEmpty(bill.getSealName()));
@@ -122,13 +122,6 @@ public class SealApplyExportMapBuilder {
 
     private String formatDateTime(LocalDateTime dateTime) {
         return dateTime == null ? "" : DATE_TIME_FORMATTER.format(dateTime);
-    }
-
-    private String firstNonBlank(String first, String second) {
-        if (first != null && !first.isBlank()) {
-            return first;
-        }
-        return valueOrEmpty(second);
     }
 
     private String valueOrEmpty(String value) {

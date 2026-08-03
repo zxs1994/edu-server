@@ -125,7 +125,7 @@ public class DailyExpenseExportMapBuilder {
         if (expenseTypeLabels == null || expenseTypeLabels.isEmpty()) {
             return "";
         }
-        return String.join("，", expenseTypeLabels) + "。";
+        return String.join("，", expenseTypeLabels);
     }
 
     private String joinWithSlash(String first, String second) {

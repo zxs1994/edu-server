@@ -44,7 +44,12 @@ public class TimestampLocalDateTimeDeserializer extends JsonDeserializer<LocalDa
             try {
                 return LocalDateTime.parse(text, formatter);
             } catch (Exception e) {
-                // 解析失败，降级为时间戳处理
+                // 仅日期 pattern（如 yyyy-MM-dd）无法直接 parse 为 LocalDateTime，按当天 00:00:00
+                try {
+                    return java.time.LocalDate.parse(text, formatter).atStartOfDay();
+                } catch (Exception ignored) {
+                    // 解析失败，降级为时间戳处理
+                }
             }
         }
 
@@ -58,6 +63,10 @@ public class TimestampLocalDateTimeDeserializer extends JsonDeserializer<LocalDa
             // 尝试用默认格式解析
             try {
                 return LocalDateTime.parse(text, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            } catch (Exception ignored) {
+            }
+            try {
+                return java.time.LocalDate.parse(text, DateTimeFormatter.ofPattern("yyyy-MM-dd")).atStartOfDay();
             } catch (Exception ignored) {
             }
         }

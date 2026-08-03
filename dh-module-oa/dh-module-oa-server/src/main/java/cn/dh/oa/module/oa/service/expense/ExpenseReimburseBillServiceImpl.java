@@ -113,7 +113,6 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     public Long submitExpenseReimburseBill(ExpenseReimburseBillSaveReqVO saveReqVO) {
         OaBillTypeEnum billTypeEnum = getBillTypeEnum(saveReqVO);
         fillTotalAmount(saveReqVO);
-        validateTravelTravelerCount(saveReqVO);
 
         // 如果单号为空，需要生成
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
@@ -315,21 +314,39 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
         }
     }
 
-    /** 报销总金额未填时默认 0 */
+    /** 报销总金额：差旅单按「明细合计 + 交通/伙食补贴」重算；日常单未填时默认 0 */
     private void fillTotalAmount(ExpenseReimburseBillSaveReqVO saveReqVO) {
+        if (isTravelExpenseBill(saveReqVO.getBillType())) {
+            saveReqVO.setTotalAmount(calcTravelReimburseTotal(saveReqVO));
+            return;
+        }
         if (saveReqVO.getTotalAmount() == null) {
             saveReqVO.setTotalAmount(BigDecimal.ZERO);
         }
     }
 
-    /** 差旅报销：人数（含本人）必填且 ≥1 */
-    private void validateTravelTravelerCount(ExpenseReimburseBillSaveReqVO saveReqVO) {
-        if (!isTravelExpenseBill(saveReqVO.getBillType())) {
-            return;
+    private static final BigDecimal TRAFFIC_SUBSIDY_STANDARD = new BigDecimal("80");
+    private static final BigDecimal MEAL_SUBSIDY_STANDARD = new BigDecimal("100");
+
+    private BigDecimal calcTravelReimburseTotal(ExpenseReimburseBillSaveReqVO saveReqVO) {
+        BigDecimal detailSum = BigDecimal.ZERO;
+        if (saveReqVO.getDetails() != null) {
+            for (ExpenseReimburseDetailSaveReqVO detail : saveReqVO.getDetails()) {
+                if (detail.getAmount() != null) {
+                    detailSum = detailSum.add(detail.getAmount());
+                }
+            }
         }
-        if (saveReqVO.getTravelerCount() == null || saveReqVO.getTravelerCount() < 1) {
-            throw exception(EXPENSE_TRAVELER_COUNT_REQUIRED);
-        }
+        return detailSum
+                .add(subsidyAmount(saveReqVO.getTrafficSubsidyDays(), saveReqVO.getTrafficSubsidyPeople(), TRAFFIC_SUBSIDY_STANDARD))
+                .add(subsidyAmount(saveReqVO.getMealSubsidyDays(), saveReqVO.getMealSubsidyPeople(), MEAL_SUBSIDY_STANDARD))
+                .setScale(2, java.math.RoundingMode.HALF_UP);
+    }
+
+    private BigDecimal subsidyAmount(BigDecimal days, Integer people, BigDecimal standard) {
+        BigDecimal d = days == null || days.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : days;
+        BigDecimal p = people == null || people < 0 ? BigDecimal.ZERO : BigDecimal.valueOf(people);
+        return standard.multiply(p).multiply(d);
     }
 
     /** 大额报销阈值（元），默认 50000 */

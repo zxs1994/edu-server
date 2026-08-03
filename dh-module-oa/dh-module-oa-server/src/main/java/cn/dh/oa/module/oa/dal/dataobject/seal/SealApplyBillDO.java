@@ -106,6 +106,10 @@ public class SealApplyBillDO extends BaseDO {
      * 合同对方（合同用章时填写）
      */
     private String contractParty;
+    /**
+     * 发往单位
+     */
+    private String destinationUnit;
     
     // ========== 时间相关 ==========
     /**

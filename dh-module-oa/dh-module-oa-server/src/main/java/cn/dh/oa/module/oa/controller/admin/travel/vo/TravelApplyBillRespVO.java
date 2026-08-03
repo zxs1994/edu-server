@@ -43,13 +43,13 @@ public class TravelApplyBillRespVO {
     private String cause;
 
     @ExcelProperty("开始日期")
-    @Schema(description = "出差开始时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @Schema(description = "出差开始日期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private LocalDateTime travelStartDate;
 
     @ExcelProperty("结束日期")
-    @Schema(description = "出差结束时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @Schema(description = "出差结束日期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private LocalDateTime travelEndDate;
 
     @ExcelProperty("天数")

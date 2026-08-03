@@ -3,7 +3,6 @@ package cn.dh.oa.module.oa.service.bill.export.impl;
 import cn.dh.oa.framework.dict.core.DictFrameworkUtils;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseDetailRespVO;
-import cn.dh.oa.module.oa.controller.admin.travel.vo.TravelApplyBillRespVO;
 import cn.dh.oa.module.oa.service.bill.export.BillExportData;
 import cn.dh.oa.module.oa.service.bill.export.BillExportImage;
 import cn.dh.oa.module.oa.service.bill.export.OaSignatureTemplateLoader;
@@ -52,10 +51,12 @@ public class ExpenseTravelExportMapBuilder {
                 ? Collections.emptyList() : bill.getDetails();
         int totalPages = Math.max(1, (details.size() + DETAIL_MAX_ROWS - 1) / DETAIL_MAX_ROWS);
 
-        BigDecimal people = resolveTravelerCount(bill);
-        BigDecimal travelDays = sumTravelDays(bill.getTravelBills());
-        BigDecimal citySubsidyAmount = citySubsidyAmount(people, travelDays);
-        BigDecimal mealSubsidyAmount = mealSubsidyAmount(people, travelDays);
+        BigDecimal trafficPeople = resolvePeople(bill.getTrafficSubsidyPeople());
+        BigDecimal trafficDays = resolveDays(bill.getTrafficSubsidyDays());
+        BigDecimal mealPeople = resolvePeople(bill.getMealSubsidyPeople());
+        BigDecimal mealDays = resolveDays(bill.getMealSubsidyDays());
+        BigDecimal citySubsidyAmount = citySubsidyAmount(trafficPeople, trafficDays);
+        BigDecimal mealSubsidyAmount = mealSubsidyAmount(mealPeople, mealDays);
         List<BillExportImage> signatureImages = buildSignatureImages(bill);
 
         List<BillExportData> pages = new ArrayList<>(totalPages);
@@ -75,7 +76,8 @@ public class ExpenseTravelExportMapBuilder {
 
             BillExportData page = new BillExportData();
             page.setMainFields(buildMainFields(
-                    bill, pageTotalAmount, people, travelDays,
+                    bill, pageTotalAmount,
+                    trafficPeople, trafficDays, mealPeople, mealDays,
                     includeSubsidy ? citySubsidyAmount : null,
                     includeSubsidy ? mealSubsidyAmount : null,
                     includeSubsidy
@@ -90,8 +92,10 @@ public class ExpenseTravelExportMapBuilder {
     private Map<String, Object> buildMainFields(
             ExpenseReimburseBillRespVO bill,
             BigDecimal pageAmount,
-            BigDecimal people,
-            BigDecimal travelDays,
+            BigDecimal trafficPeople,
+            BigDecimal trafficDays,
+            BigDecimal mealPeople,
+            BigDecimal mealDays,
             BigDecimal citySubsidyAmount,
             BigDecimal mealSubsidyAmount,
             boolean includeSubsidy
@@ -123,29 +127,50 @@ public class ExpenseTravelExportMapBuilder {
         // 附件总数量：费用明细「单据张数」之和
         main.put("receiptCount", sumReceiptCount(bill.getDetails()));
         // 人数（含本人）
-        main.put("travelerCount", stripTrailingZeros(people));
+        main.put("travelerCount", stripTrailingZeros(resolvePeople(bill.getTravelerCount())));
 
         if (includeSubsidy) {
-            main.put("subsidyPeople", stripTrailingZeros(people));
-            main.put("subsidyDays", stripTrailingZeros(travelDays));
+            // 兼容旧模板占位符
+            main.put("subsidyPeople", stripTrailingZeros(trafficPeople));
+            main.put("subsidyDays", stripTrailingZeros(trafficDays));
             main.put("subsidyCityAmount", OaMoneyUtils.toMoneyValue(citySubsidyAmount));
             main.put("subsidyMealAmount", OaMoneyUtils.toMoneyValue(mealSubsidyAmount));
+            // 新增占位符：交通/伙食分别领取天数、人数、合计
+            main.put("trafficSubsidyDays", stripTrailingZeros(trafficDays));
+            main.put("trafficSubsidyPeople", stripTrailingZeros(trafficPeople));
+            main.put("trafficSubsidyAmount", OaMoneyUtils.toMoneyValue(citySubsidyAmount));
+            main.put("mealSubsidyDays", stripTrailingZeros(mealDays));
+            main.put("mealSubsidyPeople", stripTrailingZeros(mealPeople));
+            main.put("mealSubsidyAmount", OaMoneyUtils.toMoneyValue(mealSubsidyAmount));
         } else {
             main.put("subsidyPeople", "");
             main.put("subsidyDays", "");
             main.put("subsidyCityAmount", null);
             main.put("subsidyMealAmount", null);
+            main.put("trafficSubsidyDays", "");
+            main.put("trafficSubsidyPeople", "");
+            main.put("trafficSubsidyAmount", null);
+            main.put("mealSubsidyDays", "");
+            main.put("mealSubsidyPeople", "");
+            main.put("mealSubsidyAmount", null);
         }
         return main;
     }
 
-    /** 表单填写的补贴领取人数，缺省按 1 */
-    private BigDecimal resolveTravelerCount(ExpenseReimburseBillRespVO bill) {
-        Integer count = bill.getTravelerCount();
-        if (count == null || count < 1) {
-            return BigDecimal.ONE;
+    /** 领取人数，缺省按 0 */
+    private BigDecimal resolvePeople(Integer count) {
+        if (count == null || count < 0) {
+            return BigDecimal.ZERO;
         }
         return BigDecimal.valueOf(count);
+    }
+
+    /** 领取天数，缺省按 0 */
+    private BigDecimal resolveDays(BigDecimal days) {
+        if (days == null || days.compareTo(BigDecimal.ZERO) < 0) {
+            return BigDecimal.ZERO;
+        }
+        return days;
     }
 
     private List<Map<String, Object>> buildDetailRows(List<ExpenseReimburseDetailRespVO> details) {
@@ -204,19 +229,6 @@ public class ExpenseTravelExportMapBuilder {
                 .mapToInt(Integer::intValue)
                 .sum();
         return String.valueOf(total);
-    }
-
-    private BigDecimal sumTravelDays(List<TravelApplyBillRespVO> travelBills) {
-        if (travelBills == null || travelBills.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
-        BigDecimal total = BigDecimal.ZERO;
-        for (TravelApplyBillRespVO travelBill : travelBills) {
-            if (travelBill.getTravelDays() != null) {
-                total = total.add(travelBill.getTravelDays());
-            }
-        }
-        return total.setScale(0, RoundingMode.CEILING);
     }
 
     private BigDecimal citySubsidyAmount(BigDecimal people, BigDecimal days) {

@@ -99,6 +99,10 @@ public class SealApplyBillRespVO {
     @ExcelProperty("合同对方")
     private String contractParty;
 
+    @Schema(description = "发往单位", example = "某某单位")
+    @ExcelProperty("发往单位")
+    private String destinationUnit;
+
     @Schema(description = "预计用印时间")
     @ExcelProperty("预计用印时间")
     private LocalDateTime expectedUseTime;

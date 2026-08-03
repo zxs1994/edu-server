@@ -31,15 +31,16 @@ public class TravelApplyBillSaveReqVO {
     @NotEmpty(message = "出差事由不能为空")
     private String cause;
 
-    @Schema(description = "出差开始时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @Schema(description = "出差开始日期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private LocalDateTime travelStartDate;
 
-    @Schema(description = "出差结束时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @Schema(description = "出差结束日期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private LocalDateTime travelEndDate;
 
-    @Schema(description = "出差天数（支持1位小数）", example = "3.5")
+    @Schema(description = "出差天数（支持1位小数）", example = "3.5", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "出差天数不能为空")
     private BigDecimal travelDays;
 
     @Schema(description = "同行人")

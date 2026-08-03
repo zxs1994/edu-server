@@ -78,6 +78,9 @@ public class SealApplyBillSaveReqVO {
     @Schema(description = "合同对方", example = "ABC公司")
     private String contractParty;
 
+    @Schema(description = "发往单位", example = "某某单位")
+    private String destinationUnit;
+
     @Schema(description = "预计用章时间")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expectedUseTime;

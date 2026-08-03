@@ -62,6 +62,22 @@ public class ExpenseReimburseBillDO extends BaseDO {
      */
     private Integer travelerCount;
     /**
+     * 交通补贴领取天数
+     */
+    private BigDecimal trafficSubsidyDays;
+    /**
+     * 交通补贴领取人数
+     */
+    private Integer trafficSubsidyPeople;
+    /**
+     * 伙食补贴领取天数
+     */
+    private BigDecimal mealSubsidyDays;
+    /**
+     * 伙食补贴领取人数
+     */
+    private Integer mealSubsidyPeople;
+    /**
      * 支付状态（0未支付 1已支付）
      */
     private Integer paymentStatus;
