@@ -18,8 +18,6 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.Duration;
 import java.util.*;
 
 import cn.dh.oa.module.oa.controller.admin.travel.vo.*;
@@ -59,7 +57,7 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_TRAVEL_APPLY_BILL));
         }
-        validateAndFillTravelDays(saveReqVO);
+        validateTravelDatesAndDays(saveReqVO);
         TravelApplyBillDO bill = BeanUtils.toBean(saveReqVO, TravelApplyBillDO.class);
         travelApplyBillMapper.insertOrUpdate(bill);
         if (saveReqVO.getAttachments() != null) {
@@ -77,7 +75,7 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
         if (StringUtils.isBlank(saveReqVO.getBillCode())) {
             saveReqVO.setBillCode(BillCodeUtils.generateBillCode(SystemEnum.OA, OaBillTypeEnum.OA_TRAVEL_APPLY_BILL));
         }
-        validateAndFillTravelDays(saveReqVO);
+        validateTravelDatesAndDays(saveReqVO);
         validateCompanionAndTravelerCount(saveReqVO);
         TravelApplyBillDO bill = BeanUtils.toBean(saveReqVO, TravelApplyBillDO.class).setProcessStatus(BpmTaskStatusEnum.RUNNING.getStatus());
         travelApplyBillMapper.insertOrUpdate(bill);
@@ -200,17 +198,15 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
         }
     }
 
-    /** 校验日期顺序并由后端重新计算出差天数 */
-    private void validateAndFillTravelDays(TravelApplyBillSaveReqVO saveReqVO) {
-        if (saveReqVO.getTravelStartDate() == null || saveReqVO.getTravelEndDate() == null) {
-            return;
-        }
-        if (!saveReqVO.getTravelEndDate().isAfter(saveReqVO.getTravelStartDate())) {
+    /** 校验日期顺序；出差天数由前端填写，后端不再覆盖 */
+    private void validateTravelDatesAndDays(TravelApplyBillSaveReqVO saveReqVO) {
+        if (saveReqVO.getTravelStartDate() != null && saveReqVO.getTravelEndDate() != null
+                && saveReqVO.getTravelEndDate().isBefore(saveReqVO.getTravelStartDate())) {
             throw exception(TRAVEL_END_DATE_INVALID);
         }
-        long diffMs = Duration.between(saveReqVO.getTravelStartDate(), saveReqVO.getTravelEndDate()).toMillis();
-        saveReqVO.setTravelDays(BigDecimal.valueOf(diffMs)
-                .divide(BigDecimal.valueOf(86_400_000L), 1, RoundingMode.HALF_UP));
+        if (saveReqVO.getTravelDays() == null || saveReqVO.getTravelDays().compareTo(BigDecimal.ZERO) < 0) {
+            throw exception(TRAVEL_DAYS_REQUIRED);
+        }
     }
 
     /**
