@@ -7,6 +7,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -41,6 +42,9 @@ public class IncomingDocumentBillServiceImpl implements IncomingDocumentBillServ
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Override
     public Long saveIncomingDocumentBill(IncomingDocumentBillSaveReqVO saveReqVO) {
@@ -113,6 +117,7 @@ public class IncomingDocumentBillServiceImpl implements IncomingDocumentBillServ
     public IncomingDocumentBillRespVO getIncomingDocumentBillInfo(Long id) {
         validateIncomingDocumentBillExists(id);
         IncomingDocumentBillDO bill = incomingDocumentBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(bill.getCreator(), bill.getProcessInstanceId());
         IncomingDocumentBillRespVO respVO = BeanUtils.toBean(bill, IncomingDocumentBillRespVO.class);
         respVO.setAttachments(BeanUtils.toBean(
             attachmentService.getAttachmentListByBusiness(OaBillTypeEnum.OA_INCOMING_DOCUMENT_BILL.getTypeCode(), id),
@@ -123,7 +128,7 @@ public class IncomingDocumentBillServiceImpl implements IncomingDocumentBillServ
 
     @Override
     public PageResult<IncomingDocumentBillDO> getIncomingDocumentBillPage(IncomingDocumentBillPageReqVO pageReqVO) {
-        return incomingDocumentBillMapper.selectPage(pageReqVO);
+        return incomingDocumentBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     @Override

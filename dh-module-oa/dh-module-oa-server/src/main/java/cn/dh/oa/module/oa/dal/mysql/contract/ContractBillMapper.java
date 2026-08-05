@@ -1,11 +1,10 @@
 package cn.dh.oa.module.oa.dal.mysql.contract;
 
-import java.util.*;
-
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.module.oa.dal.dataobject.contract.ContractBillDO;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleScope;
 import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.contract.vo.*;
 
@@ -17,8 +16,9 @@ import cn.dh.oa.module.oa.controller.admin.contract.vo.*;
 @Mapper
 public interface ContractBillMapper extends BaseMapperX<ContractBillDO> {
 
-    default PageResult<ContractBillDO> selectPage(ContractBillPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<ContractBillDO>()
+default PageResult<ContractBillDO> selectPageByVisibleScope(ContractBillPageReqVO reqVO,
+                                                        OaBillApprovalVisibleScope visibleScope) {
+        LambdaQueryWrapperX<ContractBillDO> wrapper = new LambdaQueryWrapperX<ContractBillDO>()
                 .likeIfPresent(ContractBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(ContractBillDO::getProcessStatus, reqVO.getProcessStatus())
                 .likeIfPresent(ContractBillDO::getContractTitle, reqVO.getContractTitle())
@@ -31,7 +31,11 @@ public interface ContractBillMapper extends BaseMapperX<ContractBillDO> {
                 .likeIfPresent(ContractBillDO::getDeptName, reqVO.getDeptName())
                 .eqIfPresent(ContractBillDO::getCreator, reqVO.getCreator())
                 .betweenIfPresent(ContractBillDO::getCreateTime, reqVO.getCreateTime())
-                .orderByDesc(ContractBillDO::getId));
+                .orderByDesc(ContractBillDO::getId);
+        if (visibleScope != null) {
+            visibleScope.apply(wrapper, ContractBillDO::getCreator, ContractBillDO::getProcessInstanceId);
+        }
+        return selectPage(reqVO, wrapper);
     }
 
 }

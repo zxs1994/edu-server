@@ -10,6 +10,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -55,6 +56,9 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Override
     public Long saveSealApplyBill(SealApplyBillSaveReqVO saveReqVO) {
@@ -194,6 +198,7 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
     public SealApplyBillRespVO getSealApplyBillInfo(Long id) {
         validateSealApplyBillExists(id);
         SealApplyBillDO sealApplyBill = sealApplyBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(sealApplyBill.getCreator(), sealApplyBill.getProcessInstanceId());
         
         SealApplyBillRespVO respVO = BeanUtils.toBean(sealApplyBill, SealApplyBillRespVO.class);
         
@@ -213,7 +218,7 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
 
     @Override
     public PageResult<SealApplyBillDO> getSealApplyBillPage(SealApplyBillPageReqVO pageReqVO) {
-        return sealApplyBillMapper.selectPage(pageReqVO);
+        return sealApplyBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     // ==================== FlowBillService 接口实现 ====================

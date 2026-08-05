@@ -17,6 +17,7 @@ import cn.dh.oa.module.oa.dal.dataobject.expensepayment.ExpensePaymentDetailDO;
 import cn.dh.oa.module.oa.dal.mysql.expensepayment.ExpensePaymentBillMapper;
 import cn.dh.oa.module.oa.dal.mysql.expensepayment.ExpensePaymentDetailMapper;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,9 @@ public class ExpensePaymentBillServiceImpl implements ExpensePaymentBillService,
     private AttachmentService attachmentService;
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -118,6 +122,7 @@ public class ExpensePaymentBillServiceImpl implements ExpensePaymentBillService,
     public ExpensePaymentBillRespVO getExpensePaymentBillInfo(Long id) {
         validateExists(id);
         ExpensePaymentBillDO bill = expensePaymentBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(bill.getCreator(), bill.getProcessInstanceId());
         ExpensePaymentBillRespVO respVO = BeanUtils.toBean(bill, ExpensePaymentBillRespVO.class);
         if (respVO.getTotalAmount() == null) {
             respVO.setTotalAmount(BigDecimal.ZERO);
@@ -132,7 +137,7 @@ public class ExpensePaymentBillServiceImpl implements ExpensePaymentBillService,
 
     @Override
     public PageResult<ExpensePaymentBillDO> getExpensePaymentBillPage(ExpensePaymentBillPageReqVO pageReqVO) {
-        return expensePaymentBillMapper.selectPage(pageReqVO);
+        return expensePaymentBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     private void validateExists(Long id) {

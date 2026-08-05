@@ -10,6 +10,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -54,6 +55,9 @@ public class MeetingRoomBookingServiceImpl implements MeetingRoomBookingService,
 
     @Resource
     private MeetingRoomService meetingRoomService;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
 
     @Override
@@ -197,6 +201,7 @@ public class MeetingRoomBookingServiceImpl implements MeetingRoomBookingService,
     public MeetingRoomBookingRespVO getMeetingRoomBooking(Long id) {
         validateMeetingRoomBookingExists(id);
         MeetingRoomBookingDO meetingRoomBooking = meetingRoomBookingMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(meetingRoomBooking.getCreator(), meetingRoomBooking.getProcessInstanceId());
 
         MeetingRoomBookingRespVO respVO = BeanUtils.toBean(meetingRoomBooking, MeetingRoomBookingRespVO.class);
 
@@ -234,7 +239,7 @@ public class MeetingRoomBookingServiceImpl implements MeetingRoomBookingService,
 
     @Override
     public PageResult<MeetingRoomBookingDO> getMeetingRoomBookingPage(MeetingRoomBookingPageReqVO pageReqVO) {
-        return meetingRoomBookingMapper.selectPage(pageReqVO);
+        return meetingRoomBookingMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     @Override

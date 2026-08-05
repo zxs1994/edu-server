@@ -17,6 +17,7 @@ import cn.dh.oa.module.oa.controller.admin.reception.vo.ReceptionApplyBillSaveRe
 import cn.dh.oa.module.oa.dal.dataobject.reception.ReceptionApplyBillDO;
 import cn.dh.oa.module.oa.dal.mysql.reception.ReceptionApplyBillMapper;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +42,8 @@ public class ReceptionApplyBillServiceImpl implements ReceptionApplyBillService,
     private BpmProcessInstanceApi processInstanceApi;
     @Resource
     private AttachmentService attachmentService;
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -99,6 +102,7 @@ public class ReceptionApplyBillServiceImpl implements ReceptionApplyBillService,
     public ReceptionApplyBillRespVO getReceptionApplyBillInfo(Long id) {
         validateExists(id);
         ReceptionApplyBillDO bill = receptionApplyBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(bill.getCreator(), bill.getProcessInstanceId());
         ReceptionApplyBillRespVO respVO = BeanUtils.toBean(bill, ReceptionApplyBillRespVO.class);
         respVO.setAttachments(BeanUtils.toBean(
                 attachmentService.getAttachmentListByBusiness(
@@ -109,7 +113,7 @@ public class ReceptionApplyBillServiceImpl implements ReceptionApplyBillService,
 
     @Override
     public PageResult<ReceptionApplyBillDO> getReceptionApplyBillPage(ReceptionApplyBillPageReqVO pageReqVO) {
-        return receptionApplyBillMapper.selectPage(pageReqVO);
+        return receptionApplyBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     private void validateExists(Long id) {

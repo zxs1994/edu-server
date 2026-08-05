@@ -7,6 +7,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -47,6 +48,9 @@ public class DocumentDispatchBillServiceImpl implements DocumentDispatchBillServ
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Override
     public Long saveDocumentDispatchBill(DocumentDispatchBillSaveReqVO saveReqVO) {
@@ -153,6 +157,7 @@ public class DocumentDispatchBillServiceImpl implements DocumentDispatchBillServ
     public DocumentDispatchBillRespVO getDocumentDispatchBillInfo(Long id) {
         validateDocumentDispatchBillExists(id);
         DocumentDispatchBillDO documentDispatchBill = documentDispatchBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(documentDispatchBill.getCreator(), documentDispatchBill.getProcessInstanceId());
 
         DocumentDispatchBillRespVO respVO = BeanUtils.toBean(documentDispatchBill, DocumentDispatchBillRespVO.class);
 
@@ -167,7 +172,7 @@ public class DocumentDispatchBillServiceImpl implements DocumentDispatchBillServ
 
     @Override
     public PageResult<DocumentDispatchBillDO> getDocumentDispatchBillPage(DocumentDispatchBillPageReqVO pageReqVO) {
-        return documentDispatchBillMapper.selectPage(pageReqVO);
+        return documentDispatchBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     // ==================== FlowBillService 接口实现 ====================

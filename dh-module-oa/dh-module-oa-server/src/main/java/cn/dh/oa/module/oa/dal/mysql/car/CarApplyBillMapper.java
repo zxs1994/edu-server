@@ -1,11 +1,10 @@
 package cn.dh.oa.module.oa.dal.mysql.car;
 
-import java.util.*;
-
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.module.oa.dal.dataobject.car.CarApplyBillDO;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleScope;
 import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.car.vo.*;
 
@@ -17,8 +16,9 @@ import cn.dh.oa.module.oa.controller.admin.car.vo.*;
 @Mapper
 public interface CarApplyBillMapper extends BaseMapperX<CarApplyBillDO> {
 
-    default PageResult<CarApplyBillDO> selectPage(CarApplyBillPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<CarApplyBillDO>()
+default PageResult<CarApplyBillDO> selectPageByVisibleScope(CarApplyBillPageReqVO reqVO,
+                                                        OaBillApprovalVisibleScope visibleScope) {
+        LambdaQueryWrapperX<CarApplyBillDO> wrapper = new LambdaQueryWrapperX<CarApplyBillDO>()
                 .eqIfPresent(CarApplyBillDO::getId, reqVO.getId())
                 .likeIfPresent(CarApplyBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(CarApplyBillDO::getProcessInstanceId, reqVO.getProcessInstanceId())
@@ -37,9 +37,11 @@ public interface CarApplyBillMapper extends BaseMapperX<CarApplyBillDO> {
                 .eqIfPresent(CarApplyBillDO::getDeptId, reqVO.getDeptId())
                 .likeIfPresent(CarApplyBillDO::getDeptName, reqVO.getDeptName())
                 .eqIfPresent(CarApplyBillDO::getReturnStatus, reqVO.getReturnStatus())
-                .orderByDesc(CarApplyBillDO::getId));
+                .orderByDesc(CarApplyBillDO::getId);
+        if (visibleScope != null) {
+            visibleScope.apply(wrapper, CarApplyBillDO::getCreator, CarApplyBillDO::getProcessInstanceId);
+        }
+        return selectPage(reqVO, wrapper);
     }
-
-    
 
 }

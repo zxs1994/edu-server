@@ -7,6 +7,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -66,6 +67,9 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     /**
      * 根据 billType 获取对应的单据类型枚举
@@ -241,6 +245,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     public ExpenseReimburseBillRespVO getExpenseReimburseBillInfo(Long id) {
         validateExpenseReimburseBillExists(id);
         ExpenseReimburseBillDO expenseReimburseBill = expenseReimburseBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(expenseReimburseBill.getCreator(), expenseReimburseBill.getProcessInstanceId());
 
         ExpenseReimburseBillRespVO respVO = BeanUtils.toBean(expenseReimburseBill, ExpenseReimburseBillRespVO.class);
         if (respVO.getTotalAmount() == null) {
@@ -294,7 +299,7 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
 
     @Override
     public PageResult<ExpenseReimburseBillDO> getExpenseReimburseBillPage(ExpenseReimburseBillPageReqVO pageReqVO) {
-        return expenseReimburseBillMapper.selectPage(pageReqVO);
+        return expenseReimburseBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     /**

@@ -9,6 +9,7 @@ import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.dal.dataobject.car.CarApplyBillDO;
 import cn.dh.oa.module.oa.enums.CarReturnStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +52,9 @@ public class CarReturnBillServiceImpl implements CarReturnBillService, FlowBillS
 
     @Resource
     private CarApplyBillService carApplyBillService;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Override
     public Long saveCarReturnBill(CarReturnBillSaveReqVO saveReqVO) {
@@ -167,6 +171,7 @@ public class CarReturnBillServiceImpl implements CarReturnBillService, FlowBillS
     public CarReturnBillRespVO getCarReturnBillInfo(Long id) {
         validateCarReturnBillExists(id);
         CarReturnBillDO carReturnBill = carReturnBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(carReturnBill.getCreator(), carReturnBill.getProcessInstanceId());
         
         CarReturnBillRespVO respVO = BeanUtils.toBean(carReturnBill, CarReturnBillRespVO.class);
         
@@ -181,7 +186,7 @@ public class CarReturnBillServiceImpl implements CarReturnBillService, FlowBillS
 
     @Override
     public PageResult<CarReturnBillDO> getCarReturnBillPage(CarReturnBillPageReqVO pageReqVO) {
-        return carReturnBillMapper.selectPage(pageReqVO);
+        return carReturnBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
 

@@ -1,11 +1,10 @@
 package cn.dh.oa.module.oa.dal.mysql.document;
 
-import java.util.*;
-
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.module.oa.dal.dataobject.document.DocumentDispatchBillDO;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleScope;
 import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.document.vo.*;
 
@@ -17,8 +16,9 @@ import cn.dh.oa.module.oa.controller.admin.document.vo.*;
 @Mapper
 public interface DocumentDispatchBillMapper extends BaseMapperX<DocumentDispatchBillDO> {
 
-    default PageResult<DocumentDispatchBillDO> selectPage(DocumentDispatchBillPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<DocumentDispatchBillDO>()
+default PageResult<DocumentDispatchBillDO> selectPageByVisibleScope(DocumentDispatchBillPageReqVO reqVO,
+                                                        OaBillApprovalVisibleScope visibleScope) {
+        LambdaQueryWrapperX<DocumentDispatchBillDO> wrapper = new LambdaQueryWrapperX<DocumentDispatchBillDO>()
                 .likeIfPresent(DocumentDispatchBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(DocumentDispatchBillDO::getProcessStatus, reqVO.getProcessStatus())
                 .likeIfPresent(DocumentDispatchBillDO::getDocTitle, reqVO.getDocTitle())
@@ -31,7 +31,11 @@ public interface DocumentDispatchBillMapper extends BaseMapperX<DocumentDispatch
                 .likeIfPresent(DocumentDispatchBillDO::getDeptName, reqVO.getDeptName())
                 .eqIfPresent(DocumentDispatchBillDO::getCreator, reqVO.getCreator())
                 .betweenIfPresent(DocumentDispatchBillDO::getCreateTime, reqVO.getCreateTime())
-                .orderByDesc(DocumentDispatchBillDO::getId));
+                .orderByDesc(DocumentDispatchBillDO::getId);
+        if (visibleScope != null) {
+            visibleScope.apply(wrapper, DocumentDispatchBillDO::getCreator, DocumentDispatchBillDO::getProcessInstanceId);
+        }
+        return selectPage(reqVO, wrapper);
     }
 
 }

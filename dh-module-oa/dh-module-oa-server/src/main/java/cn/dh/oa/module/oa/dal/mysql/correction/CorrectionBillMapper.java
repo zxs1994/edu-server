@@ -5,6 +5,7 @@ import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.module.oa.dal.dataobject.correction.CorrectionBillDO;
 import cn.dh.oa.module.oa.enums.correction.OaBillCorrectionStatusEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleScope;
 import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.correction.vo.CorrectionBillPageReqVO;
 
@@ -18,8 +19,9 @@ import java.util.List;
 @Mapper
 public interface CorrectionBillMapper extends BaseMapperX<CorrectionBillDO> {
 
-    default PageResult<CorrectionBillDO> selectPage(CorrectionBillPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<CorrectionBillDO>()
+default PageResult<CorrectionBillDO> selectPageByVisibleScope(CorrectionBillPageReqVO reqVO,
+                                                        OaBillApprovalVisibleScope visibleScope) {
+        LambdaQueryWrapperX<CorrectionBillDO> wrapper = new LambdaQueryWrapperX<CorrectionBillDO>()
                 .likeIfPresent(CorrectionBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(CorrectionBillDO::getProcessStatus, reqVO.getProcessStatus())
                 .eqIfPresent(CorrectionBillDO::getSourceBillType, reqVO.getSourceBillType())
@@ -27,7 +29,11 @@ public interface CorrectionBillMapper extends BaseMapperX<CorrectionBillDO> {
                 .eqIfPresent(CorrectionBillDO::getCorrectionStatus, reqVO.getCorrectionStatus())
                 .eqIfPresent(CorrectionBillDO::getCreator, reqVO.getCreator())
                 .betweenIfPresent(CorrectionBillDO::getCreateTime, reqVO.getCreateTime())
-                .orderByDesc(CorrectionBillDO::getId));
+                .orderByDesc(CorrectionBillDO::getId);
+        if (visibleScope != null) {
+            visibleScope.apply(wrapper, CorrectionBillDO::getCreator, CorrectionBillDO::getProcessInstanceId);
+        }
+        return selectPage(reqVO, wrapper);
     }
 
     default CorrectionBillDO selectLatestBySourceProcessInstanceId(String sourceProcessInstanceId) {

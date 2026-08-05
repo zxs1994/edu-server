@@ -6,6 +6,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -61,6 +62,9 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Resource
     private ContractCodeSeqMapper contractCodeSeqMapper;
@@ -197,6 +201,7 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
     public ContractBillRespVO getContractBillInfo(Long id) {
         validateContractBillExists(id);
         ContractBillDO contractBill = contractBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(contractBill.getCreator(), contractBill.getProcessInstanceId());
 
         ContractBillRespVO respVO = BeanUtils.toBean(contractBill, ContractBillRespVO.class);
 
@@ -223,7 +228,7 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
 
     @Override
     public PageResult<ContractBillDO> getContractBillPage(ContractBillPageReqVO pageReqVO) {
-        return contractBillMapper.selectPage(pageReqVO);
+        return contractBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     // ==================== 合同明细和收付款计划 ====================

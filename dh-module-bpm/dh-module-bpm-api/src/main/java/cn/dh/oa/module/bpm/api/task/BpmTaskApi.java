@@ -24,4 +24,16 @@ public interface BpmTaskApi {
     CommonResult<List<BpmHistoricTaskRespDTO>> getFinishedTaskList(
             @RequestParam("processInstanceId") String processInstanceId);
 
+    @GetMapping(PREFIX + "/todo-process-instance-ids")
+    @Operation(summary = "获取用户待办任务对应的流程实例编号列表")
+    @Parameter(name = "userId", description = "用户编号", required = true)
+    CommonResult<List<String>> getTodoProcessInstanceIds(@RequestParam("userId") Long userId);
+
+    @GetMapping(PREFIX + "/is-user-task-participant")
+    @Operation(summary = "判断用户是否作为办理人参与过指定流程实例（含已办）")
+    @Parameter(name = "userId", description = "用户编号", required = true)
+    @Parameter(name = "processInstanceId", description = "流程实例编号", required = true)
+    CommonResult<Boolean> isUserTaskParticipant(@RequestParam("userId") Long userId,
+                                                @RequestParam("processInstanceId") String processInstanceId);
+
 }

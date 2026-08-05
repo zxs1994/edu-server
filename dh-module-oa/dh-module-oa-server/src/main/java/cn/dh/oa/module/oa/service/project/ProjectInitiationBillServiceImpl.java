@@ -7,6 +7,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -40,6 +41,9 @@ public class ProjectInitiationBillServiceImpl implements ProjectInitiationBillSe
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Override
     public Long saveProjectInitiationBill(ProjectInitiationBillSaveReqVO saveReqVO) {
@@ -110,6 +114,7 @@ public class ProjectInitiationBillServiceImpl implements ProjectInitiationBillSe
     public ProjectInitiationBillRespVO getProjectInitiationBillInfo(Long id) {
         validateProjectInitiationBillExists(id);
         ProjectInitiationBillDO bill = projectInitiationBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(bill.getCreator(), bill.getProcessInstanceId());
         ProjectInitiationBillRespVO respVO = BeanUtils.toBean(bill, ProjectInitiationBillRespVO.class);
         respVO.setAttachments(BeanUtils.toBean(
             attachmentService.getAttachmentListByBusiness(OaBillTypeEnum.OA_PROJECT_INITIATION_BILL.getTypeCode(), id),
@@ -120,7 +125,7 @@ public class ProjectInitiationBillServiceImpl implements ProjectInitiationBillSe
 
     @Override
     public PageResult<ProjectInitiationBillDO> getProjectInitiationBillPage(ProjectInitiationBillPageReqVO pageReqVO) {
-        return projectInitiationBillMapper.selectPage(pageReqVO);
+        return projectInitiationBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     @Override

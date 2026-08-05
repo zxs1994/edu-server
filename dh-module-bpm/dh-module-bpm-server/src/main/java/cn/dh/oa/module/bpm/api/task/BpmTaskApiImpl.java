@@ -45,4 +45,14 @@ public class BpmTaskApiImpl implements BpmTaskApi {
         return success(result);
     }
 
+    @Override
+    public CommonResult<List<String>> getTodoProcessInstanceIds(Long userId) {
+        return success(taskService.getTodoProcessInstanceIds(userId));
+    }
+
+    @Override
+    public CommonResult<Boolean> isUserTaskParticipant(Long userId, String processInstanceId) {
+        return success(taskService.isUserTaskParticipant(userId, processInstanceId));
+    }
+
 }

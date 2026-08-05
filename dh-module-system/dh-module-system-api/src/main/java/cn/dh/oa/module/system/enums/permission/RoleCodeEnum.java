@@ -13,7 +13,8 @@ public enum RoleCodeEnum {
 
     SUPER_ADMIN("super_admin", "超级管理员"),
     TENANT_ADMIN("tenant_admin", "租户管理员"),
-    CRM_ADMIN("crm_admin", "CRM 管理员"); // CRM 系统专用
+    CRM_ADMIN("crm_admin", "CRM 管理员"), // CRM 系统专用
+    OA_COMPREHENSIVE_ADMIN("oa_comprehensive_admin", "综合管理员"), // OA 审批管理可查看全部，不可代审
     ;
 
     /**
@@ -27,6 +28,11 @@ public enum RoleCodeEnum {
 
     public static boolean isSuperAdmin(String code) {
         return ObjectUtils.equalsAny(code, SUPER_ADMIN.getCode());
+    }
+
+    /** 审批管理可查看全部单据的角色（超管 / 综合管理员） */
+    public static boolean isOaBillViewAll(String code) {
+        return ObjectUtils.equalsAny(code, SUPER_ADMIN.getCode(), OA_COMPREHENSIVE_ADMIN.getCode());
     }
 
 }

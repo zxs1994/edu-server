@@ -97,4 +97,7 @@ public interface ErrorCodeConstants {
 
     // ========== 接待申请单 1-101-016-000 ============
     ErrorCode RECEPTION_APPLY_BILL_NOT_EXISTS = new ErrorCode(1_101_016_000, "接待申请单不存在");
+
+    // ========== 审批可见范围 1-101-017-000 ============
+    ErrorCode OA_BILL_VIEW_DENIED = new ErrorCode(1_101_017_000, "无权查看该单据");
 }

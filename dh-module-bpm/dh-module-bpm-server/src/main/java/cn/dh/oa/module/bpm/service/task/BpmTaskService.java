@@ -93,6 +93,23 @@ public interface BpmTaskService {
     List<HistoricTaskInstance> getTaskListByProcessInstanceId(String processInstanceId, Boolean asc);
 
     /**
+     * 获得指定用户当前待办任务的流程实例编号列表（去重）
+     *
+     * @param userId 用户编号
+     * @return 流程实例编号列表
+     */
+    List<String> getTodoProcessInstanceIds(Long userId);
+
+    /**
+     * 判断用户是否作为办理人参与过指定流程实例（历史任务，含已办）
+     *
+     * @param userId            用户编号
+     * @param processInstanceId 流程实例编号
+     * @return 是否参与过
+     */
+    boolean isUserTaskParticipant(Long userId, String processInstanceId);
+
+    /**
      * 校验任务是否存在，并且是否是分配给自己的任务
      *
      * @param userId 用户 id

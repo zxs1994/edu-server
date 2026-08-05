@@ -7,6 +7,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -49,6 +50,9 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -136,6 +140,7 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
     public TravelApplyBillRespVO getTravelApplyBillInfo(Long id) {
         validateTravelApplyBillExists(id);
         TravelApplyBillDO bill = travelApplyBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(bill.getCreator(), bill.getProcessInstanceId());
         TravelApplyBillRespVO respVO = BeanUtils.toBean(bill, TravelApplyBillRespVO.class);
         respVO.setAttachments(BeanUtils.toBean(
             attachmentService.getAttachmentListByBusiness(OaBillTypeEnum.OA_TRAVEL_APPLY_BILL.getTypeCode(), id),
@@ -151,7 +156,7 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
 
     @Override
     public PageResult<TravelApplyBillDO> getTravelApplyBillPage(TravelApplyBillPageReqVO pageReqVO) {
-        return travelApplyBillMapper.selectPage(pageReqVO);
+        return travelApplyBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
     @Override

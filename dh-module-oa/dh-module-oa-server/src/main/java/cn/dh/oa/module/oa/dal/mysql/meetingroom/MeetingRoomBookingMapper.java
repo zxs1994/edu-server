@@ -1,11 +1,10 @@
 package cn.dh.oa.module.oa.dal.mysql.meetingroom;
 
-import java.util.*;
-
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.module.oa.dal.dataobject.meetingroom.MeetingRoomBookingDO;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleScope;
 import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.meetingroom.vo.*;
 
@@ -17,8 +16,9 @@ import cn.dh.oa.module.oa.controller.admin.meetingroom.vo.*;
 @Mapper
 public interface MeetingRoomBookingMapper extends BaseMapperX<MeetingRoomBookingDO> {
 
-    default PageResult<MeetingRoomBookingDO> selectPage(MeetingRoomBookingPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<MeetingRoomBookingDO>()
+default PageResult<MeetingRoomBookingDO> selectPageByVisibleScope(MeetingRoomBookingPageReqVO reqVO,
+                                                        OaBillApprovalVisibleScope visibleScope) {
+        LambdaQueryWrapperX<MeetingRoomBookingDO> wrapper = new LambdaQueryWrapperX<MeetingRoomBookingDO>()
                 .eqIfPresent(MeetingRoomBookingDO::getCreator, reqVO.getCreator())
                 .likeIfPresent(MeetingRoomBookingDO::getBillCode, reqVO.getBillCode())
                 .likeIfPresent(MeetingRoomBookingDO::getRoomName, reqVO.getRoomName())
@@ -29,7 +29,11 @@ public interface MeetingRoomBookingMapper extends BaseMapperX<MeetingRoomBooking
                 .betweenIfPresent(MeetingRoomBookingDO::getMeetingStartTime, reqVO.getMeetingStartTime())
                 .betweenIfPresent(MeetingRoomBookingDO::getMeetingEndTime, reqVO.getMeetingEndTime())
                 .betweenIfPresent(MeetingRoomBookingDO::getCreateTime, reqVO.getCreateTime())
-                .orderByDesc(MeetingRoomBookingDO::getId));
+                .orderByDesc(MeetingRoomBookingDO::getId);
+        if (visibleScope != null) {
+            visibleScope.apply(wrapper, MeetingRoomBookingDO::getCreator, MeetingRoomBookingDO::getProcessInstanceId);
+        }
+        return selectPage(reqVO, wrapper);
     }
 
     default MeetingRoomBookingDO selectByBillCode(String billCode) {
@@ -37,4 +41,3 @@ public interface MeetingRoomBookingMapper extends BaseMapperX<MeetingRoomBooking
     }
 
 }
-

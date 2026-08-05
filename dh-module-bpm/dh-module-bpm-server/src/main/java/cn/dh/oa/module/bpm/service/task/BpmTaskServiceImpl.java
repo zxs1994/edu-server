@@ -67,6 +67,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -179,6 +180,36 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         }
         List<Task> tasks = taskQuery.listPage(PageUtils.getStart(pageVO), pageVO.getPageSize());
         return new PageResult<>(tasks, count);
+    }
+
+    @Override
+    public List<String> getTodoProcessInstanceIds(Long userId) {
+        List<Task> tasks = taskService.createTaskQuery()
+                .taskAssignee(String.valueOf(userId))
+                .active()
+                .taskTenantId(FlowableUtils.getTenantId())
+                .list();
+        if (CollUtil.isEmpty(tasks)) {
+            return Collections.emptyList();
+        }
+        return tasks.stream()
+                .map(Task::getProcessInstanceId)
+                .filter(StrUtil::isNotBlank)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isUserTaskParticipant(Long userId, String processInstanceId) {
+        if (userId == null || StrUtil.isBlank(processInstanceId)) {
+            return false;
+        }
+        long count = historyService.createHistoricTaskInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .taskAssignee(String.valueOf(userId))
+                .taskTenantId(FlowableUtils.getTenantId())
+                .count();
+        return count > 0;
     }
 
     @Override

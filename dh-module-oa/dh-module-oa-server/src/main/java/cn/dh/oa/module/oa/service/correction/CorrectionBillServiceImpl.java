@@ -6,6 +6,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,9 @@ public class CorrectionBillServiceImpl implements CorrectionBillService {
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
     @Resource
     private cn.dh.oa.module.oa.service.correction.freeze.BillFreezeHandlerRegistry billFreezeHandlerRegistry;
@@ -138,6 +142,7 @@ public class CorrectionBillServiceImpl implements CorrectionBillService {
     public CorrectionBillRespVO getCorrectionBillInfo(Long id) {
         validateCorrectionBillExists(id);
         CorrectionBillDO correctionBill = correctionBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(correctionBill.getCreator(), correctionBill.getProcessInstanceId());
 
         CorrectionBillRespVO respVO = BeanUtils.toBean(correctionBill, CorrectionBillRespVO.class);
 
@@ -152,7 +157,7 @@ public class CorrectionBillServiceImpl implements CorrectionBillService {
 
     @Override
     public PageResult<CorrectionBillDO> getCorrectionBillPage(CorrectionBillPageReqVO pageReqVO) {
-        PageResult<CorrectionBillDO> pageResult = correctionBillMapper.selectPage(pageReqVO);
+        PageResult<CorrectionBillDO> pageResult = correctionBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
         List<CorrectionBillDO> filteredList = pageResult.getList().stream()
                 .filter(this::sourceBillExists)
                 .toList();

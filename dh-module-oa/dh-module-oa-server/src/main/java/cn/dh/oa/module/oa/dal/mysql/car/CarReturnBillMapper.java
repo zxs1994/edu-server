@@ -1,11 +1,10 @@
 package cn.dh.oa.module.oa.dal.mysql.car;
 
-import java.util.*;
-
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.module.oa.dal.dataobject.car.CarReturnBillDO;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleScope;
 import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.car.vo.*;
 
@@ -17,8 +16,9 @@ import cn.dh.oa.module.oa.controller.admin.car.vo.*;
 @Mapper
 public interface CarReturnBillMapper extends BaseMapperX<CarReturnBillDO> {
 
-    default PageResult<CarReturnBillDO> selectPage(CarReturnBillPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<CarReturnBillDO>()
+default PageResult<CarReturnBillDO> selectPageByVisibleScope(CarReturnBillPageReqVO reqVO,
+                                                        OaBillApprovalVisibleScope visibleScope) {
+        LambdaQueryWrapperX<CarReturnBillDO> wrapper = new LambdaQueryWrapperX<CarReturnBillDO>()
                 .eqIfPresent(CarReturnBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(CarReturnBillDO::getProcessInstanceId, reqVO.getProcessInstanceId())
                 .eqIfPresent(CarReturnBillDO::getProcessStatus, reqVO.getProcessStatus())
@@ -39,7 +39,11 @@ public interface CarReturnBillMapper extends BaseMapperX<CarReturnBillDO> {
                 .eqIfPresent(CarReturnBillDO::getParentId, reqVO.getParentId())
                 .eqIfPresent(CarReturnBillDO::getDeptId, reqVO.getDeptId())
                 .likeIfPresent(CarReturnBillDO::getDeptName, reqVO.getDeptName())
-                .orderByDesc(CarReturnBillDO::getId));
+                .orderByDesc(CarReturnBillDO::getId);
+        if (visibleScope != null) {
+            visibleScope.apply(wrapper, CarReturnBillDO::getCreator, CarReturnBillDO::getProcessInstanceId);
+        }
+        return selectPage(reqVO, wrapper);
     }
 
 }

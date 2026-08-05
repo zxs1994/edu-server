@@ -5,13 +5,15 @@ import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.module.oa.controller.admin.reception.vo.ReceptionApplyBillPageReqVO;
 import cn.dh.oa.module.oa.dal.dataobject.reception.ReceptionApplyBillDO;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleScope;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
 public interface ReceptionApplyBillMapper extends BaseMapperX<ReceptionApplyBillDO> {
 
-    default PageResult<ReceptionApplyBillDO> selectPage(ReceptionApplyBillPageReqVO reqVO) {
-        return selectPage(reqVO, new LambdaQueryWrapperX<ReceptionApplyBillDO>()
+default PageResult<ReceptionApplyBillDO> selectPageByVisibleScope(ReceptionApplyBillPageReqVO reqVO,
+                                                        OaBillApprovalVisibleScope visibleScope) {
+        LambdaQueryWrapperX<ReceptionApplyBillDO> wrapper = new LambdaQueryWrapperX<ReceptionApplyBillDO>()
                 .eqIfPresent(ReceptionApplyBillDO::getId, reqVO.getId())
                 .likeIfPresent(ReceptionApplyBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(ReceptionApplyBillDO::getProcessInstanceId, reqVO.getProcessInstanceId())
@@ -22,7 +24,11 @@ public interface ReceptionApplyBillMapper extends BaseMapperX<ReceptionApplyBill
                 .likeIfPresent(ReceptionApplyBillDO::getCreatorName, reqVO.getCreatorName())
                 .likeIfPresent(ReceptionApplyBillDO::getDeptName, reqVO.getDeptName())
                 .betweenIfPresent(ReceptionApplyBillDO::getCreateTime, reqVO.getCreateTime())
-                .orderByDesc(ReceptionApplyBillDO::getId));
+                .orderByDesc(ReceptionApplyBillDO::getId);
+        if (visibleScope != null) {
+            visibleScope.apply(wrapper, ReceptionApplyBillDO::getCreator, ReceptionApplyBillDO::getProcessInstanceId);
+        }
+        return selectPage(reqVO, wrapper);
     }
 
 }

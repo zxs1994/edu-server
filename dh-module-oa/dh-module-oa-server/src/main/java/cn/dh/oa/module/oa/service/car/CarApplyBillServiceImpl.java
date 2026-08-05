@@ -8,6 +8,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,9 @@ public class CarApplyBillServiceImpl implements CarApplyBillService, FlowBillSer
 
     @Resource
     private BpmProcessInstanceApi processInstanceApi;
+
+    @Resource
+    private OaBillApprovalVisibleService oaBillApprovalVisibleService;
 
 
     @Override
@@ -165,6 +169,7 @@ public class CarApplyBillServiceImpl implements CarApplyBillService, FlowBillSer
     public CarApplyBillRespVO getCarApplyBillInfo(Long id) {
         validateCarApplyBillExists(id);
         CarApplyBillDO carApplyBill = carApplyBillMapper.selectById(id);
+        oaBillApprovalVisibleService.assertCanView(carApplyBill.getCreator(), carApplyBill.getProcessInstanceId());
         
         CarApplyBillRespVO respVO = BeanUtils.toBean(carApplyBill, CarApplyBillRespVO.class);
         
@@ -184,7 +189,7 @@ public class CarApplyBillServiceImpl implements CarApplyBillService, FlowBillSer
 
     @Override
     public PageResult<CarApplyBillDO> getCarApplyBillPage(CarApplyBillPageReqVO pageReqVO) {
-        return carApplyBillMapper.selectPage(pageReqVO);
+        return carApplyBillMapper.selectPageByVisibleScope(pageReqVO, oaBillApprovalVisibleService.resolveCurrentUserScope());
     }
 
 

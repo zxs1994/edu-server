@@ -4,13 +4,15 @@ import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.dh.oa.framework.mybatis.core.mapper.BaseMapperX;
 import cn.dh.oa.module.oa.dal.dataobject.travel.TravelApplyBillDO;
+import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleScope;
 import org.apache.ibatis.annotations.Mapper;
 import cn.dh.oa.module.oa.controller.admin.travel.vo.TravelApplyBillPageReqVO;
 
 @Mapper
 public interface TravelApplyBillMapper extends BaseMapperX<TravelApplyBillDO> {
 
-    default PageResult<TravelApplyBillDO> selectPage(TravelApplyBillPageReqVO reqVO) {
+default PageResult<TravelApplyBillDO> selectPageByVisibleScope(TravelApplyBillPageReqVO reqVO,
+                                                        OaBillApprovalVisibleScope visibleScope) {
         LambdaQueryWrapperX<TravelApplyBillDO> wrapper = new LambdaQueryWrapperX<TravelApplyBillDO>()
                 .likeIfPresent(TravelApplyBillDO::getBillCode, reqVO.getBillCode())
                 .eqIfPresent(TravelApplyBillDO::getProcessStatus, reqVO.getProcessStatus())
@@ -27,6 +29,9 @@ public interface TravelApplyBillMapper extends BaseMapperX<TravelApplyBillDO> {
             } else {
                 wrapper.isNull(TravelApplyBillDO::getLinkedExpenseBillId);
             }
+        }
+        if (visibleScope != null) {
+            visibleScope.apply(wrapper, TravelApplyBillDO::getCreator, TravelApplyBillDO::getProcessInstanceId);
         }
         return selectPage(reqVO, wrapper);
     }
