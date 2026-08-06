@@ -1,6 +1,5 @@
 package cn.dh.oa.module.oa.service.bill.export.impl;
 
-import cn.dh.oa.framework.dict.core.DictFrameworkUtils;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.expense.vo.ExpenseReimburseDetailRespVO;
 import cn.dh.oa.module.oa.service.bill.export.BillExportData;
@@ -13,12 +12,9 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 日常报销单模板导出数据组装
@@ -33,7 +29,6 @@ public class DailyExpenseExportMapBuilder {
     private static final String FIXED_AUDITOR = "胡建国";
     private static final String FIXED_APPROVER = "沈建华";
     private static final String FIXED_PROOF = "于芯菲";
-    private static final String EXPENSE_TYPE_DICT = "oa_expense_type";
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("M");
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("d");
@@ -64,14 +59,15 @@ public class DailyExpenseExportMapBuilder {
             main.put("createDateText", "");
         }
         main.put("billCode", valueOrEmpty(bill.getBillCode()));
-        List<String> expenseTypeLabels = resolveExpenseTypeLabels(bill.getDetails());
         main.put("companyName", joinWithSlash(bill.getCompanyName(), bill.getDeptName()));
         main.put("deptName", valueOrEmpty(bill.getDeptName()));
         main.put("creatorName", valueOrEmpty(bill.getCreatorName()));
-        main.put("cause", buildExpenseTypeSummary(expenseTypeLabels));
+        // 日常报销单：导出「报销事由」，不再用明细费用类型拼接
+        String cause = valueOrEmpty(bill.getCause());
+        main.put("cause", cause);
         main.put("remark", valueOrEmpty(bill.getRemark()));
-        // 标题括号内：多个费用类型用「/」拼接
-        main.put("expenseType", String.join("/", expenseTypeLabels));
+        // 标题括号内展示同样使用「报销事由」
+        main.put("expenseType", cause);
         // 数字类型，供 Excel 货币/数值格式单元格使用
         main.put("totalAmount", OaMoneyUtils.toMoneyValue(bill.getTotalAmount()));
         main.put("totalAmountText", OaMoneyUtils.formatWithComma(bill.getTotalAmount()));
@@ -88,44 +84,11 @@ public class DailyExpenseExportMapBuilder {
             return "";
         }
         int total = details.stream()
-                .map(ExpenseReimburseDetailRespVO::getReceiptCount)
+                .map(detail -> detail.getReceiptCount())
                 .filter(count -> count != null)
-                .mapToInt(Integer::intValue)
+                .mapToInt(count -> count)
                 .sum();
         return String.valueOf(total);
-    }
-
-    private List<String> resolveExpenseTypeLabels(List<ExpenseReimburseDetailRespVO> details) {
-        if (details == null || details.isEmpty()) {
-            return List.of();
-        }
-        Set<String> labels = new LinkedHashSet<>();
-        details.stream()
-                .sorted(Comparator
-                        .comparing(ExpenseReimburseDetailRespVO::getSortOrder, Comparator.nullsLast(Integer::compareTo))
-                        .thenComparing(ExpenseReimburseDetailRespVO::getId, Comparator.nullsLast(Long::compareTo)))
-                .forEach(detail -> {
-                    String label = resolveExpenseTypeLabel(detail.getExpenseType());
-                    if (!label.isBlank()) {
-                        labels.add(label);
-                    }
-                });
-        return new ArrayList<>(labels);
-    }
-
-    private String resolveExpenseTypeLabel(String expenseType) {
-        if (expenseType == null || expenseType.isBlank()) {
-            return "";
-        }
-        String label = DictFrameworkUtils.parseDictDataLabel(EXPENSE_TYPE_DICT, expenseType);
-        return label != null ? label : expenseType;
-    }
-
-    private String buildExpenseTypeSummary(List<String> expenseTypeLabels) {
-        if (expenseTypeLabels == null || expenseTypeLabels.isEmpty()) {
-            return "";
-        }
-        return String.join("，", expenseTypeLabels);
     }
 
     private String joinWithSlash(String first, String second) {
