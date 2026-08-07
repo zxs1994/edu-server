@@ -51,4 +51,13 @@ public class BpmProcessInstanceCopyRespVO {
     @Schema(description = "业务单据是否已删除", example = "false")
     private Boolean billDeleted;
 
+    @Schema(description = "单据编号", example = "OA112-2026080400001")
+    private String billCode;
+
+    @Schema(description = "所属公司名称", example = "中国引航协会")
+    private String companyName;
+
+    @Schema(description = "所属部门名称", example = "秘书处")
+    private String deptName;
+
 }

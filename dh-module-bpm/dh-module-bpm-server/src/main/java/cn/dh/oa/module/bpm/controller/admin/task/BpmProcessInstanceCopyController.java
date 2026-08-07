@@ -1,6 +1,7 @@
 package cn.dh.oa.module.bpm.controller.admin.task;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.dh.oa.framework.common.core.KeyValue;
 import cn.dh.oa.framework.common.pojo.CommonResult;
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.framework.common.util.collection.MapUtils;
@@ -11,11 +12,13 @@ import cn.dh.oa.module.bpm.controller.admin.task.vo.cc.BpmProcessInstanceCopyRes
 import cn.dh.oa.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceCopyPageReqVO;
 import cn.dh.oa.module.bpm.dal.dataobject.definition.BpmProcessDefinitionInfoDO;
 import cn.dh.oa.module.bpm.dal.dataobject.task.BpmProcessInstanceCopyDO;
+import cn.dh.oa.module.bpm.enums.definition.BpmModelFormTypeEnum;
 import cn.dh.oa.module.bpm.framework.flowable.core.util.FlowableUtils;
 import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
 import cn.dh.oa.module.bpm.service.bill.BpmBillDeletedService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceCopyService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceService;
+import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.module.system.api.user.AdminUserApi;
 import cn.dh.oa.module.system.api.user.dto.AdminUserRespDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -81,10 +85,21 @@ public class BpmProcessInstanceCopyController {
                     user -> copyVO.setCreateUser(BeanUtils.toBean(user, UserSimpleBaseVO.class)));
             MapUtils.findAndThen(processInstanceMap, copyVO.getProcessInstanceId(),
                     processInstance -> {
-                        copyVO.setSummary(FlowableUtils.getSummary(
-                                processDefinitionInfoMap.get(processInstance.getProcessDefinitionId()),
-                                processInstance.getProcessVariables()));
+                        Map<String, Object> vars = processInstance.getProcessVariables();
+                        BpmProcessDefinitionInfoDO definitionInfo =
+                                processDefinitionInfoMap.get(processInstance.getProcessDefinitionId());
+                        // 流程表单走摘要配置；业务表单用事由，与待办/已办一致
+                        if (definitionInfo != null
+                                && BpmModelFormTypeEnum.NORMAL.getType().equals(definitionInfo.getFormType())) {
+                            copyVO.setSummary(FlowableUtils.getSummary(definitionInfo, vars));
+                        } else {
+                            copyVO.setSummary(Collections.singletonList(
+                                    new KeyValue<>("", BpmProcessVariableUtils.getCause(vars))));
+                        }
                         copyVO.setProcessInstanceStartTime(DateUtils.of(processInstance.getStartTime()));
+                        copyVO.setBillCode(BpmProcessVariableUtils.getBillCode(vars));
+                        copyVO.setCompanyName(BpmProcessVariableUtils.getCompanyName(vars));
+                        copyVO.setDeptName(BpmProcessVariableUtils.getDeptName(vars));
                     });
             return copyVO;
         });
