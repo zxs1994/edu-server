@@ -4,8 +4,8 @@ import cn.dh.oa.common.server.attachment.controller.vo.AttachmentRespVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
-import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import cn.idev.excel.annotation.*;
 
 @Schema(description = "管理后台 - 还车申请单 Response VO")
@@ -49,11 +49,11 @@ public class CarReturnBillRespVO {
 
     @Schema(description = "出车时间")
     @ExcelProperty("出车时间")
-    private LocalDateTime goTime;
+    private LocalDate goTime;
 
     @Schema(description = "回车时间")
     @ExcelProperty("回车时间")
-    private LocalDateTime returnTime;
+    private LocalDate returnTime;
 
     @Schema(description = "出车地点")
     @ExcelProperty("出车地点")

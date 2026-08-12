@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Schema(description = "管理后台 - 接待申请单 Save VO")
@@ -33,8 +33,8 @@ public class ReceptionApplyBillSaveReqVO {
 
     @Schema(description = "就餐时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "就餐时间不能为空")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime diningTime;
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private LocalDate diningTime;
 
     @Schema(description = "就餐标准", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotEmpty(message = "就餐标准不能为空")

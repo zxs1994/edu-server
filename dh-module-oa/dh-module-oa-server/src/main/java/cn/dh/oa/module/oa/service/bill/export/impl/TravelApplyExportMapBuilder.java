@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import jakarta.annotation.Resource;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -146,7 +147,7 @@ public class TravelApplyExportMapBuilder {
         return departure + "-" + destination;
     }
 
-    private String buildDateRange(LocalDateTime start, LocalDateTime end) {
+    private String buildDateRange(LocalDate start, LocalDate end) {
         String startText = formatDateRangeDate(start);
         String endText = formatDateRangeDate(end);
         if (startText.isEmpty() && endText.isEmpty()) {
@@ -161,8 +162,8 @@ public class TravelApplyExportMapBuilder {
         return startText + " - " + endText;
     }
 
-    private String formatDateRangeDate(LocalDateTime dateTime) {
-        return dateTime == null ? "" : DATE_RANGE_FORMATTER.format(dateTime);
+    private String formatDateRangeDate(LocalDate date) {
+        return date == null ? "" : DATE_RANGE_FORMATTER.format(date);
     }
 
     private String resolveTransportLabel(Integer transportType) {

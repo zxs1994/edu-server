@@ -1,7 +1,7 @@
 package cn.dh.oa.module.oa.dal.dataobject.meetingroom;
 
 import lombok.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.dh.oa.framework.mybatis.core.dataobject.BaseDO;
 
@@ -71,12 +71,12 @@ public class MeetingRoomBookingDO extends BaseDO {
     /**
      * 会议开始时间
      */
-    private LocalDateTime meetingStartTime;
+    private LocalDate meetingStartTime;
     
     /**
      * 会议结束时间
      */
-    private LocalDateTime meetingEndTime;
+    private LocalDate meetingEndTime;
     
     /**
      * 主持人ID

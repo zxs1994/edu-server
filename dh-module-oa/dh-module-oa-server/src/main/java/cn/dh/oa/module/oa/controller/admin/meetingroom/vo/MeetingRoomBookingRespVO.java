@@ -10,9 +10,11 @@ import lombok.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
+import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
 
 @Schema(description = "管理后台 - 会议室预定申请单 Response VO")
 @Data
@@ -64,13 +66,13 @@ public class MeetingRoomBookingRespVO {
 
     @Schema(description = "会议开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("会议开始时间")
-    @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime meetingStartTime;
+    @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate meetingStartTime;
 
     @Schema(description = "会议结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
     @ExcelProperty("会议结束时间")
-    @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime meetingEndTime;
+    @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate meetingEndTime;
 
     @Schema(description = "主持人ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     @ExcelProperty("主持人ID")

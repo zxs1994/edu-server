@@ -4,6 +4,7 @@ import cn.dh.oa.common.server.attachment.controller.vo.AttachmentRespVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
@@ -46,11 +47,11 @@ public class CarApplyBillRespVO {
 
     @Schema(description = "出车时间")
     @ExcelProperty("出车时间")
-    private LocalDateTime goTime;
+    private LocalDate goTime;
 
     @Schema(description = "回车时间")
     @ExcelProperty("回车时间")
-    private LocalDateTime returnTime;
+    private LocalDate returnTime;
 
     @Schema(description = "出车地点")
     @ExcelProperty("出车地点")

@@ -18,7 +18,6 @@ import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import cn.dh.oa.module.oa.controller.admin.meetingroom.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.meetingroom.MeetingRoomBookingDO;
@@ -151,13 +150,13 @@ public class MeetingRoomBookingServiceImpl implements MeetingRoomBookingService,
             throw exception(MEETING_ROOM_BOOKING_TIME_INVALID);
         }
 
-        // 校验开始时间必须早于结束时间
-        if (!saveReqVO.getMeetingStartTime().isBefore(saveReqVO.getMeetingEndTime())) {
+        // 校验开始日期不能晚于结束日期（允许同一天）
+        if (saveReqVO.getMeetingStartTime().isAfter(saveReqVO.getMeetingEndTime())) {
             throw exception(MEETING_ROOM_BOOKING_TIME_INVALID);
         }
 
         // 校验开始时间不能是过去时间
-        if (saveReqVO.getMeetingStartTime().isBefore(LocalDateTime.now())) {
+        if (saveReqVO.getMeetingStartTime().isBefore(LocalDate.now())) {
             throw exception(MEETING_ROOM_BOOKING_TIME_PAST);
         }
     }
@@ -313,22 +312,22 @@ public class MeetingRoomBookingServiceImpl implements MeetingRoomBookingService,
     @Override
     public MeetingRoomBookingScheduleRespVO getMeetingRoomBookingSchedule(MeetingRoomBookingScheduleReqVO reqVO) {
         // 查询指定会议室在指定日期范围内的所有预约记录
-        LocalDateTime startDateTime = reqVO.getStartDate().atStartOfDay();
-        LocalDateTime endDateTime = reqVO.getEndDate().atTime(23, 59, 59);
+        LocalDate startDate = reqVO.getStartDate();
+        LocalDate endDate = reqVO.getEndDate();
 
         List<MeetingRoomBookingDO> bookings = meetingRoomBookingMapper.selectList(
                 new LambdaQueryWrapperX<MeetingRoomBookingDO>()
                         .eq(MeetingRoomBookingDO::getRoomId, reqVO.getRoomId())
                         .and(wrapper -> wrapper
                                 // 预约开始时间在查询范围内
-                                .or(w -> w.ge(MeetingRoomBookingDO::getMeetingStartTime, startDateTime)
-                                        .le(MeetingRoomBookingDO::getMeetingStartTime, endDateTime))
+                                .or(w -> w.ge(MeetingRoomBookingDO::getMeetingStartTime, startDate)
+                                        .le(MeetingRoomBookingDO::getMeetingStartTime, endDate))
                                 // 预约结束时间在查询范围内
-                                .or(w -> w.ge(MeetingRoomBookingDO::getMeetingEndTime, startDateTime)
-                                        .le(MeetingRoomBookingDO::getMeetingEndTime, endDateTime))
+                                .or(w -> w.ge(MeetingRoomBookingDO::getMeetingEndTime, startDate)
+                                        .le(MeetingRoomBookingDO::getMeetingEndTime, endDate))
                                 // 预约时间段完全包含查询范围
-                                .or(w -> w.le(MeetingRoomBookingDO::getMeetingStartTime, startDateTime)
-                                        .ge(MeetingRoomBookingDO::getMeetingEndTime, endDateTime))
+                                .or(w -> w.le(MeetingRoomBookingDO::getMeetingStartTime, startDate)
+                                        .ge(MeetingRoomBookingDO::getMeetingEndTime, endDate))
                         )
                         .orderByAsc(MeetingRoomBookingDO::getMeetingStartTime)
         );
@@ -356,8 +355,7 @@ public class MeetingRoomBookingServiceImpl implements MeetingRoomBookingService,
                 new LambdaQueryWrapperX<MeetingRoomBookingDO>()
                         .eq(MeetingRoomBookingDO::getRoomId, reqVO.getRoomId())
                         .eq(MeetingRoomBookingDO::getProcessStatus, 2) // 审批通过
-                        .ge(MeetingRoomBookingDO::getMeetingStartTime, today.atStartOfDay())
-                        .lt(MeetingRoomBookingDO::getMeetingStartTime, today.plusDays(1).atStartOfDay())
+                        .eq(MeetingRoomBookingDO::getMeetingStartTime, today)
                         .orderByDesc(MeetingRoomBookingDO::getMeetingStartTime)
         );
 

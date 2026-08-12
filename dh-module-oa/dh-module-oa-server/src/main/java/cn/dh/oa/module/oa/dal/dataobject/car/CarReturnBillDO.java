@@ -2,10 +2,7 @@ package cn.dh.oa.module.oa.dal.dataobject.car;
 
 import lombok.*;
 import java.util.*;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.dh.oa.framework.mybatis.core.dataobject.BaseDO;
 
@@ -56,11 +53,11 @@ public class CarReturnBillDO extends BaseDO {
     /**
      * 出车时间
      */
-    private LocalDateTime goTime;
+    private LocalDate goTime;
     /**
      * 回车时间
      */
-    private LocalDateTime returnTime;
+    private LocalDate returnTime;
     /**
      * 出车地点
      */

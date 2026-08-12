@@ -2,7 +2,7 @@ package cn.dh.oa.module.oa.dal.dataobject.travel;
 
 import lombok.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.dh.oa.framework.mybatis.core.dataobject.BaseDO;
 
@@ -43,11 +43,11 @@ public class TravelApplyBillDO extends BaseDO {
     /**
      * 出差开始时间
      */
-    private LocalDateTime travelStartDate;
+    private LocalDate travelStartDate;
     /**
      * 出差结束时间
      */
-    private LocalDateTime travelEndDate;
+    private LocalDate travelEndDate;
     /**
      * 出差天数（支持1位小数）
      */

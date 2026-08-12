@@ -9,6 +9,7 @@ import cn.dh.oa.module.oa.service.bill.export.OaSignatureTemplateLoader;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class SealApplyExportMapBuilder {
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("M");
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("d");
     private static final DateTimeFormatter DATE_TEXT_FORMATTER = DateTimeFormatter.ofPattern("yyyy年M月d日");
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Resource
     private OaBillExportSignatureResolver oaBillExportSignatureResolver;
@@ -75,8 +76,8 @@ public class SealApplyExportMapBuilder {
         main.put("sealName", valueOrEmpty(bill.getSealName()));
         main.put("sealTypeName", resolveSealTypeLabel(bill.getSealType()));
         main.put("keeperName", valueOrEmpty(bill.getKeeperName()));
-        main.put("expectedUseTime", formatDateTime(bill.getExpectedUseTime()));
-        main.put("expectedReturnTime", formatDateTime(bill.getExpectedReturnTime()));
+        main.put("expectedUseTime", formatDate(bill.getExpectedUseTime()));
+        main.put("expectedReturnTime", formatDate(bill.getExpectedReturnTime()));
         main.put("remark", valueOrEmpty(bill.getRemark()));
         return main;
     }
@@ -120,8 +121,8 @@ public class SealApplyExportMapBuilder {
         return label != null ? label : String.valueOf(sealType);
     }
 
-    private String formatDateTime(LocalDateTime dateTime) {
-        return dateTime == null ? "" : DATE_TIME_FORMATTER.format(dateTime);
+    private String formatDate(LocalDate date) {
+        return date == null ? "" : DATE_FORMATTER.format(date);
     }
 
     private String valueOrEmpty(String value) {

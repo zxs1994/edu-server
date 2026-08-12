@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
-import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
+import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
 
 @Schema(description = "管理后台 - 会议室预约信息 Response VO")
 @Data
@@ -32,12 +32,12 @@ public class MeetingRoomBookingScheduleRespVO {
         private String meetingTitle;
 
         @Schema(description = "会议开始时间")
-        @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-        private LocalDateTime meetingStartTime;
+        @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+        private LocalDate meetingStartTime;
 
         @Schema(description = "会议结束时间")
-        @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-        private LocalDateTime meetingEndTime;
+        @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+        private LocalDate meetingEndTime;
 
         @Schema(description = "主持人姓名", example = "张三")
         private String moderatorName;

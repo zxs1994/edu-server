@@ -6,10 +6,10 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
-import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
+import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
 
 @Schema(description = "管理后台 - 会议室预定申请单新增/修改 Request VO")
 @Data
@@ -34,13 +34,13 @@ public class MeetingRoomBookingSaveReqVO {
     @Size(max = 200, message = "会议名称长度不能超过200字")
     private String meetingTitle;
 
-    @Schema(description = "会议开始时间", requiredMode = Schema.RequiredMode.REQUIRED, example = "2025-11-13 15:00:00")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime meetingStartTime;
+    @Schema(description = "会议开始时间", requiredMode = Schema.RequiredMode.REQUIRED, example = "2025-11-13")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate meetingStartTime;
 
-    @Schema(description = "会议结束时间", requiredMode = Schema.RequiredMode.REQUIRED, example = "2025-11-13 17:00:00")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime meetingEndTime;
+    @Schema(description = "会议结束时间", requiredMode = Schema.RequiredMode.REQUIRED, example = "2025-11-13")
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate meetingEndTime;
 
     @Schema(description = "主持人ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "1")
     private Long moderatorId;

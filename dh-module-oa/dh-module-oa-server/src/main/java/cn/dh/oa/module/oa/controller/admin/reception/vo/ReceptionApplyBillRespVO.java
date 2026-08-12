@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Schema(description = "管理后台 - 接待申请单 Response VO")
@@ -42,9 +43,9 @@ public class ReceptionApplyBillRespVO {
     private String cause;
 
     @Schema(description = "就餐时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @ExcelProperty("就餐时间")
-    private LocalDateTime diningTime;
+    private LocalDate diningTime;
 
     @Schema(description = "就餐标准")
     @ExcelProperty("就餐标准")

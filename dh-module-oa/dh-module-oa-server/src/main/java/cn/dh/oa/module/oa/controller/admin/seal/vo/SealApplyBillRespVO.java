@@ -4,6 +4,7 @@ import cn.dh.oa.common.server.attachment.controller.vo.AttachmentRespVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
 import java.util.List;
@@ -105,19 +106,19 @@ public class SealApplyBillRespVO {
 
     @Schema(description = "预计用印时间")
     @ExcelProperty("预计用印时间")
-    private LocalDateTime expectedUseTime;
+    private LocalDate expectedUseTime;
 
     @Schema(description = "借用时间")
     @ExcelProperty("借用时间")
-    private LocalDateTime borrowTime;
+    private LocalDate borrowTime;
 
     @Schema(description = "预计归还时间")
     @ExcelProperty("预计归还时间")
-    private LocalDateTime expectedReturnTime;
+    private LocalDate expectedReturnTime;
 
     @Schema(description = "实际归还时间")
     @ExcelProperty("实际归还时间")
-    private LocalDateTime actualReturnTime;
+    private LocalDate actualReturnTime;
 
     @Schema(description = "归还接收人ID", example = "1")
     @ExcelProperty("归还接收人ID")

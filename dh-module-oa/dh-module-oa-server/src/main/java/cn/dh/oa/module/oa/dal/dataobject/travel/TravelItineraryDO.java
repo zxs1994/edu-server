@@ -1,7 +1,7 @@
 package cn.dh.oa.module.oa.dal.dataobject.travel;
 
 import lombok.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.dh.oa.framework.mybatis.core.dataobject.BaseDO;
 
@@ -38,11 +38,11 @@ public class TravelItineraryDO extends BaseDO {
     /**
      * 开始日期
      */
-    private LocalDateTime startDate;
+    private LocalDate startDate;
     /**
      * 结束日期
      */
-    private LocalDateTime endDate;
+    private LocalDate endDate;
     /**
      * 交通方式：1火车 2飞机 3自驾 4公务用车 5其他
      */

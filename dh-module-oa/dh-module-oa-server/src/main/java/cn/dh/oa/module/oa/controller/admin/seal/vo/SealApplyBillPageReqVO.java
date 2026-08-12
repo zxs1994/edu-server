@@ -5,9 +5,11 @@ import java.util.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import cn.dh.oa.framework.common.pojo.PageParam;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
+import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
 
 @Schema(description = "管理后台 - 用印申请单分页 Request VO")
 @Data
@@ -49,8 +51,8 @@ public class SealApplyBillPageReqVO extends PageParam {
     private String deptName;
 
     @Schema(description = "预计用章时间")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] expectedUseTime;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate[] expectedUseTime;
 
     @Schema(description = "创建人（用户ID）", example = "1")
     private String creator;

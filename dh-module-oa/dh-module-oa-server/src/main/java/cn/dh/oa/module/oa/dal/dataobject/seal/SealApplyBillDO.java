@@ -2,7 +2,7 @@ package cn.dh.oa.module.oa.dal.dataobject.seal;
 
 import lombok.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import com.baomidou.mybatisplus.annotation.*;
 import cn.dh.oa.framework.mybatis.core.dataobject.BaseDO;
 
@@ -115,19 +115,19 @@ public class SealApplyBillDO extends BaseDO {
     /**
      * 预计用章时间
      */
-    private LocalDateTime expectedUseTime;
+    private LocalDate expectedUseTime;
     /**
      * 实际用章时间
      */
-    private LocalDateTime actualUseTime;
+    private LocalDate actualUseTime;
     /**
      * 预计归还时间（外借用章时填写）
      */
-    private LocalDateTime expectedReturnTime;
+    private LocalDate expectedReturnTime;
     /**
      * 实际归还时间（外借用章时填写）
      */
-    private LocalDateTime actualReturnTime;
+    private LocalDate actualReturnTime;
     
     // ========== 用章状态 ==========
     /**

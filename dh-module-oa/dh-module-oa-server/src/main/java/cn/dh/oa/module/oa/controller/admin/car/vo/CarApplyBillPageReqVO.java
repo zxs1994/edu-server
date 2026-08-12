@@ -6,8 +6,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import cn.dh.oa.framework.common.pojo.PageParam;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
+import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
 
 @Schema(description = "管理后台 - 用车申请单分页 Request VO")
 @Data
@@ -29,12 +31,12 @@ public class CarApplyBillPageReqVO extends PageParam {
     private String carNo;
 
     @Schema(description = "出车时间")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] goTime;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate[] goTime;
 
     @Schema(description = "回车时间")
-    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
-    private LocalDateTime[] returnTime;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate[] returnTime;
 
     @Schema(description = "出车地点")
     private String goArea;

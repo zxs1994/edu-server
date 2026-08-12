@@ -5,8 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.util.*;
 import jakarta.validation.constraints.*;
-import org.springframework.format.annotation.DateTimeFormat;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Schema(description = "管理后台 - 用车申请单新增/修改 Request VO")
 @Data
@@ -31,10 +30,10 @@ public class CarApplyBillSaveReqVO {
     private String carNo;
 
     @Schema(description = "出车时间")
-    private LocalDateTime goTime;
+    private LocalDate goTime;
 
     @Schema(description = "回车时间")
-    private LocalDateTime returnTime;
+    private LocalDate returnTime;
 
     @Schema(description = "出车地点")
     private String goArea;

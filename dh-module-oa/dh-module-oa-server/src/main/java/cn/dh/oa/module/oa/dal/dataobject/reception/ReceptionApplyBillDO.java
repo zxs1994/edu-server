@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * 接待申请单 DO
@@ -35,7 +35,7 @@ public class ReceptionApplyBillDO extends BaseDO {
     private String cause;
 
     /** 就餐时间 */
-    private LocalDateTime diningTime;
+    private LocalDate diningTime;
 
     /** 就餐标准 */
     private String diningStandard;

@@ -5,9 +5,11 @@ import lombok.*;
 import java.util.*;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import cn.dh.oa.common.server.attachment.controller.vo.AttachmentSaveReqVO;
+
+import static cn.dh.oa.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
 
 @Schema(description = "管理后台 - 用印申请单新增/修改 Request VO")
 @Data
@@ -82,20 +84,20 @@ public class SealApplyBillSaveReqVO {
     private String destinationUnit;
 
     @Schema(description = "预计用章时间")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime expectedUseTime;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate expectedUseTime;
 
     @Schema(description = "实际用章时间")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime actualUseTime;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate actualUseTime;
 
     @Schema(description = "预计归还时间")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime expectedReturnTime;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate expectedReturnTime;
 
     @Schema(description = "实际归还时间")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime actualReturnTime;
+    @DateTimeFormat(pattern = FORMAT_YEAR_MONTH_DAY)
+    private LocalDate actualReturnTime;
 
     @Schema(description = "用章状态", example = "0")
     private Integer useStatus;

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import cn.idev.excel.annotation.ExcelIgnoreUnannotated;
 import cn.idev.excel.annotation.ExcelProperty;
@@ -45,12 +46,12 @@ public class TravelApplyBillRespVO {
     @ExcelProperty("开始日期")
     @Schema(description = "出差开始日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private LocalDateTime travelStartDate;
+    private LocalDate travelStartDate;
 
     @ExcelProperty("结束日期")
     @Schema(description = "出差结束日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private LocalDateTime travelEndDate;
+    private LocalDate travelEndDate;
 
     @ExcelProperty("天数")
     @Schema(description = "出差天数（支持1位小数）", example = "3.5")

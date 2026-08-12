@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import cn.dh.oa.common.server.attachment.controller.vo.AttachmentSaveReqVO;
@@ -33,11 +33,11 @@ public class TravelApplyBillSaveReqVO {
 
     @Schema(description = "出差开始日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private LocalDateTime travelStartDate;
+    private LocalDate travelStartDate;
 
     @Schema(description = "出差结束日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private LocalDateTime travelEndDate;
+    private LocalDate travelEndDate;
 
     @Schema(description = "出差天数（支持1位小数）", example = "3.5", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "出差天数不能为空")

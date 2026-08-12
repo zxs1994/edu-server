@@ -9,7 +9,7 @@ import cn.dh.oa.module.oa.util.OaMoneyUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +31,7 @@ public class ReceptionApplyExportMapBuilder {
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("M");
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("d");
     private static final DateTimeFormatter DATE_TEXT_FORMATTER = DateTimeFormatter.ofPattern("yyyy年M月d日");
-    private static final DateTimeFormatter DINING_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter DINING_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Resource
     private OaSignatureTemplateLoader signatureTemplateLoader;
@@ -66,7 +66,7 @@ public class ReceptionApplyExportMapBuilder {
     private Map<String, Object> buildMainFields(ReceptionApplyBillRespVO bill) {
         Map<String, Object> main = new HashMap<>();
         // 底部「年月日」取就餐时间，不用创建时间
-        LocalDateTime diningTime = bill.getDiningTime();
+        LocalDate diningTime = bill.getDiningTime();
         if (diningTime != null) {
             main.put("year", YEAR_FORMATTER.format(diningTime));
             main.put("month", MONTH_FORMATTER.format(diningTime));
@@ -90,7 +90,7 @@ public class ReceptionApplyExportMapBuilder {
         return main;
     }
 
-    private String formatDiningTime(LocalDateTime diningTime) {
+    private String formatDiningTime(LocalDate diningTime) {
         return diningTime == null ? "" : DINING_TIME_FORMATTER.format(diningTime);
     }
 
