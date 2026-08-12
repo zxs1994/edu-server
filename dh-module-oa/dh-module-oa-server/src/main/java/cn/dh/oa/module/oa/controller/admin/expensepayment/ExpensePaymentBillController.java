@@ -10,6 +10,8 @@ import cn.dh.oa.module.oa.controller.admin.expensepayment.vo.ExpensePaymentBillP
 import cn.dh.oa.module.oa.controller.admin.expensepayment.vo.ExpensePaymentBillRespVO;
 import cn.dh.oa.module.oa.controller.admin.expensepayment.vo.ExpensePaymentBillSaveReqVO;
 import cn.dh.oa.module.oa.dal.dataobject.expensepayment.ExpensePaymentBillDO;
+import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
+import cn.dh.oa.module.oa.service.bill.export.BillDetailExportService;
 import cn.dh.oa.module.oa.service.correction.BillCorrectionDisplayEnricher;
 import cn.dh.oa.module.oa.service.expensepayment.ExpensePaymentBillService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,6 +41,8 @@ public class ExpensePaymentBillController {
     private ExpensePaymentBillService expensePaymentBillService;
     @Resource
     private BillCorrectionDisplayEnricher billCorrectionDisplayEnricher;
+    @Resource
+    private BillDetailExportService billDetailExportService;
 
     @PostMapping("/save")
     @Operation(summary = "保存费用支出申请")
@@ -103,6 +107,16 @@ public class ExpensePaymentBillController {
         List<ExpensePaymentBillDO> list = expensePaymentBillService.getExpensePaymentBillPage(pageReqVO).getList();
         ExcelUtils.write(response, "费用支出申请.xls", "数据", ExpensePaymentBillRespVO.class,
                 BeanUtils.toBean(list, ExpensePaymentBillRespVO.class));
+    }
+
+    @GetMapping("/export-detail-excel")
+    @Operation(summary = "导出费用支出申请详情 Excel")
+    @Parameter(name = "id", description = "编号", required = true)
+    @PreAuthorize("@ss.hasPermission('oa:expense-payment-bill:export')")
+    @ApiAccessLog(operateType = EXPORT)
+    public void exportExpensePaymentBillDetailExcel(@RequestParam("id") Long id,
+                                                    HttpServletResponse response) throws IOException {
+        billDetailExportService.export(OaBillTypeEnum.OA_EXPENSE_PAYMENT_BILL, id, response);
     }
 
 }
