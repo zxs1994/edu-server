@@ -20,7 +20,7 @@ import java.util.List;
 @Component
 public class ExpenseTravelBillDetailExportHandler implements BillDetailExportHandler {
 
-    private static final String TEMPLATE_CLASSPATH = "excel-templates/差旅报销单-支持打印A4.xlsx";
+    private static final String TEMPLATE_CLASSPATH = "excel-templates/差旅报销单.xlsx";
 
     @Resource
     private ExpenseReimburseBillService expenseReimburseBillService;

@@ -36,7 +36,7 @@ public class ExpenseTravelExportMapBuilder {
     private static final String FIXED_AUDITOR = "胡建国";
     private static final String FIXED_APPROVER = "沈建华";
     private static final String FIXED_PROOF = "于芯菲";
-    private static final int DETAIL_MAX_ROWS = 8;
+    private static final int DETAIL_MAX_ROWS = 7;
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MM");
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("dd");
@@ -65,8 +65,8 @@ public class ExpenseTravelExportMapBuilder {
             int to = Math.min(from + DETAIL_MAX_ROWS, details.size());
             List<ExpenseReimburseDetailRespVO> pageDetails = details.subList(from, to);
             boolean includeSubsidy = pageIndex == 0;
-            BigDecimal pageHotelAmount = sumPageHotelAmount(pageDetails);
-            BigDecimal pageTotalAmount = pageHotelAmount;
+            BigDecimal pageDetailAmount = sumPageDetailAmount(pageDetails);
+            BigDecimal pageTotalAmount = pageDetailAmount;
             if (includeSubsidy) {
                 pageTotalAmount = pageTotalAmount
                         .add(citySubsidyAmount)
@@ -185,30 +185,25 @@ public class ExpenseTravelExportMapBuilder {
                 row.put("startDay", day);
                 row.put("endMonth", month);
                 row.put("endDay", day);
-                row.put("depMonth", month);
-                row.put("depDay", day);
             }
             row.put("departure", valueOrEmpty(detail.getDeparture()));
             row.put("destination", valueOrEmpty(detail.getDestination()));
-            String expenseTypeLabel = resolveTravelExpenseTypeLabel(detail.getExpenseType());
-            // 交通工具：取明细字段，字典转中文
+            // 交通工具：字典转中文
             row.put("transportType", resolveTransportTypeLabel(detail.getTransportType()));
-            row.put("expenseType", expenseTypeLabel);
-            row.put("description", valueOrEmpty(detail.getDescription()));
-            // 单据数量：取明细「单据张数」
+            // 项目：费用类型字典转中文
+            row.put("expenseType", resolveTravelExpenseTypeLabel(detail.getExpenseType()));
+            // 费用
+            row.put("amount", OaMoneyUtils.toMoneyValue(detail.getAmount()));
+            // 单据张数
             row.put("receiptCount", detail.getReceiptCount() == null
                     ? "" : Integer.valueOf(detail.getReceiptCount()));
-            row.put("trafficAmount", OaMoneyUtils.toMoneyValue(detail.getAmount()));
-            row.put("hotelItem", expenseTypeLabel);
-            row.put("hotelAmount", OaMoneyUtils.toMoneyValue(detail.getAmount()));
-            row.put("amount", OaMoneyUtils.toMoneyValue(detail.getAmount()));
             rows.add(row);
         }
         return rows;
     }
 
-    /** 本页住宿费合计（对应模板 {.hotelAmount} 列） */
-    private BigDecimal sumPageHotelAmount(List<ExpenseReimburseDetailRespVO> details) {
+    /** 本页明细费用合计（对应模板 {.amount} 列） */
+    private BigDecimal sumPageDetailAmount(List<ExpenseReimburseDetailRespVO> details) {
         BigDecimal total = BigDecimal.ZERO;
         for (ExpenseReimburseDetailRespVO detail : details) {
             if (detail.getAmount() != null) {
@@ -258,7 +253,7 @@ public class ExpenseTravelExportMapBuilder {
             image.setAnchorLabel(label);
             image.setData(loaded.data());
             image.setPictureType(loaded.pictureType());
-            // J19:K19 签名区较宽，铺满区域并允许放大
+            // 底部签字区较宽，铺满区域并允许放大
             image.setMaxSignWidthPx(0);
             image.setAllowUpscale(true);
             images.add(image);
