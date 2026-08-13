@@ -8,6 +8,7 @@ import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
 import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -117,6 +118,8 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
     @Transactional(rollbackFor = Exception.class)
     public void deleteTravelApplyBill(Long id) {
         validateTravelApplyBillExists(id);
+        TravelApplyBillDO bill = travelApplyBillMapper.selectById(id);
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         travelItineraryMapper.deleteByBillId(id);
         travelApplyBillMapper.deleteById(id);
     }
@@ -124,7 +127,10 @@ public class TravelApplyBillServiceImpl implements TravelApplyBillService, FlowB
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteTravelApplyBillListByIds(List<Long> ids) {
-        ids.forEach(this::validateTravelApplyBillExists);
+        List<TravelApplyBillDO> bills = travelApplyBillMapper.selectByIds(ids);
+        for (TravelApplyBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         for (Long id : ids) {
             travelItineraryMapper.deleteByBillId(id);
         }

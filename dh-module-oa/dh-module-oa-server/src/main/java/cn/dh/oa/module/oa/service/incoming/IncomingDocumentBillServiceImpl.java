@@ -8,6 +8,7 @@ import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
 import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -17,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 import cn.dh.oa.module.oa.controller.admin.incoming.vo.*;
@@ -97,14 +99,23 @@ public class IncomingDocumentBillServiceImpl implements IncomingDocumentBillServ
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteIncomingDocumentBill(Long id) {
-        validateIncomingDocumentBillExists(id);
+        IncomingDocumentBillDO bill = incomingDocumentBillMapper.selectById(id);
+        if (bill == null) {
+            throw exception(INCOMING_DOCUMENT_BILL_NOT_EXISTS);
+        }
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         incomingDocumentBillMapper.deleteById(id);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteIncomingDocumentBillListByIds(List<Long> ids) {
-        ids.forEach(this::validateIncomingDocumentBillExists);
+        List<IncomingDocumentBillDO> bills = incomingDocumentBillMapper.selectByIds(ids);
+        for (IncomingDocumentBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         incomingDocumentBillMapper.deleteByIds(ids);
     }
 

@@ -10,6 +10,7 @@ import cn.dh.oa.framework.common.util.object.BeanUtils;
 import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.module.oa.controller.admin.reception.vo.ReceptionApplyBillPageReqVO;
 import cn.dh.oa.module.oa.controller.admin.reception.vo.ReceptionApplyBillRespVO;
@@ -84,12 +85,18 @@ public class ReceptionApplyBillServiceImpl implements ReceptionApplyBillService,
     @Transactional(rollbackFor = Exception.class)
     public void deleteReceptionApplyBill(Long id) {
         validateExists(id);
+        ReceptionApplyBillDO bill = receptionApplyBillMapper.selectById(id);
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         receptionApplyBillMapper.deleteById(id);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteReceptionApplyBillListByIds(List<Long> ids) {
+        List<ReceptionApplyBillDO> bills = receptionApplyBillMapper.selectByIds(ids);
+        for (ReceptionApplyBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         receptionApplyBillMapper.deleteByIds(ids);
     }
 

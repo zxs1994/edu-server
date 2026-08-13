@@ -89,6 +89,7 @@ public class BpmTaskController {
                     convertSet(pageResult.getList(), Task::getProcessDefinitionId));
             result = BpmTaskConvert.INSTANCE.buildTodoTaskPage(pageResult, processInstanceMap, userMap, processDefinitionInfoMap);
             billDeletedService.fillTodoTaskPage(result, processInstanceMap);
+            billDeletedService.removeDeletedFromTodoPage(result);
         }
         presidentCorrectionTodoService.mergeIntoTodoPage(userId, pageVO, result);
         return success(result);

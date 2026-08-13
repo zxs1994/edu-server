@@ -104,6 +104,7 @@ public class BpmProcessInstanceCopyController {
             return copyVO;
         });
         billDeletedService.fillCopyPage(result, processInstanceMap);
+        billDeletedService.removeDeletedFromCopyPage(result);
         return success(result);
     }
 

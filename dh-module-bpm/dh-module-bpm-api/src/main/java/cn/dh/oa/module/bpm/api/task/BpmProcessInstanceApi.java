@@ -45,4 +45,9 @@ public interface BpmProcessInstanceApi {
             @RequestParam("processInstanceId") String processInstanceId,
             @RequestParam("reason") String reason);
 
+    @PostMapping(PREFIX + "/delete-copy")
+    @Operation(summary = "删除流程实例对应的抄送记录（内部调用，如单据删除）")
+    CommonResult<Boolean> deleteProcessInstanceCopy(
+            @RequestParam("processInstanceId") String processInstanceId);
+
 }

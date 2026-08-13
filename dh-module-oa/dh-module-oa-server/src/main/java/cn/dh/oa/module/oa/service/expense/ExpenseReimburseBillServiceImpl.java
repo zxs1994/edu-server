@@ -8,6 +8,7 @@ import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
 import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -212,6 +213,8 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     public void deleteExpenseReimburseBill(Long id) {
         // 校验存在
         validateExpenseReimburseBillExists(id);
+        ExpenseReimburseBillDO bill = expenseReimburseBillMapper.selectById(id);
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         releaseTravelApplyLinks(id);
         // 删除费用明细
         expenseReimburseDetailMapper.deleteByBillId(id);
@@ -222,6 +225,10 @@ public class ExpenseReimburseBillServiceImpl implements ExpenseReimburseBillServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteExpenseReimburseBillListByIds(List<Long> ids) {
+        List<ExpenseReimburseBillDO> bills = expenseReimburseBillMapper.selectByIds(ids);
+        for (ExpenseReimburseBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         for (Long id : ids) {
             releaseTravelApplyLinks(id);
             expenseReimburseDetailMapper.deleteByBillId(id);

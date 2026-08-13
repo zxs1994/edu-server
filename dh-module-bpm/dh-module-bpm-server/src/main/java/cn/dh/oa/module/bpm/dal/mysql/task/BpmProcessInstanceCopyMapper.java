@@ -37,6 +37,13 @@ public interface BpmProcessInstanceCopyMapper extends BaseMapperX<BpmProcessInst
                         .or().eq(BpmProcessInstanceCopyDO::getReadStatus, 0)));
     }
 
+    default java.util.List<BpmProcessInstanceCopyDO> selectUnreadList(Long userId) {
+        return selectList(new LambdaQueryWrapperX<BpmProcessInstanceCopyDO>()
+                .eq(BpmProcessInstanceCopyDO::getUserId, userId)
+                .and(w -> w.isNull(BpmProcessInstanceCopyDO::getReadStatus)
+                        .or().eq(BpmProcessInstanceCopyDO::getReadStatus, 0)));
+    }
+
     /**
      * 将用户的所有未读抄送标记为已读
      *

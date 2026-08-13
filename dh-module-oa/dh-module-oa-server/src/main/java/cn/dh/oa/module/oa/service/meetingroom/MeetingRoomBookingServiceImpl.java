@@ -26,6 +26,7 @@ import cn.dh.oa.framework.common.util.object.BeanUtils;
 
 import cn.dh.oa.module.oa.dal.mysql.meetingroom.MeetingRoomBookingMapper;
 import cn.dh.oa.framework.common.service.FlowBillService;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.module.oa.service.meetingroom.MeetingRoomService;
 
@@ -225,7 +226,7 @@ public class MeetingRoomBookingServiceImpl implements MeetingRoomBookingService,
             throw exception(MEETING_ROOM_BOOKING_CANNOT_DELETE);
         }
 
-        // 删除
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, booking.getProcessInstanceId());
         meetingRoomBookingMapper.deleteById(id);
     }
 

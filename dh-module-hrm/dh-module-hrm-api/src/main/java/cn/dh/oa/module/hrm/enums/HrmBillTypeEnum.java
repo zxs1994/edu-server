@@ -71,6 +71,18 @@ public enum HrmBillTypeEnum implements BillTypeEnum {
         return processDefinitionKey;
     }
 
+    public static HrmBillTypeEnum getByProcessDefinitionKey(String processDefinitionKey) {
+        if (processDefinitionKey == null) {
+            return null;
+        }
+        for (HrmBillTypeEnum value : values()) {
+            if (processDefinitionKey.equals(value.processDefinitionKey)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
 }
 
 

@@ -7,6 +7,7 @@ import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
 import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.framework.common.service.FlowBillService;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
@@ -167,6 +168,8 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
     public void deleteContractBill(Long id) {
         // 校验存在
         validateContractBillExists(id);
+        ContractBillDO bill = contractBillMapper.selectById(id);
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         // 删除合同明细和收付款计划
         contractDetailMapper.deleteByBillId(id);
         contractPaymentPlanMapper.deleteByBillId(id);
@@ -177,6 +180,10 @@ public class ContractBillServiceImpl implements ContractBillService, FlowBillSer
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteContractBillListByIds(List<Long> ids) {
+        List<ContractBillDO> bills = contractBillMapper.selectByIds(ids);
+        for (ContractBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         // 删除关联的合同明细和收付款计划
         for (Long id : ids) {
             contractDetailMapper.deleteByBillId(id);

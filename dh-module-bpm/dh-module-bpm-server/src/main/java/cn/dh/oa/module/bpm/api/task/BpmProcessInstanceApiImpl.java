@@ -2,7 +2,10 @@ package cn.dh.oa.module.bpm.api.task;
 
 import cn.dh.oa.framework.common.pojo.CommonResult;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
+import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceCopyService;
 import cn.dh.oa.module.bpm.service.task.BpmProcessInstanceService;
+import cn.hutool.core.util.StrUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +27,9 @@ public class BpmProcessInstanceApiImpl implements BpmProcessInstanceApi {
 
     @Resource
     private BpmProcessInstanceService processInstanceService;
+    @Resource
+    @Lazy
+    private BpmProcessInstanceCopyService processInstanceCopyService;
 
     @Override
     public CommonResult<String> createProcessInstance(Long userId, @Valid BpmProcessInstanceCreateReqDTO reqDTO) {
@@ -44,6 +50,14 @@ public class BpmProcessInstanceApiImpl implements BpmProcessInstanceApi {
     @Override
     public CommonResult<Boolean> cancelProcessInstanceByReason(String processInstanceId, String reason) {
         processInstanceService.cancelProcessInstanceByReason(processInstanceId, reason);
+        return success(true);
+    }
+
+    @Override
+    public CommonResult<Boolean> deleteProcessInstanceCopy(String processInstanceId) {
+        if (StrUtil.isNotBlank(processInstanceId)) {
+            processInstanceCopyService.deleteProcessInstanceCopy(processInstanceId);
+        }
         return success(true);
     }
 

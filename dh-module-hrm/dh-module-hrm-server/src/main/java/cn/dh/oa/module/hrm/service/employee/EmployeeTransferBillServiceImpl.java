@@ -8,6 +8,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.BpmProcessVariableConstants;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.module.hrm.enums.HrmBillTypeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -144,8 +145,8 @@ public class EmployeeTransferBillServiceImpl implements EmployeeTransferBillServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteEmployeeTransferBill(Long id) {
-        // 校验存在
-        validateEmployeeTransferBillExists(id);
+        EmployeeTransferBillDO bill = validateEmployeeTransferBillExists(id);
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         
         // 删除主表
         employeeTransferBillMapper.deleteById(id);
@@ -154,6 +155,10 @@ public class EmployeeTransferBillServiceImpl implements EmployeeTransferBillServ
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteEmployeeTransferBillListByIds(List<Long> ids) {
+        List<EmployeeTransferBillDO> bills = employeeTransferBillMapper.selectByIds(ids);
+        for (EmployeeTransferBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         // 删除主表
         employeeTransferBillMapper.deleteByIds(ids);
     }

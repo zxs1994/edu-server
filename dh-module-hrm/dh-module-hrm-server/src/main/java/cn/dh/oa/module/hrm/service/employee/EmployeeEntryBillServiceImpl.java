@@ -10,6 +10,7 @@ import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.BpmProcessVariableConstants;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.module.hrm.enums.HrmBillTypeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -175,8 +176,11 @@ public class EmployeeEntryBillServiceImpl implements EmployeeEntryBillService, F
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteEmployeeEntryBill(Long id) {
-        // 校验存在
-        validateEmployeeEntryBillExists(id);
+        EmployeeEntryBillDO bill = employeeEntryBillMapper.selectById(id);
+        if (bill == null) {
+            throw exception(EMPLOYEE_ENTRY_BILL_NOT_EXISTS);
+        }
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         
         // 删除明细信息
         entryBillWorkExperienceMapper.deleteByEntryBillId(id);
@@ -190,6 +194,10 @@ public class EmployeeEntryBillServiceImpl implements EmployeeEntryBillService, F
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteEmployeeEntryBillListByIds(List<Long> ids) {
+        List<EmployeeEntryBillDO> bills = employeeEntryBillMapper.selectByIds(ids);
+        for (EmployeeEntryBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         // 删除明细信息
         for (Long id : ids) {
             entryBillWorkExperienceMapper.deleteByEntryBillId(id);

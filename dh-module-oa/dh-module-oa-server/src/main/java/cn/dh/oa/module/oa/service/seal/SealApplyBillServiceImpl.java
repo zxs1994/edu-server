@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import cn.dh.oa.module.oa.controller.admin.seal.vo.*;
@@ -30,6 +31,7 @@ import cn.dh.oa.common.server.attachment.controller.vo.AttachmentRespVO;
 import cn.dh.oa.framework.common.service.FlowBillService;
 
 import cn.dh.oa.module.oa.enums.SealUseStatusEnum;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -170,16 +172,23 @@ public class SealApplyBillServiceImpl implements SealApplyBillService, FlowBillS
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteSealApplyBill(Long id) {
-        // 校验存在
-        validateSealApplyBillExists(id);
-        // 删除
+        SealApplyBillDO bill = sealApplyBillMapper.selectById(id);
+        if (bill == null) {
+            throw exception(SEAL_APPLY_BILL_NOT_EXISTS);
+        }
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         sealApplyBillMapper.deleteById(id);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteSealApplyBillListByIds(List<Long> ids) {
-        // 删除
+        List<SealApplyBillDO> bills = sealApplyBillMapper.selectByIds(ids);
+        for (SealApplyBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         sealApplyBillMapper.deleteByIds(ids);
     }
 

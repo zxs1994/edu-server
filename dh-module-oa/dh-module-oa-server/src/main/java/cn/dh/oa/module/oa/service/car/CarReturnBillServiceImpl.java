@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import cn.dh.oa.module.oa.controller.admin.car.vo.*;
@@ -26,6 +27,7 @@ import cn.dh.oa.framework.common.util.object.BeanUtils;
 import cn.dh.oa.module.oa.dal.mysql.car.CarReturnBillMapper;
 import cn.dh.oa.common.server.attachment.service.AttachmentService;
 import cn.dh.oa.common.server.attachment.controller.vo.AttachmentRespVO;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -143,16 +145,23 @@ public class CarReturnBillServiceImpl implements CarReturnBillService, FlowBillS
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteCarReturnBill(Long id) {
-        // 校验存在
-        validateCarReturnBillExists(id);
-        // 删除
+        CarReturnBillDO bill = carReturnBillMapper.selectById(id);
+        if (bill == null) {
+            throw exception(CAR_RETURN_BILL_NOT_EXISTS);
+        }
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         carReturnBillMapper.deleteById(id);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteCarReturnBillListByIds(List<Long> ids) {
-        // 删除
+        List<CarReturnBillDO> bills = carReturnBillMapper.selectByIds(ids);
+        for (CarReturnBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         carReturnBillMapper.deleteByIds(ids);
     }
 

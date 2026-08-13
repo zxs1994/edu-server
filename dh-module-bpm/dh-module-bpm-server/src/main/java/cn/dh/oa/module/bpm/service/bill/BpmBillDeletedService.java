@@ -4,6 +4,7 @@ import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.module.bpm.controller.admin.task.vo.cc.BpmProcessInstanceCopyRespVO;
 import cn.dh.oa.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceRespVO;
 import cn.dh.oa.module.bpm.controller.admin.task.vo.task.BpmTaskRespVO;
+import cn.dh.oa.module.hrm.api.bill.HrmBillExistenceApi;
 import cn.dh.oa.module.oa.api.bill.OaBillExistenceApi;
 import cn.hutool.core.util.StrUtil;
 import jakarta.annotation.Resource;
@@ -22,12 +23,15 @@ public class BpmBillDeletedService {
 
     @Resource
     private OaBillExistenceApi oaBillExistenceApi;
+    @Resource
+    private HrmBillExistenceApi hrmBillExistenceApi;
 
     public boolean isBillDeleted(String processDefinitionKey, String businessKey) {
         if (StrUtil.isBlank(businessKey) || StrUtil.isBlank(processDefinitionKey)) {
             return false;
         }
-        return !oaBillExistenceApi.exists(processDefinitionKey, businessKey);
+        return !oaBillExistenceApi.exists(processDefinitionKey, businessKey)
+                || !hrmBillExistenceApi.exists(processDefinitionKey, businessKey);
     }
 
     public void fillTodoTaskPage(PageResult<BpmTaskRespVO> page,
@@ -84,10 +88,47 @@ public class BpmBillDeletedService {
         for (BpmProcessInstanceCopyRespVO copy : page.getList()) {
             HistoricProcessInstance instance = processInstanceMap.get(copy.getProcessInstanceId());
             if (instance == null) {
+                copy.setBillDeleted(true);
                 continue;
             }
             copy.setBillDeleted(isBillDeleted(instance.getProcessDefinitionKey(), instance.getBusinessKey()));
         }
+    }
+
+    /** 从抄送分页结果中移除业务单据已删除的记录 */
+    public void removeDeletedFromCopyPage(PageResult<BpmProcessInstanceCopyRespVO> page) {
+        if (page == null || page.getList() == null) {
+            return;
+        }
+        int removed = (int) page.getList().stream()
+                .filter(copy -> Boolean.TRUE.equals(copy.getBillDeleted()))
+                .count();
+        if (removed == 0) {
+            return;
+        }
+        page.setList(page.getList().stream()
+                .filter(copy -> !Boolean.TRUE.equals(copy.getBillDeleted()))
+                .collect(java.util.stream.Collectors.toList()));
+        page.setTotal(Math.max(0L, page.getTotal() - removed));
+    }
+
+    /** 从待办分页结果中移除业务单据已删除的记录 */
+    public void removeDeletedFromTodoPage(PageResult<BpmTaskRespVO> page) {
+        if (page == null || page.getList() == null) {
+            return;
+        }
+        int removed = (int) page.getList().stream()
+                .filter(task -> task.getProcessInstance() != null
+                        && Boolean.TRUE.equals(task.getProcessInstance().getBillDeleted()))
+                .count();
+        if (removed == 0) {
+            return;
+        }
+        page.setList(page.getList().stream()
+                .filter(task -> task.getProcessInstance() == null
+                        || !Boolean.TRUE.equals(task.getProcessInstance().getBillDeleted()))
+                .collect(java.util.stream.Collectors.toList()));
+        page.setTotal(Math.max(0L, page.getTotal() - removed));
     }
 
     /** 从流程实例分页结果中移除业务单据已删除的记录 */

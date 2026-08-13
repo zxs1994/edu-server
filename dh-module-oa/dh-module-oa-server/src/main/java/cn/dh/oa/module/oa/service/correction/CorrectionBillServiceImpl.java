@@ -5,6 +5,7 @@ import cn.dh.oa.framework.common.util.bill.BillCodeUtils;
 import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.oa.enums.OaBillTypeEnum;
 import cn.dh.oa.module.oa.service.bill.OaBillApprovalVisibleService;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import cn.dh.oa.module.oa.controller.admin.correction.vo.*;
@@ -114,16 +116,23 @@ public class CorrectionBillServiceImpl implements CorrectionBillService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteCorrectionBill(Long id) {
-        // 校验存在
-        validateCorrectionBillExists(id);
-        // 删除
+        CorrectionBillDO bill = correctionBillMapper.selectById(id);
+        if (bill == null) {
+            throw exception(CORRECTION_BILL_NOT_EXISTS);
+        }
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         correctionBillMapper.deleteById(id);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteCorrectionBillListByIds(List<Long> ids) {
-        // 删除
+        List<CorrectionBillDO> bills = correctionBillMapper.selectByIds(ids);
+        for (CorrectionBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         correctionBillMapper.deleteByIds(ids);
     }
 

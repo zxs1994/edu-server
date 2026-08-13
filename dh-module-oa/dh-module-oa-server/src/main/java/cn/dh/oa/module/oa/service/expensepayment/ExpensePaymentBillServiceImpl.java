@@ -10,6 +10,7 @@ import cn.dh.oa.framework.common.util.object.BeanUtils;
 import cn.dh.oa.module.bpm.api.task.BpmProcessInstanceApi;
 import cn.dh.oa.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.dh.oa.module.bpm.enums.task.BpmTaskStatusEnum;
+import cn.dh.oa.module.bpm.util.BpmProcessInstanceCancelUtils;
 import cn.dh.oa.module.bpm.util.BpmProcessVariableUtils;
 import cn.dh.oa.module.oa.controller.admin.expensepayment.vo.*;
 import cn.dh.oa.module.oa.dal.dataobject.expensepayment.ExpensePaymentBillDO;
@@ -100,6 +101,8 @@ public class ExpensePaymentBillServiceImpl implements ExpensePaymentBillService,
     @Transactional(rollbackFor = Exception.class)
     public void deleteExpensePaymentBill(Long id) {
         validateExists(id);
+        ExpensePaymentBillDO bill = expensePaymentBillMapper.selectById(id);
+        BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
         expensePaymentDetailMapper.deleteByBillId(id);
         expensePaymentBillMapper.deleteById(id);
     }
@@ -107,6 +110,10 @@ public class ExpensePaymentBillServiceImpl implements ExpensePaymentBillService,
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteExpensePaymentBillListByIds(List<Long> ids) {
+        List<ExpensePaymentBillDO> bills = expensePaymentBillMapper.selectByIds(ids);
+        for (ExpensePaymentBillDO bill : bills) {
+            BpmProcessInstanceCancelUtils.cancelIfExists(processInstanceApi, bill.getProcessInstanceId());
+        }
         for (Long id : ids) {
             expensePaymentDetailMapper.deleteByBillId(id);
         }

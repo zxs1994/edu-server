@@ -1,14 +1,17 @@
 package cn.dh.oa.module.bpm.service.task;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.dh.oa.framework.common.pojo.PageResult;
 import cn.dh.oa.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceCopyPageReqVO;
 import cn.dh.oa.module.bpm.dal.dataobject.task.BpmProcessInstanceCopyDO;
 import cn.dh.oa.module.bpm.dal.mysql.task.BpmProcessInstanceCopyMapper;
 import cn.dh.oa.module.bpm.enums.ErrorCodeConstants;
+import cn.dh.oa.module.bpm.service.bill.BpmBillDeletedService;
 import cn.dh.oa.module.bpm.service.definition.BpmProcessDefinitionService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
@@ -18,9 +21,11 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static cn.dh.oa.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.dh.oa.framework.common.util.collection.CollectionUtils.convertList;
+import static cn.dh.oa.framework.common.util.collection.CollectionUtils.convertSet;
 
 /**
  * 流程抄送 Service 实现类
@@ -45,6 +50,8 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
     @Resource
     @Lazy // 延迟加载，避免循环依赖
     private BpmProcessDefinitionService processDefinitionService;
+    @Resource
+    private BpmBillDeletedService billDeletedService;
 
     @Override
     public void createProcessInstanceCopy(Collection<Long> userIds, String reason, String taskId) {
@@ -96,7 +103,21 @@ public class BpmProcessInstanceCopyServiceImpl implements BpmProcessInstanceCopy
 
     @Override
     public Long getUnreadCopyCount(Long userId) {
-        return processInstanceCopyMapper.selectUnreadCount(userId);
+        List<BpmProcessInstanceCopyDO> copies = processInstanceCopyMapper.selectUnreadList(userId);
+        if (CollUtil.isEmpty(copies)) {
+            return 0L;
+        }
+        Map<String, HistoricProcessInstance> processInstanceMap = processInstanceService.getHistoricProcessInstanceMap(
+                convertSet(copies, BpmProcessInstanceCopyDO::getProcessInstanceId));
+        return copies.stream()
+                .filter(copy -> {
+                    HistoricProcessInstance instance = processInstanceMap.get(copy.getProcessInstanceId());
+                    if (instance == null) {
+                        return false;
+                    }
+                    return !billDeletedService.isBillDeleted(instance.getProcessDefinitionKey(), instance.getBusinessKey());
+                })
+                .count();
     }
 
     @Override
