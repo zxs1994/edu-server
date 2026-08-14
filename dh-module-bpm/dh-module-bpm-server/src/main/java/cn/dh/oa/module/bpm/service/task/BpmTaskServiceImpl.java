@@ -660,12 +660,9 @@ public class BpmTaskServiceImpl implements BpmTaskService {
         if (instance == null) {
             throw exception(PROCESS_INSTANCE_NOT_EXISTS);
         }
-        // 1.3 校验签名
+        // 1.3 签名功能已关闭，不再校验 signPicUrl
         BpmnModel bpmnModel = modelService.getBpmnModelByDefinitionId(task.getProcessDefinitionId());
-        Boolean signEnable = parseSignEnable(bpmnModel, task.getTaskDefinitionKey());
-        if (signEnable && StrUtil.isEmpty(reqVO.getSignPicUrl())) {
-            throw exception(TASK_SIGNATURE_NOT_EXISTS);
-        }
+        Boolean signEnable = false;
         // 1.4 校验审批意见
         Boolean reasonRequire = parseReasonRequire(bpmnModel, task.getTaskDefinitionKey());
         if (reasonRequire && StrUtil.isEmpty(reqVO.getReason())) {

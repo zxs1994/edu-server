@@ -371,15 +371,8 @@ public class BpmnModelUtils {
     }
 
     public static Boolean parseSignEnable(BpmnModel bpmnModel, String flowElementId) {
-        FlowElement flowElement = getFlowElementById(bpmnModel, flowElementId);
-        if (flowElement == null) {
-            return false;
-        }
-        List<ExtensionElement> extensionElements = flowElement.getExtensionElements().get(SIGN_ENABLE);
-        if (CollUtil.isEmpty(extensionElements)) {
-            return false;
-        }
-        return Convert.toBool(extensionElements.get(0).getElementText(), false);
+        // 前端已关闭审批签名，后端统一按不需要签名处理
+        return false;
     }
 
     public static void addReasonRequire(Boolean reasonRequire, FlowElement userTask) {
