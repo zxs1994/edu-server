@@ -48,10 +48,11 @@ public class SealApplyExportMapBuilder {
     private Map<String, Object> buildMainFields(SealApplyBillRespVO bill) {
         Map<String, Object> main = new HashMap<>();
         LocalDateTime createTime = bill.getCreateTime();
+        LocalDate expectedUseTime = bill.getExpectedUseTime();
         if (createTime != null) {
-            main.put("year", YEAR_FORMATTER.format(createTime));
-            main.put("month", MONTH_FORMATTER.format(createTime));
-            main.put("day", DAY_FORMATTER.format(createTime));
+            main.put("year", YEAR_FORMATTER.format(expectedUseTime));
+            main.put("month", MONTH_FORMATTER.format(expectedUseTime));
+            main.put("day", DAY_FORMATTER.format(expectedUseTime));
             main.put("createDateText", DATE_TEXT_FORMATTER.format(createTime));
             main.put("applyDate", DATE_TEXT_FORMATTER.format(createTime));
         } else {
