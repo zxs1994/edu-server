@@ -112,7 +112,7 @@ public class BpmBillDeletedService {
         page.setTotal(Math.max(0L, page.getTotal() - removed));
     }
 
-    /** 从待办分页结果中移除业务单据已删除的记录 */
+    /** 从待办/已办分页结果中移除业务单据已删除的记录 */
     public void removeDeletedFromTodoPage(PageResult<BpmTaskRespVO> page) {
         if (page == null || page.getList() == null) {
             return;

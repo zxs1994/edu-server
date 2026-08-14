@@ -113,6 +113,7 @@ public class BpmTaskController {
                 convertSet(pageResult.getList(), HistoricTaskInstance::getProcessDefinitionId));
         PageResult<BpmTaskRespVO> result = BpmTaskConvert.INSTANCE.buildTaskPage(pageResult, processInstanceMap, userMap, null, processDefinitionInfoMap);
         billDeletedService.fillHistoricTaskPage(result, processInstanceMap);
+        billDeletedService.removeDeletedFromTodoPage(result);
         return success(result);
     }
 
