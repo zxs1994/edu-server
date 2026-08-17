@@ -23,7 +23,7 @@ import java.util.Map;
 public class DailyExpenseExportMapBuilder {
 
     private static final String AUDIT_LABEL = "审核";
-    private static final String APPROVE_LABEL = "审批人";
+    private static final String APPROVE_LABEL = "审批";
     private static final String PROOF_LABEL = "证明或验收";
     private static final String HANDLER_LABEL = "经手";
     private static final String FIXED_AUDITOR = "胡建国";
@@ -105,11 +105,11 @@ public class DailyExpenseExportMapBuilder {
 
     private List<BillExportImage> buildSignatureImages(ExpenseReimburseBillRespVO bill) {
         List<BillExportImage> images = new ArrayList<>();
-        // 领款人签章留空；经手用发起人；审批人/审核/证明固定人员
-        addSignatureByNickname(images, APPROVE_LABEL, FIXED_APPROVER);
-        addSignatureByNickname(images, AUDIT_LABEL, FIXED_AUDITOR);
-        addSignatureByNickname(images, PROOF_LABEL, FIXED_PROOF);
+        // 经手：发起人；证明或验收/审核/审批：固定人员
         addSignatureByNickname(images, HANDLER_LABEL, bill.getCreatorName());
+        addSignatureByNickname(images, PROOF_LABEL, FIXED_PROOF);
+        addSignatureByNickname(images, AUDIT_LABEL, FIXED_AUDITOR);
+        addSignatureByNickname(images, APPROVE_LABEL, FIXED_APPROVER);
         return images;
     }
 
@@ -122,6 +122,9 @@ public class DailyExpenseExportMapBuilder {
             image.setAnchorLabel(label);
             image.setData(loaded.data());
             image.setPictureType(loaded.pictureType());
+            // 底部签字区较宽，铺满区域并允许放大
+            image.setMaxSignWidthPx(0);
+            image.setAllowUpscale(true);
             images.add(image);
         });
     }
