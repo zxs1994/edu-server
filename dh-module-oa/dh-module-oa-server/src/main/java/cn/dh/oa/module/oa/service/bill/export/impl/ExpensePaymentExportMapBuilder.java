@@ -78,10 +78,11 @@ public class ExpensePaymentExportMapBuilder {
 
     private List<BillExportImage> buildSignatureImages(ExpensePaymentBillRespVO bill) {
         List<BillExportImage> images = new ArrayList<>();
-        addSignatureByNickname(images, APPROVE_LABEL, FIXED_APPROVER);
-        addSignatureByNickname(images, AUDIT_LABEL, FIXED_AUDITOR);
-        addSignatureByNickname(images, PROOF_LABEL, FIXED_PROOF);
+        // 经手：发起人；证明或验收/审核/审批：固定人员（签名插入标签右侧列，同差旅报销单）
         addSignatureByNickname(images, HANDLER_LABEL, bill.getCreatorName());
+        addSignatureByNickname(images, PROOF_LABEL, FIXED_PROOF);
+        addSignatureByNickname(images, AUDIT_LABEL, FIXED_AUDITOR);
+        addSignatureByNickname(images, APPROVE_LABEL, FIXED_APPROVER);
         return images;
     }
 
@@ -94,7 +95,9 @@ public class ExpensePaymentExportMapBuilder {
             image.setAnchorLabel(label);
             image.setData(loaded.data());
             image.setPictureType(loaded.pictureType());
-            image.setInsertInLabelRegion(true);
+            // 底部签字区较宽，铺满区域并允许放大
+            image.setMaxSignWidthPx(0);
+            image.setAllowUpscale(true);
             images.add(image);
         });
     }
