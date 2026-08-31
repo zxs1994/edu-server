@@ -11,7 +11,7 @@ spring:
         enabled: true
         allow: # 设置白名单，不填则允许所有访问
         url-pattern: /druid/*
-        login-username: # 控制台管理用户名和密码
+        login-username: # 控制台管理用户账号和密码
         login-password:
       filter:
         stat:
@@ -106,8 +106,8 @@ spring:
 logging:
   level:
     # 配置自己写的 MyBatis Mapper 打印日志
-    cn.dh.oa.module.system.dal.mysql: debug
-    cn.dh.oa.module.system.dal.mysql.sms.SmsChannelMapper: INFO # 配置 SmsChannelMapper 的日志级别为 info
+    cn.dh.edu.module.system.dal.mysql: debug
+    cn.dh.edu.module.system.dal.mysql.sms.SmsChannelMapper: INFO # 配置 SmsChannelMapper 的日志级别为 info
     org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 芋艿：先禁用，Spring Boot 3.X 存在部分错误的 WARN 提示
 
 --- #################### 微信公众号、小程序相关配置 ####################

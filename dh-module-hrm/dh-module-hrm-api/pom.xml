@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>dh-module-hrm</artifactId>
-        <groupId>cn.dh.oa</groupId>
+        <groupId>cn.dh.edu</groupId>
         <version>${revision}</version> <!-- 1. 修改 version 为 ${revision} -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -18,7 +18,7 @@
 
     <dependencies>  <!-- 5. 新增 dh-common 依赖 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-common</artifactId>
         </dependency>
 

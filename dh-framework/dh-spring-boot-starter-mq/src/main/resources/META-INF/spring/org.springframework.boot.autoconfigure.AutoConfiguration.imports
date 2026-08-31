@@ -1,3 +1,3 @@
-cn.dh.oa.framework.mq.redis.config.DhRedisMQProducerAutoConfiguration
-cn.dh.oa.framework.mq.redis.config.DhRedisMQConsumerAutoConfiguration
-cn.dh.oa.framework.mq.rabbitmq.config.DhRabbitMQAutoConfiguration
+cn.dh.edu.framework.mq.redis.config.DhRedisMQProducerAutoConfiguration
+cn.dh.edu.framework.mq.redis.config.DhRedisMQConsumerAutoConfiguration
+cn.dh.edu.framework.mq.rabbitmq.config.DhRabbitMQAutoConfiguration

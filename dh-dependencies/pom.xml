@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.dh.oa</groupId>
+    <groupId>cn.dh.edu</groupId>
     <artifactId>dh-dependencies</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
@@ -119,17 +119,17 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-biz-tenant</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-biz-data-permission</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-biz-ip</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -145,26 +145,26 @@
             </dependency>
 
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-env</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <!-- Web 相关 -->
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-web</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-security</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-websocket</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -188,7 +188,7 @@
 
             <!-- DB 相关 -->
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-mybatis</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -257,7 +257,7 @@
             </dependency>
 
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-redis</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -294,7 +294,7 @@
 
             <!-- RPC 远程调用相关 -->
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-rpc</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -318,21 +318,21 @@
 
             <!-- Job 定时任务相关 -->
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-job</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <!-- 消息队列相关 -->
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-mq</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <!-- 服务保障相关 -->
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-protection</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -351,7 +351,7 @@
 
             <!-- 监控相关 -->
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-monitor</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -424,17 +424,17 @@
 
             <!-- 工具类相关 -->
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-common</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-common-server</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-spring-boot-starter-excel</artifactId>
                 <version>${revision}</version>
             </dependency>

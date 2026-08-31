@@ -90,7 +90,7 @@ easy-trans:
 dh:
   info:
     version: 1.0.0
-    base-package: cn.dh.oa.module.hrm
+    base-package: cn.dh.edu.module.hrm
   web:
     admin-ui:
       url: http://dashboard.dh.ruoyioffice.com # Admin 管理后台 UI 的地址

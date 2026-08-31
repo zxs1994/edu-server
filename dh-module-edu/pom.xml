@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>dh-edu</artifactId>
+        <groupId>cn.dh.edu</groupId>
+        <version>${revision}</version>
+    </parent>
+    <modules>
+        <module>dh-module-edu-api</module>
+        <module>dh-module-edu-server</module>
+    </modules>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>dh-module-edu</artifactId>
+    <packaging>pom</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>
+        edu 模块，教培相关业务（骨架预留）。
+    </description>
+
+</project>

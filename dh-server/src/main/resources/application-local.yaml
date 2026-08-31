@@ -13,7 +13,7 @@ spring:
         enabled: true
         allow: # 设置白名单，不填则允许所有访问
         url-pattern: /druid/*
-        login-username: # 控制台管理用户名和密码
+        login-username: # 控制台管理用户账号和密码
         login-password:
       filter:
         stat:
@@ -42,17 +42,17 @@ spring:
       primary: master
       datasource:
         master:
-          url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3316/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
+          url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3306/dh-edu?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
           username: ${MYSQL_USERNAME:root}
-          password: ${MYSQL_PASSWORD:root}
+          password: ${MYSQL_PASSWORD:}
 
   # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
   data:
     redis:
       host: ${REDIS_HOST:127.0.0.1} # 地址
-      port: ${REDIS_PORT:6377} # 端口
+      port: ${REDIS_PORT:6379} # 端口
       database: ${REDIS_DATABASE:0} # 数据库索引
-      password: ${REDIS_PASSWORD:LGD} # 密码
+      # password: # 默认无密码
 
 --- #################### 消息队列相关 ####################
 

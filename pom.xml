@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>cn.dh.oa</groupId>
-    <artifactId>dh-oa</artifactId>
+    <groupId>cn.dh.edu</groupId>
+    <artifactId>dh-edu</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
     <modules>
@@ -15,8 +15,8 @@
         <!--  各种 module 拓展 -->
         <module>dh-module-system</module>
         <module>dh-module-infra</module>
-        <module>dh-module-oa</module>
         <module>dh-module-hrm</module>
+        <module>dh-module-edu</module>
         <module>dh-module-bpm</module>
     </modules>
 
@@ -67,7 +67,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>cn.dh.oa</groupId>
+                <groupId>cn.dh.edu</groupId>
                 <artifactId>dh-dependencies</artifactId>
                 <version>${revision}</version>
                 <type>pom</type>

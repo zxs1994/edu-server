@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>cn.dh.oa</groupId>
-        <artifactId>dh-oa</artifactId>
+        <groupId>cn.dh.edu</groupId>
+        <artifactId>dh-edu</artifactId>
         <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -14,7 +14,7 @@
 
     <name>${project.artifactId}</name>
     <description>
-        后端单体应用主项目，整合 system、infra、bpm、oa、hrm 等业务模块，
+        后端单体应用主项目，整合 system、infra、bpm、hrm、edu 等业务模块，
         提供 RESTful API 给前端项目。
     </description>
     <url>https://gitcode.com/zhouzhongyan/ruoyi-office.git</url>
@@ -22,28 +22,28 @@
     <dependencies>
         <!-- 业务模块 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-module-system-server</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-module-infra-server</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-module-bpm-server</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
-            <artifactId>dh-module-oa-server</artifactId>
+            <groupId>cn.dh.edu</groupId>
+            <artifactId>dh-module-hrm-server</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
-            <artifactId>dh-module-hrm-server</artifactId>
+            <groupId>cn.dh.edu</groupId>
+            <artifactId>dh-module-edu-server</artifactId>
             <version>${revision}</version>
         </dependency>
 
@@ -56,13 +56,13 @@
 
         <!-- 服务保障相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-protection</artifactId>
         </dependency>
 
         <!-- RPC 远程调用相关（单体模式禁用 openfeign） -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-rpc</artifactId>
             <exclusions>
                 <exclusion>

@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>cn.dh.oa</groupId>
+        <groupId>cn.dh.edu</groupId>
         <artifactId>dh-module-bpm</artifactId>
         <version>${revision}</version>
     </parent>
@@ -18,83 +18,78 @@
     <dependencies>
         <!-- Spring Cloud 基础 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-env</artifactId>
         </dependency>
 
         <!-- 依赖服务 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-module-bpm-api</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-module-system-api</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <!-- fegin 通知业务服务 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
-            <artifactId>dh-module-oa-api</artifactId>
-            <version>${revision}</version>
-        </dependency>
-        <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-module-hrm-api</artifactId>
             <version>${revision}</version>
         </dependency>
 
         <!-- 业务组件 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-biz-data-permission</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-biz-tenant</artifactId>
         </dependency>
 
         <!-- Web 相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-security</artifactId>
         </dependency>
 
         <!-- DB 相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-mybatis</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-redis</artifactId>
         </dependency>
 
         <!-- RPC 远程调用相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-rpc</artifactId>
         </dependency>
 
         <!-- 服务保障相关 TODO 芋艿：暂时去掉 -->
         <!--        <dependency>-->
-        <!--            <groupId>cn.dh.oa</groupId>-->
+        <!--            <groupId>cn.dh.edu</groupId>-->
         <!--            <artifactId>dh-spring-boot-starter-protection</artifactId>-->
         <!--        </dependency>-->
 
 
         <!-- 监控相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-monitor</artifactId>
         </dependency>
 
         <!-- 工具类相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-excel</artifactId>
         </dependency>
 
@@ -110,7 +105,7 @@
 
         <!-- MQ通知相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-mq</artifactId>
         </dependency>
 

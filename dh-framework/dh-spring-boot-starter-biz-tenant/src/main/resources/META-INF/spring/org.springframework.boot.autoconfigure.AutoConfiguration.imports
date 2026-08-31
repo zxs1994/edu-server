@@ -1,2 +1,2 @@
-cn.dh.oa.framework.tenant.config.DhTenantRpcAutoConfiguration
-cn.dh.oa.framework.tenant.config.DhTenantAutoConfiguration
+cn.dh.edu.framework.tenant.config.DhTenantRpcAutoConfiguration
+cn.dh.edu.framework.tenant.config.DhTenantAutoConfiguration

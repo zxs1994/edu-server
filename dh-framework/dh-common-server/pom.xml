@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>cn.dh.oa</groupId>
+        <groupId>cn.dh.edu</groupId>
         <artifactId>dh-framework</artifactId>
         <version>${revision}</version>
     </parent>
@@ -24,19 +24,19 @@
 
         <!-- 鼎衡框架 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-mybatis</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-web</artifactId>
         </dependency>
 
@@ -62,20 +62,20 @@
             <artifactId>mapstruct-processor</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-excel</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-module-bpm-api</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-mq</artifactId>
         </dependency>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-biz-tenant</artifactId>
         </dependency>
     </dependencies>

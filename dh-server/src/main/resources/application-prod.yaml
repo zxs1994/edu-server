@@ -13,7 +13,7 @@ spring:
         enabled: true
         allow: # 设置白名单，不填则允许所有访问
         url-pattern: /druid/*
-        login-username: # 控制台管理用户名和密码
+        login-username: # 控制台管理用户账号和密码
         login-password:
       filter:
         stat:
@@ -42,7 +42,7 @@ spring:
       primary: master
       datasource:
         master:
-          url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3316/dh-oa?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
+          url: ${MYSQL_URL:jdbc:mysql://127.0.0.1:3316/dh-edu?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true}
           username: ${MYSQL_USERNAME:root}
           password: ${MYSQL_PASSWORD:root}
 

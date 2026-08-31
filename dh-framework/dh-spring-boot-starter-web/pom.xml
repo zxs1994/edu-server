@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>cn.dh.oa</groupId>
+        <groupId>cn.dh.edu</groupId>
         <artifactId>dh-framework</artifactId>
         <version>${revision}</version>
     </parent>
@@ -17,7 +17,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-common</artifactId>
         </dependency>
 
@@ -56,7 +56,7 @@
 
         <!-- RPC 远程调用相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-rpc</artifactId>
             <optional>true</optional>
         </dependency>

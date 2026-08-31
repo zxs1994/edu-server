@@ -21,8 +21,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
-import cn.dh.oa.framework.tenant.core.context.TenantContextHolder;
-import cn.dh.oa.framework.tenant.core.util.TenantUtils;
+import cn.dh.edu.framework.tenant.core.context.TenantContextHolder;
+import cn.dh.edu.framework.tenant.core.util.TenantUtils;
 import org.springframework.core.DefaultParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ParameterNameDiscoverer;
@@ -32,7 +32,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.HandlerMethod;
 import org.springframework.util.ObjectUtils;
 
-import static cn.dh.oa.framework.web.core.util.WebFrameworkUtils.HEADER_TENANT_ID;
+import static cn.dh.edu.framework.web.core.util.WebFrameworkUtils.HEADER_TENANT_ID;
 
 /**
  * Extension of {@link HandlerMethod} that invokes the underlying method with

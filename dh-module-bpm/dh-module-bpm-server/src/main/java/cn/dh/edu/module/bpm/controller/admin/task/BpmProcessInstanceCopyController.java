@@ -1,0 +1,126 @@
+package cn.dh.edu.module.bpm.controller.admin.task;
+
+import cn.hutool.core.collection.CollUtil;
+import cn.dh.edu.framework.common.core.KeyValue;
+import cn.dh.edu.framework.common.pojo.CommonResult;
+import cn.dh.edu.framework.common.pojo.PageResult;
+import cn.dh.edu.framework.common.util.collection.MapUtils;
+import cn.dh.edu.framework.common.util.date.DateUtils;
+import cn.dh.edu.framework.common.util.object.BeanUtils;
+import cn.dh.edu.module.bpm.controller.admin.base.user.UserSimpleBaseVO;
+import cn.dh.edu.module.bpm.controller.admin.task.vo.cc.BpmProcessInstanceCopyRespVO;
+import cn.dh.edu.module.bpm.controller.admin.task.vo.instance.BpmProcessInstanceCopyPageReqVO;
+import cn.dh.edu.module.bpm.dal.dataobject.definition.BpmProcessDefinitionInfoDO;
+import cn.dh.edu.module.bpm.dal.dataobject.task.BpmProcessInstanceCopyDO;
+import cn.dh.edu.module.bpm.enums.definition.BpmModelFormTypeEnum;
+import cn.dh.edu.module.bpm.framework.flowable.core.util.FlowableUtils;
+import cn.dh.edu.module.bpm.service.definition.BpmProcessDefinitionService;
+import cn.dh.edu.module.bpm.service.bill.BpmBillDeletedService;
+import cn.dh.edu.module.bpm.service.task.BpmProcessInstanceCopyService;
+import cn.dh.edu.module.bpm.service.task.BpmProcessInstanceService;
+import cn.dh.edu.module.bpm.util.BpmProcessVariableUtils;
+import cn.dh.edu.module.system.api.user.AdminUserApi;
+import cn.dh.edu.module.system.api.user.dto.AdminUserRespDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static cn.dh.edu.framework.common.pojo.CommonResult.success;
+import static cn.dh.edu.framework.common.util.collection.CollectionUtils.*;
+import static cn.dh.edu.framework.security.core.util.SecurityFrameworkUtils.getLoginUserId;
+
+@Tag(name = "管理后台 - 流程实例抄送")
+@RestController
+@RequestMapping("/bpm/process-instance/copy")
+@Validated
+public class BpmProcessInstanceCopyController {
+
+    @Resource
+    private BpmProcessInstanceCopyService processInstanceCopyService;
+    @Resource
+    private BpmProcessInstanceService processInstanceService;
+    @Resource
+    private BpmProcessDefinitionService processDefinitionService;
+
+    @Resource
+    private AdminUserApi adminUserApi;
+    @Resource
+    private BpmBillDeletedService billDeletedService;
+
+    @GetMapping("/page")
+    @Operation(summary = "获得抄送流程分页列表")
+    @PreAuthorize("@ss.hasPermission('bpm:process-instance-cc:query')")
+    public CommonResult<PageResult<BpmProcessInstanceCopyRespVO>> getProcessInstanceCopyPage(
+            @Valid BpmProcessInstanceCopyPageReqVO pageReqVO) {
+        PageResult<BpmProcessInstanceCopyDO> pageResult = processInstanceCopyService.getProcessInstanceCopyPage(
+                getLoginUserId(), pageReqVO);
+        if (CollUtil.isEmpty(pageResult.getList())) {
+            return success(new PageResult<>(pageResult.getTotal()));
+        }
+
+        // 拼接返回
+        Map<String, HistoricProcessInstance> processInstanceMap = processInstanceService.getHistoricProcessInstanceMap(
+                convertSet(pageResult.getList(), BpmProcessInstanceCopyDO::getProcessInstanceId));
+        Map<Long, AdminUserRespDTO> userMap = adminUserApi.getUserMap(convertListByFlatMap(pageResult.getList(),
+                copy -> Stream.of(copy.getStartUserId(), Long.parseLong(copy.getCreator()))));
+        Map<String, BpmProcessDefinitionInfoDO> processDefinitionInfoMap = processDefinitionService.getProcessDefinitionInfoMap(
+                convertSet(pageResult.getList(), BpmProcessInstanceCopyDO::getProcessDefinitionId));
+        PageResult<BpmProcessInstanceCopyRespVO> result = convertPage(pageResult, copy -> {
+            BpmProcessInstanceCopyRespVO copyVO = BeanUtils.toBean(copy, BpmProcessInstanceCopyRespVO.class);
+            MapUtils.findAndThen(userMap, Long.valueOf(copy.getCreator()),
+                    user -> copyVO.setStartUser(BeanUtils.toBean(user, UserSimpleBaseVO.class)));
+            MapUtils.findAndThen(userMap, copy.getStartUserId(),
+                    user -> copyVO.setCreateUser(BeanUtils.toBean(user, UserSimpleBaseVO.class)));
+            MapUtils.findAndThen(processInstanceMap, copyVO.getProcessInstanceId(),
+                    processInstance -> {
+                        Map<String, Object> vars = processInstance.getProcessVariables();
+                        BpmProcessDefinitionInfoDO definitionInfo =
+                                processDefinitionInfoMap.get(processInstance.getProcessDefinitionId());
+                        // 流程表单走摘要配置；业务表单用事由，与待办/已办一致
+                        if (definitionInfo != null
+                                && BpmModelFormTypeEnum.NORMAL.getType().equals(definitionInfo.getFormType())) {
+                            copyVO.setSummary(FlowableUtils.getSummary(definitionInfo, vars));
+                        } else {
+                            copyVO.setSummary(Collections.singletonList(
+                                    new KeyValue<>("", BpmProcessVariableUtils.getCause(vars))));
+                        }
+                        copyVO.setProcessInstanceStartTime(DateUtils.of(processInstance.getStartTime()));
+                        copyVO.setBillCode(BpmProcessVariableUtils.getBillCode(vars));
+                        copyVO.setCompanyName(BpmProcessVariableUtils.getCompanyName(vars));
+                        copyVO.setDeptName(BpmProcessVariableUtils.getDeptName(vars));
+                    });
+            return copyVO;
+        });
+        billDeletedService.fillCopyPage(result, processInstanceMap);
+        billDeletedService.removeDeletedFromCopyPage(result);
+        return success(result);
+    }
+
+    @GetMapping("/unread-count")
+    @Operation(summary = "获取当前用户的未读抄送数量")
+    @PreAuthorize("@ss.hasPermission('bpm:process-instance-cc:query')")
+    public CommonResult<Long> getUnreadCopyCount() {
+        return success(processInstanceCopyService.getUnreadCopyCount(getLoginUserId()));
+    }
+
+    @PutMapping("/mark-all-read")
+    @Operation(summary = "将当前用户的所有未读抄送标记为已读")
+    @PreAuthorize("@ss.hasPermission('bpm:process-instance-cc:query')")
+    public CommonResult<Boolean> markAllCopyAsRead() {
+        processInstanceCopyService.markAllCopyAsRead(getLoginUserId());
+        return success(true);
+    }
+
+}

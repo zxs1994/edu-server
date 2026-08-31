@@ -1,4 +1,4 @@
-cn.dh.oa.framework.idempotent.config.DhIdempotentConfiguration
-cn.dh.oa.framework.lock4j.config.DhLock4jConfiguration
-cn.dh.oa.framework.ratelimiter.config.DhRateLimiterConfiguration
-cn.dh.oa.framework.signature.config.DhApiSignatureAutoConfiguration
+cn.dh.edu.framework.idempotent.config.DhIdempotentConfiguration
+cn.dh.edu.framework.lock4j.config.DhLock4jConfiguration
+cn.dh.edu.framework.ratelimiter.config.DhRateLimiterConfiguration
+cn.dh.edu.framework.signature.config.DhApiSignatureAutoConfiguration

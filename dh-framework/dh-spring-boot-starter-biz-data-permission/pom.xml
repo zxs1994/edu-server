@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>dh-framework</artifactId>
-        <groupId>cn.dh.oa</groupId>
+        <groupId>cn.dh.edu</groupId>
         <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -17,26 +17,26 @@
 
     <dependencies>
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-common</artifactId>
         </dependency>
 
         <!-- Web 相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-security</artifactId>
             <optional>true</optional> <!-- 可选，如果使用 DeptDataPermissionRule 必须提供 -->
         </dependency>
 
         <!-- DB 相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-mybatis</artifactId>
         </dependency>
 
         <!-- RPC 远程调用相关 -->
         <dependency>
-            <groupId>cn.dh.oa</groupId>
+            <groupId>cn.dh.edu</groupId>
             <artifactId>dh-spring-boot-starter-rpc</artifactId>
             <optional>true</optional>
         </dependency>

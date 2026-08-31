@@ -1,2 +1,2 @@
-cn.dh.oa.framework.tracer.config.DhTracerAutoConfiguration
-cn.dh.oa.framework.tracer.config.DhMetricsAutoConfiguration
+cn.dh.edu.framework.tracer.config.DhTracerAutoConfiguration
+cn.dh.edu.framework.tracer.config.DhMetricsAutoConfiguration

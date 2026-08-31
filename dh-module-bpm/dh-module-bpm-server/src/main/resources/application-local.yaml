@@ -11,7 +11,7 @@ spring:
         enabled: true
         allow: # 设置白名单，不填则允许所有访问
         url-pattern: /druid/*
-        login-username: # 控制台管理用户名和密码
+        login-username: # 控制台管理用户账号和密码
         login-password:
       filter:
         stat:
@@ -95,7 +95,7 @@ spring:
 logging:
   level:
     # 配置自己写的 MyBatis Mapper 打印日志
-    cn.dh.oa.module.bpm.dal.mysql: debug
+    cn.dh.edu.module.bpm.dal.mysql: debug
     org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 芋艿：先禁用，Spring Boot 3.X 存在部分错误的 WARN 提示
 
 --- #################### 鼎衡相关配置 ####################

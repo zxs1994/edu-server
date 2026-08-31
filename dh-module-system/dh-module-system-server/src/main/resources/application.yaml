@@ -134,7 +134,7 @@ aj:
 dh:
   info:
     version: 1.0.0
-    base-package: cn.dh.oa.module.system
+    base-package: cn.dh.edu.module.system
   web:
     admin-ui:
       url: http://dashboard.dh.ruoyioffice.com # Admin 管理后台 UI 的地址
