@@ -26,6 +26,9 @@ public interface TeacherService {
 
     TeacherRespVO getTeacher(Long id);
 
+    /** 按关联用户ID获得教培档案 */
+    TeacherRespVO getTeacherByUserId(Long userId);
+
     PageResult<TeacherRespVO> getTeacherPage(TeacherPageReqVO pageReqVO);
 
 }

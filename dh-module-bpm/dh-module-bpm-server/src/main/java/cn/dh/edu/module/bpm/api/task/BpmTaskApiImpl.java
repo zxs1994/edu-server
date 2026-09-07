@@ -35,6 +35,7 @@ public class BpmTaskApiImpl implements BpmTaskApi {
             }
             BpmHistoricTaskRespDTO dto = new BpmHistoricTaskRespDTO();
             dto.setName(task.getName());
+            dto.setTaskDefinitionKey(task.getTaskDefinitionKey());
             dto.setAssigneeUserId(NumberUtils.parseLong(task.getAssignee()));
             dto.setStatus(status);
             if (task.getEndTime() != null) {

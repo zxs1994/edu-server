@@ -7,6 +7,8 @@ import cn.dh.edu.framework.common.enums.SystemEnum;
 import cn.dh.edu.framework.common.service.FlowBillService;
 import cn.dh.edu.framework.common.service.FlowBillServiceFactory;
 import cn.dh.edu.framework.mq.redis.core.stream.AbstractRedisStreamMessageListener;
+import cn.dh.edu.framework.security.core.LoginUser;
+import cn.dh.edu.framework.security.core.util.SecurityFrameworkUtils;
 import cn.dh.edu.module.bpm.api.event.BpmEventTypeEnum;
 import cn.dh.edu.module.bpm.api.event.BpmProcessInstanceInfo;
 import cn.dh.edu.module.bpm.api.event.BpmTaskInfo;
@@ -91,6 +93,7 @@ public abstract class AbstractFlowMqNotificationConsumer<T extends BillTypeEnum>
         try {
             // 通过工厂获取对应的服务实现
             FlowBillService<T> flowBillService = getFlowBillServiceFactory().getServiceByProcessKey(processDefinitionKey);
+            fillOperatorLoginUser(processInstanceInfo);
 
             // 统一调用接口方法更新流程状态
             flowBillService.updateProcessStatus(businessKey, status);
@@ -104,6 +107,26 @@ public abstract class AbstractFlowMqNotificationConsumer<T extends BillTypeEnum>
             log.error("[handleProcessInstanceEvent] 处理流程实例事件失败", e);
             // 重新抛出异常，触发重试机制
             throw e;
+        }
+    }
+
+    private void fillOperatorLoginUser(BpmProcessInstanceInfo processInstanceInfo) {
+        if (processInstanceInfo == null || SecurityFrameworkUtils.getLoginUserId() != null) {
+            return;
+        }
+        String operatorUserId = processInstanceInfo.getOperatorUserId();
+        if (StrUtil.isBlank(operatorUserId)) {
+            return;
+        }
+        try {
+            LoginUser loginUser = new LoginUser();
+            loginUser.setId(Long.parseLong(operatorUserId));
+            if (StrUtil.isNotBlank(processInstanceInfo.getTenantId())) {
+                loginUser.setTenantId(Long.parseLong(processInstanceInfo.getTenantId()));
+            }
+            SecurityFrameworkUtils.setLoginUser(loginUser, null);
+        } catch (NumberFormatException ex) {
+            log.warn("[fillOperatorLoginUser] 操作人ID非法: {}", operatorUserId);
         }
     }
 

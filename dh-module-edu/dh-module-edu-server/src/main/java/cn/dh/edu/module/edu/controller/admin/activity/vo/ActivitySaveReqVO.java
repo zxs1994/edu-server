@@ -5,11 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static cn.dh.edu.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY;
 import static cn.dh.edu.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
 
 @Schema(description = "管理后台 - 专项活动新增/修改 Request VO")
@@ -43,9 +41,9 @@ public class ActivitySaveReqVO {
     @Schema(description = "周期类型", requiredMode = Schema.RequiredMode.REQUIRED)
     private String cycleType;
 
-    @Schema(description = "开始日期", requiredMode = Schema.RequiredMode.REQUIRED)
-    @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY)
-    private LocalDate startDate;
+    @Schema(description = "活动开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
+    private LocalDateTime startDate;
 
     @Schema(description = "报名开始时间")
     @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
@@ -55,7 +53,7 @@ public class ActivitySaveReqVO {
     @JsonFormat(pattern = FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND)
     private LocalDateTime enrollEndTime;
 
-    @Schema(description = "预算总额", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "预算总额（由费用标准自动汇总，提交时后端重算）")
     private BigDecimal budgetAmount;
 
     @Schema(description = "制单人部门ID")
@@ -87,5 +85,8 @@ public class ActivitySaveReqVO {
 
     @Schema(description = "费用标准列表")
     private List<ActivityFeeStandardVO> feeStandards;
+
+    @Schema(description = "附件列表（非必填）")
+    private List<ActivityAttachmentVO> attachments;
 
 }

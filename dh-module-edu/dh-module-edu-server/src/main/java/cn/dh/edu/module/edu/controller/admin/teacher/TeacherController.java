@@ -76,6 +76,14 @@ public class TeacherController {
         return success(teacherService.getTeacher(id));
     }
 
+    @GetMapping("/get-by-user-id")
+    @Operation(summary = "按用户ID获得教培档案")
+    @Parameter(name = "userId", description = "关联用户编号", required = true, example = "1024")
+    @PreAuthorize("@ss.hasPermission('edu:teacher:query') or @ss.hasPermission('edu:activity:query') or @ss.hasPermission('edu:activity:create') or @ss.hasPermission('edu:activity:update')")
+    public CommonResult<TeacherRespVO> getTeacherByUserId(@RequestParam("userId") Long userId) {
+        return success(teacherService.getTeacherByUserId(userId));
+    }
+
     @GetMapping("/page")
     @Operation(summary = "获得教培档案分页")
     @PreAuthorize("@ss.hasPermission('edu:teacher:query')")

@@ -196,5 +196,6 @@ public interface ErrorCodeConstants {
     // ========== 应用中心 1-002-032-000 ==========
     ErrorCode HOME_APP_USER_NOT_EXISTS = new ErrorCode(1_002_032_000, "当前应用不存在");
     ErrorCode HOME_APP_USER_EXISTS = new ErrorCode(1_002_032_001, "该应用已存在，无法重复添加");
+    ErrorCode HOME_APP_ONLY_MENU = new ErrorCode(1_002_032_002, "只能添加菜单页面，不能添加目录");
 
 }

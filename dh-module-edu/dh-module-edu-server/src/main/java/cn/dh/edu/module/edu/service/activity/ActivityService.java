@@ -28,4 +28,9 @@ public interface ActivityService {
 
     PageResult<ActivityDO> getActivityPage(ActivityPageReqVO pageReqVO);
 
+    /**
+     * 参与人排序：教培在前，学生在后
+     */
+    List<Long> sortParticipantUserIds(List<Long> userIds);
+
 }

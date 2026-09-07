@@ -53,6 +53,11 @@ public class BpmProcessInstanceInfo {
     private String startUserId;
 
     /**
+     * 触发本事件的操作人ID（如末位审批人）；异步/MQ 场景用于回写业务数据的操作人
+     */
+    private String operatorUserId;
+
+    /**
      * 流程实例名称
      */
     private String processInstanceName;

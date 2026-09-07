@@ -5,6 +5,8 @@ import cn.dh.edu.framework.common.enums.BillTypeEnum;
 import cn.dh.edu.framework.common.enums.SystemEnum;
 import cn.dh.edu.framework.common.service.FlowBillService;
 import cn.dh.edu.framework.common.service.FlowBillServiceFactory;
+import cn.dh.edu.framework.security.core.LoginUser;
+import cn.dh.edu.framework.security.core.util.SecurityFrameworkUtils;
 import cn.dh.edu.framework.tenant.core.util.TenantUtils;
 import cn.dh.edu.module.bpm.api.event.BpmEventTypeEnum;
 import cn.dh.edu.module.bpm.api.event.BpmProcessInstanceInfo;
@@ -92,22 +94,54 @@ public abstract class AbstractFlowLocalNotificationListener<T extends BillTypeEn
         FlowBillService<T> flowBillService = getFlowBillServiceFactory().getServiceByProcessKey(
                 message.getProcessInstanceInfo().getProcessDefinitionKey());
 
-        // 统一调用接口方法更新流程状态
-        if(status == null){
-            TenantUtils.executeIgnore(()->{
+        fillOperatorLoginUser(message.getProcessInstanceInfo());
+
+        Runnable task = () -> {
+            if (status == null) {
                 flowBillService.updateProcessStatus(
                         message.getProcessInstanceInfo().getBusinessKey(),
                         message.getProcessInstanceInfo().getStatus());
-            });
-
-        }else {
-            TenantUtils.executeIgnore(()->{
+            } else {
                 flowBillService.updateProcessStatus(
                         message.getProcessInstanceInfo().getBusinessKey(),
                         status);
-            });
-        }
+            }
+        };
 
+        // 按流程租户执行，避免 TenantIgnore 导致下游站内信等落库 tenant_id=0
+        String tenantIdStr = message.getProcessInstanceInfo().getTenantId();
+        if (StringUtils.isNotBlank(tenantIdStr)) {
+            try {
+                TenantUtils.execute(Long.parseLong(tenantIdStr), task);
+                return;
+            } catch (NumberFormatException ex) {
+                log.warn("[updateBillStatus] 租户ID非法: {}", tenantIdStr);
+            }
+        }
+        TenantUtils.executeIgnore(task);
+    }
+
+    /**
+     * 将事件中的操作人写入登录态，供下游发公告等业务取最终审批人
+     */
+    private void fillOperatorLoginUser(BpmProcessInstanceInfo processInstanceInfo) {
+        if (processInstanceInfo == null || SecurityFrameworkUtils.getLoginUserId() != null) {
+            return;
+        }
+        String operatorUserId = processInstanceInfo.getOperatorUserId();
+        if (StringUtils.isBlank(operatorUserId)) {
+            return;
+        }
+        try {
+            LoginUser loginUser = new LoginUser();
+            loginUser.setId(Long.parseLong(operatorUserId));
+            if (StringUtils.isNotBlank(processInstanceInfo.getTenantId())) {
+                loginUser.setTenantId(Long.parseLong(processInstanceInfo.getTenantId()));
+            }
+            SecurityFrameworkUtils.setLoginUser(loginUser, null);
+        } catch (NumberFormatException ex) {
+            log.warn("[fillOperatorLoginUser] 操作人ID非法: {}", operatorUserId);
+        }
     }
 
     /**

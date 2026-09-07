@@ -57,7 +57,6 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public TeacherCreateRespVO createTeacher(TeacherSaveReqVO createReqVO) {
-        normalizeOptionalFields(createReqVO);
         createReqVO.setUsername(generateTeacherAccount());
         validateUsernameFormat(createReqVO.getUsername());
         validateUsernameUnique(null, createReqVO.getUsername());
@@ -83,7 +82,6 @@ public class TeacherServiceImpl implements TeacherService {
         if (oldTeacher == null) {
             throw exception(TEACHER_NOT_EXISTS);
         }
-        normalizeOptionalFields(updateReqVO);
         // 登录账号创建后不可修改
         updateReqVO.setUsername(oldTeacher.getUsername());
 
@@ -135,6 +133,15 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public TeacherRespVO getTeacher(Long id) {
         TeacherDO teacher = teacherMapper.selectById(id);
+        return BeanUtils.toBean(teacher, TeacherRespVO.class);
+    }
+
+    @Override
+    public TeacherRespVO getTeacherByUserId(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        TeacherDO teacher = teacherMapper.selectByUserId(userId);
         return BeanUtils.toBean(teacher, TeacherRespVO.class);
     }
 
@@ -213,13 +220,6 @@ public class TeacherServiceImpl implements TeacherService {
 
     private String formatTeacherAccount(long sequenceNo) {
         return TEACHER_ACCOUNT_PREFIX + String.format("%04d", sequenceNo);
-    }
-
-    /** 可选字段空值规范化（报酬标准库字段 NOT NULL） */
-    private void normalizeOptionalFields(TeacherSaveReqVO reqVO) {
-        if (StrUtil.isBlank(reqVO.getRewardStandard())) {
-            reqVO.setRewardStandard("");
-        }
     }
 
 }

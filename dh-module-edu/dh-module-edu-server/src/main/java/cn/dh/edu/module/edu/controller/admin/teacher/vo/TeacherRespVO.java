@@ -7,6 +7,7 @@ import cn.idev.excel.annotation.ExcelProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Schema(description = "管理后台 - 教培档案 Response VO")
@@ -40,10 +41,9 @@ public class TeacherRespVO {
     @ExcelProperty("联系方式")
     private String mobile;
 
-    @Schema(description = "报酬/奖励标准", requiredMode = Schema.RequiredMode.REQUIRED, example = "A")
-    @ExcelProperty(value = "报酬/奖励标准", converter = DictConvert.class)
-    @DictFormat("edu_teacher_reward")
-    private String rewardStandard;
+    @Schema(description = "报酬/奖励标准（金额；选项来自字典 edu_teacher_reward）", example = "500.00")
+    @ExcelProperty("报酬/奖励标准")
+    private BigDecimal rewardStandard;
 
     @Schema(description = "关联用户ID", example = "1")
     private Long userId;

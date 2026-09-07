@@ -9,6 +9,9 @@ import cn.dh.edu.module.bpm.dal.dataobject.definition.BpmProcessDefinitionInfoDO
 import cn.dh.edu.module.bpm.framework.flowable.core.util.FlowableUtils;
 import cn.dh.edu.module.bpm.service.definition.BpmCategoryService;
 import cn.dh.edu.module.bpm.service.definition.BpmProcessDefinitionService;
+import cn.dh.edu.module.edu.api.bill.EduDraftBillApi;
+import cn.dh.edu.module.edu.api.bill.dto.EduDraftBillQueryDTO;
+import cn.dh.edu.module.edu.api.bill.dto.EduDraftBillRespDTO;
 import cn.dh.edu.module.hrm.api.bill.HrmDraftBillApi;
 import cn.dh.edu.module.hrm.api.bill.dto.HrmDraftBillQueryDTO;
 import cn.dh.edu.module.hrm.api.bill.dto.HrmDraftBillRespDTO;
@@ -29,13 +32,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 草稿箱：聚合 HRM 未提交单据
+ * 草稿箱：聚合 HRM / EDU 未提交单据
  */
 @Service
 public class BpmDraftBillService {
 
     @Resource
     private HrmDraftBillApi hrmDraftBillApi;
+    @Resource
+    private EduDraftBillApi eduDraftBillApi;
     @Resource
     private BpmProcessDefinitionService processDefinitionService;
     @Resource
@@ -44,9 +49,11 @@ public class BpmDraftBillService {
     private RepositoryService repositoryService;
 
     public PageResult<BpmDraftBillRespVO> getMyDraftBillPage(Long userId, BpmDraftBillPageReqVO pageReqVO) {
-        HrmDraftBillQueryDTO query = buildQuery(pageReqVO);
         List<BpmDraftBillRespVO> all = new ArrayList<>();
-        hrmDraftBillApi.listMyDraftBills(userId, query).forEach(draft -> all.add(convert(draft)));
+        hrmDraftBillApi.listMyDraftBills(userId, buildHrmQuery(pageReqVO))
+                .forEach(draft -> all.add(convertHrm(draft)));
+        eduDraftBillApi.listMyDraftBills(userId, buildEduQuery(pageReqVO))
+                .forEach(draft -> all.add(convertEdu(draft)));
 
         all.sort(Comparator.comparing(BpmDraftBillRespVO::getCreateTime,
                 Comparator.nullsLast(Comparator.reverseOrder())));
@@ -63,8 +70,19 @@ public class BpmDraftBillService {
         return new PageResult<>(all.subList(start, end), (long) total);
     }
 
-    private HrmDraftBillQueryDTO buildQuery(BpmDraftBillPageReqVO pageReqVO) {
+    private HrmDraftBillQueryDTO buildHrmQuery(BpmDraftBillPageReqVO pageReqVO) {
         HrmDraftBillQueryDTO query = new HrmDraftBillQueryDTO();
+        fillCommonQuery(query, pageReqVO);
+        return query;
+    }
+
+    private EduDraftBillQueryDTO buildEduQuery(BpmDraftBillPageReqVO pageReqVO) {
+        EduDraftBillQueryDTO query = new EduDraftBillQueryDTO();
+        fillCommonQuery(query, pageReqVO);
+        return query;
+    }
+
+    private void fillCommonQuery(HrmDraftBillQueryDTO query, BpmDraftBillPageReqVO pageReqVO) {
         query.setBillCode(pageReqVO.getBillCode());
         query.setProcessDefinitionKey(pageReqVO.getBillType());
         query.setCompanyId(pageReqVO.getCompanyId());
@@ -77,7 +95,21 @@ public class BpmDraftBillService {
             query.setCreateTimeStart(pageReqVO.getCreateTime()[0]);
             query.setCreateTimeEnd(pageReqVO.getCreateTime()[1]);
         }
-        return query;
+    }
+
+    private void fillCommonQuery(EduDraftBillQueryDTO query, BpmDraftBillPageReqVO pageReqVO) {
+        query.setBillCode(pageReqVO.getBillCode());
+        query.setProcessDefinitionKey(pageReqVO.getBillType());
+        query.setCompanyId(pageReqVO.getCompanyId());
+        query.setDeptId(pageReqVO.getDeptId());
+        Set<String> keys = resolveProcessDefinitionKeys(pageReqVO.getCategory(), pageReqVO.getBillType());
+        if (keys != null) {
+            query.setProcessDefinitionKeys(keys);
+        }
+        if (ArrayUtil.isNotEmpty(pageReqVO.getCreateTime())) {
+            query.setCreateTimeStart(pageReqVO.getCreateTime()[0]);
+            query.setCreateTimeEnd(pageReqVO.getCreateTime()[1]);
+        }
     }
 
     private Set<String> resolveProcessDefinitionKeys(String category, String billType) {
@@ -98,7 +130,12 @@ public class BpmDraftBillService {
         return definitions.stream().map(ProcessDefinition::getKey).collect(Collectors.toSet());
     }
 
-    private BpmDraftBillRespVO convert(HrmDraftBillRespDTO draft) {
+    private BpmDraftBillRespVO convertHrm(HrmDraftBillRespDTO draft) {
+        return buildVo(draft.getBillId(), draft.getBillCode(), draft.getProcessDefinitionKey(),
+                draft.getSummary(), draft.getCreateTime(), draft.getDeptName());
+    }
+
+    private BpmDraftBillRespVO convertEdu(EduDraftBillRespDTO draft) {
         return buildVo(draft.getBillId(), draft.getBillCode(), draft.getProcessDefinitionKey(),
                 draft.getSummary(), draft.getCreateTime(), draft.getDeptName());
     }

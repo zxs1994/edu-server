@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 /**
  * 专项活动 Mapper
  *
@@ -36,5 +38,17 @@ public interface ActivityMapper extends BaseMapperX<ActivityDO> {
     @Select("SELECT MAX(CAST(SUBSTRING(bill_code, CHAR_LENGTH(#{prefix}) + 1) AS UNSIGNED)) "
             + "FROM edu_activity WHERE bill_code LIKE CONCAT(#{prefix}, '%')")
     Long selectMaxSequenceByPrefix(@Param("prefix") String prefix);
+
+    @Select("SELECT tenant_id FROM edu_activity WHERE id = #{id} AND deleted = 0 LIMIT 1")
+    Long selectTenantIdById(@Param("id") Long id);
+
+    default List<Long> selectIdListByNameLike(String name) {
+        return selectList(new LambdaQueryWrapperX<ActivityDO>()
+                .like(ActivityDO::getName, name)
+                .select(ActivityDO::getId))
+                .stream()
+                .map(ActivityDO::getId)
+                .toList();
+    }
 
 }

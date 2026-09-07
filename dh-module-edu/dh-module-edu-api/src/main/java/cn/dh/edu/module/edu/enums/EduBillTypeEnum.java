@@ -12,7 +12,12 @@ public enum EduBillTypeEnum implements BillTypeEnum {
     /**
      * 专项活动
      */
-    ACTIVITY("301", "专项活动", "edu_activity");
+    ACTIVITY("301", "专项活动", "edu_activity"),
+
+    /**
+     * 专项活动付款申请
+     */
+    ACTIVITY_PAYMENT_REQUEST("302", "专项活动付款申请", "edu_activity_payment_request");
 
     private final String code;
     private final String name;

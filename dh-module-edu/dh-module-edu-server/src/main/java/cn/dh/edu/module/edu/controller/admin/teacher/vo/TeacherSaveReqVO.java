@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Schema(description = "管理后台 - 教培档案保存 Request VO")
 @Data
 public class TeacherSaveReqVO {
@@ -31,8 +33,8 @@ public class TeacherSaveReqVO {
     @NotBlank(message = "手机号不能为空")
     private String mobile;
 
-    @Schema(description = "报酬/奖励标准", example = "A")
-    private String rewardStandard;
+    @Schema(description = "报酬/奖励标准（金额；选项来自字典 edu_teacher_reward）", example = "500.00")
+    private BigDecimal rewardStandard;
 
     @Schema(description = "备注", example = "备注")
     private String remark;

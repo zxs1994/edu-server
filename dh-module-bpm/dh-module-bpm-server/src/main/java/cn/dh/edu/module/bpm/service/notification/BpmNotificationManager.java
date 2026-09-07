@@ -1,6 +1,9 @@
 package cn.dh.edu.module.bpm.service.notification;
 
 import cn.hutool.core.util.StrUtil;
+import cn.dh.edu.framework.security.core.LoginUser;
+import cn.dh.edu.framework.security.core.util.SecurityFrameworkUtils;
+import cn.dh.edu.framework.tenant.core.context.TenantContextHolder;
 import cn.dh.edu.module.bpm.api.event.BpmEventTypeEnum;
 import cn.dh.edu.module.bpm.api.event.BpmProcessInstanceStatusMessage;
 import cn.dh.edu.module.bpm.api.event.BpmProcessInstanceInfo;
@@ -13,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -126,23 +130,37 @@ public class BpmNotificationManager {
             return;
         }
 
-        // 发送通知
-        if (Boolean.TRUE.equals(asyncProcess)) {
-            // 异步处理
+        // 本地事件必须同步：异步会丢登录态/租户，且异常被吞掉后单据状态不回写、公告不发
+        boolean useAsync = Boolean.TRUE.equals(asyncProcess)
+                && notificationType != BpmNotificationTypeEnum.LOCAL_EVENT;
+        if (useAsync) {
+            LoginUser loginUser = SecurityFrameworkUtils.getLoginUser();
+            Long tenantId = TenantContextHolder.getTenantId();
+            Boolean tenantIgnore = TenantContextHolder.isIgnore();
             CompletableFuture.runAsync(() -> {
                 try {
+                    if (loginUser != null) {
+                        SecurityFrameworkUtils.setLoginUser(loginUser, null);
+                    }
+                    if (tenantId != null) {
+                        TenantContextHolder.setTenantId(tenantId);
+                    }
+                    TenantContextHolder.setIgnore(tenantIgnore);
                     handler.handleNotification(message);
                 } catch (Exception e) {
                     log.error("[sendNotification] 异步通知处理失败", e);
+                } finally {
+                    SecurityContextHolder.clearContext();
+                    TenantContextHolder.clear();
                 }
             });
-        } else {
-            // 同步处理
-            try {
-                handler.handleNotification(message);
-            } catch (Exception e) {
-                log.error("[sendNotification] 同步通知处理失败", e);
-            }
+            return;
+        }
+
+        try {
+            handler.handleNotification(message);
+        } catch (Exception e) {
+            log.error("[sendNotification] 同步通知处理失败", e);
         }
     }
 
@@ -154,6 +172,7 @@ public class BpmNotificationManager {
         BpmEventTypeEnum eventType = determineProcessInstanceEventType(status);
         
         // 构建流程实例信息
+        Long loginUserId = SecurityFrameworkUtils.getLoginUserId();
         BpmProcessInstanceInfo processInstanceInfo = BpmProcessInstanceInfo.builder()
                 .processInstanceId(processInstance.getId())
                 .processDefinitionKey(processInstance.getProcessDefinitionKey())
@@ -161,6 +180,7 @@ public class BpmNotificationManager {
                 .status(status)
                 .businessKey(processInstance.getBusinessKey())
                 .startUserId(processInstance.getStartUserId())
+                .operatorUserId(loginUserId != null ? String.valueOf(loginUserId) : null)
                 .processInstanceName(processInstance.getName())
                 .tenantId(processInstance.getTenantId())
                 .suspended(processInstance.isSuspended())
@@ -181,6 +201,7 @@ public class BpmNotificationManager {
                                                                             BpmEventTypeEnum eventType, 
                                                                             Integer taskResult, 
                                                                             String taskReason) {
+        Long loginUserId = SecurityFrameworkUtils.getLoginUserId();
         // 构建流程实例信息
         BpmProcessInstanceInfo processInstanceInfo = BpmProcessInstanceInfo.builder()
                 .processInstanceId(processInstance.getId())
@@ -188,6 +209,8 @@ public class BpmNotificationManager {
                 .processDefinitionId(processInstance.getProcessDefinitionId())
                 .businessKey(processInstance.getBusinessKey())
                 .startUserId(processInstance.getStartUserId())
+                .operatorUserId(loginUserId != null ? String.valueOf(loginUserId)
+                        : (task.getAssignee() != null ? task.getAssignee() : null))
                 .processInstanceName(processInstance.getName())
                 .tenantId(processInstance.getTenantId())
                 .suspended(processInstance.isSuspended())

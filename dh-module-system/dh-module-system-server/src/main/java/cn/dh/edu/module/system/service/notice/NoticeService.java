@@ -21,6 +21,15 @@ public interface NoticeService {
     Long createNotice(NoticeSaveReqVO createReqVO);
 
     /**
+     * 创建通知公告（可指定发布人）
+     *
+     * @param createReqVO 通知公告
+     * @param creator 发布人用户编号；为空时按当前登录用户自动填充
+     * @return 编号
+     */
+    Long createNotice(NoticeSaveReqVO createReqVO, String creator);
+
+    /**
      * 更新通知公告
      *
      * @param reqVO 通知公告

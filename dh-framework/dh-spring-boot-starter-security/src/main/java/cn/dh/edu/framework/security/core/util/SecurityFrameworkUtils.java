@@ -138,7 +138,10 @@ public class SecurityFrameworkUtils {
         // 创建 UsernamePasswordAuthenticationToken 对象
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 loginUser, null, Collections.emptyList());
-        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        // 异步线程等无 HttpServletRequest 场景下，不能构建 WebAuthenticationDetails
+        if (request != null) {
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        }
         return authenticationToken;
     }
 

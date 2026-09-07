@@ -2,12 +2,12 @@ package cn.dh.edu.module.edu.dal.dataobject.activity;
 
 import cn.dh.edu.framework.mybatis.core.dataobject.BaseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -35,7 +35,7 @@ public class ActivityDO extends BaseDO {
     private String activitySubtype;
     private String content;
     private String cycleType;
-    private LocalDate startDate;
+    private LocalDateTime startDate;
     private LocalDateTime enrollStartTime;
     private LocalDateTime enrollEndTime;
     private BigDecimal budgetAmount;
@@ -45,5 +45,11 @@ public class ActivityDO extends BaseDO {
     private String companyName;
     private String creatorName;
     private String remark;
+    /**
+     * 附件列表 JSON（库字段 attachments）
+     * 与 VO 的 List 字段不同名，避免 BeanUtils 类型转换失败
+     */
+    @TableField("attachments")
+    private String attachmentsJson;
 
 }

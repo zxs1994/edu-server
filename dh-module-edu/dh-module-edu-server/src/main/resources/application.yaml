@@ -105,5 +105,11 @@ dh:
     version: ${dh.info.version}
   tenant: # 多租户相关配置项
     enable: true
+  edu:
+    exchange-rate:
+      enabled: true
+      api-url: https://api.frankfurter.dev/v1/latest?from={from}&to=CNY
+      timeout-ms: 5000
+      cache-ttl: 1h
 
 debug: false

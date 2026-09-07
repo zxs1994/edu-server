@@ -1,7 +1,7 @@
 package cn.dh.edu.module.system.dal.dataobject.notify;
 
 import cn.dh.edu.framework.common.enums.UserTypeEnum;
-import cn.dh.edu.framework.mybatis.core.dataobject.BaseDO;
+import cn.dh.edu.framework.tenant.core.db.TenantBaseDO;
 import com.baomidou.mybatisplus.annotation.KeySequence;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -25,7 +25,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NotifyMessageDO extends BaseDO {
+public class NotifyMessageDO extends TenantBaseDO {
 
     /**
      * 站内信编号，自增

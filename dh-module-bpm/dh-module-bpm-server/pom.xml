@@ -40,6 +40,11 @@
             <artifactId>dh-module-hrm-api</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>cn.dh.edu</groupId>
+            <artifactId>dh-module-edu-api</artifactId>
+            <version>${revision}</version>
+        </dependency>
 
         <!-- 业务组件 -->
         <dependency>

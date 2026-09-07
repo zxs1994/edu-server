@@ -1,10 +1,14 @@
 package cn.dh.edu.module.edu.dal.dataobject.teacher;
 
 import cn.dh.edu.framework.mybatis.core.dataobject.BaseDO;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.KeySequence;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.*;
+
+import java.math.BigDecimal;
 
 /**
  * 教培档案 DO
@@ -44,9 +48,11 @@ public class TeacherDO extends BaseDO {
      */
     private String mobile;
     /**
-     * 报酬/奖励标准（字典 edu_teacher_reward）
+     * 报酬/奖励标准（金额；选项来自字典 edu_teacher_reward）
+     * ALWAYS：允许更新为 null（清空）
      */
-    private String rewardStandard;
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
+    private BigDecimal rewardStandard;
     /**
      * 关联用户 ID
      */

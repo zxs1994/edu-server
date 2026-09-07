@@ -1,6 +1,7 @@
 package cn.dh.edu.module.system.service.notify;
 
 import cn.dh.edu.framework.common.pojo.PageResult;
+import cn.dh.edu.framework.tenant.core.context.TenantContextHolder;
 import cn.dh.edu.module.system.controller.admin.notify.vo.message.NotifyMessageMyPageReqVO;
 import cn.dh.edu.module.system.controller.admin.notify.vo.message.NotifyMessagePageReqVO;
 import cn.dh.edu.module.system.dal.dataobject.notify.NotifyMessageDO;
@@ -33,6 +34,11 @@ public class NotifyMessageServiceImpl implements NotifyMessageService {
                 .setTemplateId(template.getId()).setTemplateCode(template.getCode())
                 .setTemplateType(template.getType()).setTemplateNickname(template.getNickname())
                 .setTemplateContent(templateContent).setTemplateParams(templateParams).setReadStatus(false);
+        // 显式写入租户，避免流程回调 TenantIgnore 场景下落库 tenant_id=0 导致接收人查不到
+        Long tenantId = TenantContextHolder.getTenantId();
+        if (tenantId != null) {
+            message.setTenantId(tenantId);
+        }
         notifyMessageMapper.insert(message);
         return message.getId();
     }

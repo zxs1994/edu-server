@@ -15,6 +15,9 @@ public class BpmHistoricTaskRespDTO {
     @Schema(description = "审批人用户编号")
     private Long assigneeUserId;
 
+    @Schema(description = "任务定义 Key")
+    private String taskDefinitionKey;
+
     @Schema(description = "任务状态，参见 BpmTaskStatusEnum")
     private Integer status;
 

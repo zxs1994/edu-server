@@ -11,6 +11,7 @@ import cn.dh.edu.module.system.dal.dataobject.home.HomeAppUserDO;
 import cn.dh.edu.module.system.dal.dataobject.permission.MenuDO;
 import cn.dh.edu.module.system.dal.mysql.home.HomeAppConfigMapper;
 import cn.dh.edu.module.system.dal.mysql.home.HomeAppUserMapper;
+import cn.dh.edu.module.system.enums.permission.MenuTypeEnum;
 import cn.dh.edu.module.system.service.permission.MenuService;
 import cn.dh.edu.module.system.service.permission.PermissionService;
 import jakarta.annotation.Resource;
@@ -22,6 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static cn.dh.edu.framework.common.exception.util.ServiceExceptionUtil.exception;
+import static cn.dh.edu.module.system.enums.ErrorCodeConstants.HOME_APP_ONLY_MENU;
 import static cn.dh.edu.module.system.enums.ErrorCodeConstants.HOME_APP_USER_EXISTS;
 import static cn.dh.edu.module.system.enums.ErrorCodeConstants.HOME_APP_USER_NOT_EXISTS;
 
@@ -105,6 +107,10 @@ public class HomeAppUserServiceImpl implements HomeAppUserService {
         MenuDO menu = menuService.getMenu(createReqVO.getMenuId());
         if (menu == null) {
             throw exception(HOME_APP_USER_NOT_EXISTS);
+        }
+        // 只能添加菜单页面，目录不可加入应用中心
+        if (!MenuTypeEnum.MENU.getType().equals(menu.getType())) {
+            throw exception(HOME_APP_ONLY_MENU);
         }
 
         // 校验用户是否有该菜单的权限（虚拟菜单 managed=false 免授权）

@@ -10,16 +10,16 @@ SELECT 5530, '专项活动', '', 1, 25, 0, '/edu/activity', 'lucide:flag', NULL,
        0, b'1', b'1', b'1', b'1', b'1', '1', NOW(), '1', NOW(), b'0'
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE `id` = 5530);
 
--- 专项活动列表
+-- 专项活动计划（原「活动列表」）
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `app_visible`, `managed`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 5531, '活动列表', '', 2, 1, 5530, 'list', 'lucide:list',
+SELECT 5531, '活动计划', '', 2, 1, 5530, 'list', 'lucide:list',
        'edu/activity/list/index', 'EduActivityList',
        0, b'1', b'1', b'1', b'1', b'1', '1', NOW(), '1', NOW(), b'0'
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE `id` = 5531);
 
--- 专项活动详情（隐藏；BPM Create=/edu/activity/info View=edu/activity/info/index）
+-- 专项活动计划详情（隐藏；BPM Create=/edu/activity/info View=edu/activity/info/index）
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `app_visible`, `managed`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 5532, '活动详情', '', 2, 2, 5530, 'info', '',
+SELECT 5532, '活动计划详情', '', 2, 2, 5530, 'info', '',
        'edu/activity/info/index', 'EduActivityInfo',
        0, b'0', b'1', b'1', b'1', b'1', '1', NOW(), '1', NOW(), b'0'
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_menu` WHERE `id` = 5532);

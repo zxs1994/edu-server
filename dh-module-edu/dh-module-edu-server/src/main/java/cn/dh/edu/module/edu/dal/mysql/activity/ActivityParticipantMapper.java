@@ -17,4 +17,8 @@ public interface ActivityParticipantMapper extends BaseMapperX<ActivityParticipa
         delete(ActivityParticipantDO::getActivityId, activityId);
     }
 
+    default List<ActivityParticipantDO> selectListByUserId(Long userId) {
+        return selectList(ActivityParticipantDO::getUserId, userId);
+    }
+
 }

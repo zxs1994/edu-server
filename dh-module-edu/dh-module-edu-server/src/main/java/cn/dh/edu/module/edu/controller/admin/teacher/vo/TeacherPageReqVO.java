@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static cn.dh.edu.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
@@ -26,8 +27,8 @@ public class TeacherPageReqVO extends PageParam {
     @Schema(description = "职称/职级", example = "1")
     private String title;
 
-    @Schema(description = "报酬/奖励标准", example = "A")
-    private String rewardStandard;
+    @Schema(description = "报酬/奖励标准（金额）", example = "500.00")
+    private BigDecimal rewardStandard;
 
     @Schema(description = "联系方式", example = "13800138000")
     private String mobile;

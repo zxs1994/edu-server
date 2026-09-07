@@ -7,6 +7,7 @@ import cn.dh.edu.module.system.controller.admin.notice.vo.NoticePageReqVO;
 import cn.dh.edu.module.system.controller.admin.notice.vo.NoticeSaveReqVO;
 import cn.dh.edu.module.system.dal.dataobject.notice.NoticeDO;
 import cn.dh.edu.module.system.dal.mysql.notice.NoticeMapper;
+import cn.hutool.core.util.StrUtil;
 import com.google.common.annotations.VisibleForTesting;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,17 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public Long createNotice(NoticeSaveReqVO createReqVO) {
+        return createNotice(createReqVO, null);
+    }
+
+    @Override
+    public Long createNotice(NoticeSaveReqVO createReqVO, String creator) {
         NoticeDO notice = BeanUtils.toBean(createReqVO, NoticeDO.class);
+        // 显式指定发布人时写入 creator/updater，避免审批流 MQ 回调无登录态导致发布人错误
+        if (StrUtil.isNotBlank(creator)) {
+            notice.setCreator(creator);
+            notice.setUpdater(creator);
+        }
         noticeMapper.insert(notice);
         return notice.getId();
     }

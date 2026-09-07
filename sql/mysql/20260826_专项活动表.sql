@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `edu_activity` (
   `activity_subtype` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '活动子类型',
   `content` varchar(2000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '活动内容',
   `cycle_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ONCE' COMMENT '周期类型（字典 edu_activity_cycle）',
-  `start_date` date NULL DEFAULT NULL COMMENT '开始日期',
+  `start_date` datetime NULL DEFAULT NULL COMMENT '活动开始时间',
   `enroll_start_time` datetime NULL DEFAULT NULL COMMENT '报名开始时间',
   `enroll_end_time` datetime NULL DEFAULT NULL COMMENT '报名结束时间',
   `budget_amount` decimal(12, 2) NOT NULL DEFAULT 0.00 COMMENT '预算总额',
@@ -125,12 +125,12 @@ SELECT 2223, '专项活动计费模式', 'edu_fee_mode', 0, '专项活动-费用
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_type` WHERE `type` = 'edu_fee_mode');
 
 INSERT INTO `system_dict_data` (`id`, `sort`, `label`, `value`, `dict_type`, `status`, `color_type`, `css_class`, `remark`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 22230, 1, '包干', 'FIXED', 'edu_fee_mode', 0, 'default', '', '', '1', NOW(), '1', NOW(), b'0'
-FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_data` WHERE `dict_type` = 'edu_fee_mode' AND `value` = 'FIXED');
+SELECT 22230, 1, '包干', 'fixed', 'edu_fee_mode', 0, 'default', '', '结项时按固定总额结算', '1', NOW(), '1', NOW(), b'0'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_data` WHERE `dict_type` = 'edu_fee_mode' AND `value` = 'fixed');
 
 INSERT INTO `system_dict_data` (`id`, `sort`, `label`, `value`, `dict_type`, `status`, `color_type`, `css_class`, `remark`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 22231, 2, '按场次', 'SESSION', 'edu_fee_mode', 0, 'processing', '', '', '1', NOW(), '1', NOW(), b'0'
-FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_data` WHERE `dict_type` = 'edu_fee_mode' AND `value` = 'SESSION');
+SELECT 22232, 2, '按人头', 'head', 'edu_fee_mode', 0, 'processing', '', '结项时按实例出勤人数折算', '1', NOW(), '1', NOW(), b'0'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_data` WHERE `dict_type` = 'edu_fee_mode' AND `value` = 'head');
 
 -- 字典：费用侧
 INSERT INTO `system_dict_type` (`id`, `name`, `type`, `status`, `remark`, `creator`, `create_time`, `updater`, `update_time`, `deleted`, `deleted_time`)
@@ -138,9 +138,9 @@ SELECT 2224, '专项活动费用侧', 'edu_fee_side', 0, '专项活动-费用侧
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_type` WHERE `type` = 'edu_fee_side');
 
 INSERT INTO `system_dict_data` (`id`, `sort`, `label`, `value`, `dict_type`, `status`, `color_type`, `css_class`, `remark`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 22240, 1, '校方支出', 'SCHOOL', 'edu_fee_side', 0, 'warning', '', '', '1', NOW(), '1', NOW(), b'0'
-FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_data` WHERE `dict_type` = 'edu_fee_side' AND `value` = 'SCHOOL');
+SELECT 22240, 1, '教培', 'teacher', 'edu_fee_side', 0, 'warning', '', '付给教培，需指定收款人', '1', NOW(), '1', NOW(), b'0'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_data` WHERE `dict_type` = 'edu_fee_side' AND `value` = 'teacher');
 
 INSERT INTO `system_dict_data` (`id`, `sort`, `label`, `value`, `dict_type`, `status`, `color_type`, `css_class`, `remark`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 22241, 2, '学员收费', 'STUDENT', 'edu_fee_side', 0, 'success', '', '', '1', NOW(), '1', NOW(), b'0'
-FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_data` WHERE `dict_type` = 'edu_fee_side' AND `value` = 'STUDENT');
+SELECT 22241, 2, '学生', 'student', 'edu_fee_side', 0, 'success', '', '系统给出勤学生发积分，无需收款人', '1', NOW(), '1', NOW(), b'0'
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_data` WHERE `dict_type` = 'edu_fee_side' AND `value` = 'student');

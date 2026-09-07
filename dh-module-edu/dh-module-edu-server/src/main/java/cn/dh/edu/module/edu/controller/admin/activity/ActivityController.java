@@ -133,6 +133,7 @@ public class ActivityController {
                     .map(ActivityParticipantDO::getUserId)
                     .filter(Objects::nonNull)
                     .toList();
+            userIds = activityService.sortParticipantUserIds(userIds);
             item.setParticipantUserIds(userIds);
             if (CollUtil.isEmpty(userIds)) {
                 item.setParticipantNames("");
