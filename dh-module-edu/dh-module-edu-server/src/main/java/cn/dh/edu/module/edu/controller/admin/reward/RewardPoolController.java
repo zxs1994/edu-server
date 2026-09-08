@@ -1,20 +1,23 @@
 package cn.dh.edu.module.edu.controller.admin.reward;
 
 import cn.dh.edu.framework.common.pojo.CommonResult;
-import cn.dh.edu.framework.common.pojo.PageResult;
 import cn.dh.edu.module.edu.controller.admin.reward.vo.*;
 import cn.dh.edu.module.edu.service.reward.RewardPoolService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static cn.dh.edu.framework.common.pojo.CommonResult.success;
 
-@Tag(name = "管理后台 - 奖金池")
+@Tag(name = "管理后台 - 预算配置")
 @RestController
 @RequestMapping("/edu/reward-pool")
 @Validated
@@ -23,42 +26,51 @@ public class RewardPoolController {
     @Resource
     private RewardPoolService rewardPoolService;
 
-    @GetMapping("/get")
-    @Operation(summary = "获得系统奖金池")
+    @GetMapping("/budget/year/list")
+    @Operation(summary = "获得年度预算列表")
     @PreAuthorize("@ss.hasPermission('edu:reward-pool:query')")
-    public CommonResult<RewardPoolRespVO> getRewardPool() {
-        return success(rewardPoolService.getRewardPool());
+    public CommonResult<List<RewardBudgetYearRespVO>> getBudgetYearList() {
+        return success(rewardPoolService.getBudgetYearList());
     }
 
-    @PutMapping("/update")
-    @Operation(summary = "更新奖金池名称/备注")
+    @PostMapping("/budget/year/create")
+    @Operation(summary = "创建年度预算")
     @PreAuthorize("@ss.hasPermission('edu:reward-pool:update')")
-    public CommonResult<Boolean> updateRewardPool(@Valid @RequestBody RewardPoolUpdateReqVO reqVO) {
-        rewardPoolService.updateRewardPool(reqVO);
+    public CommonResult<Long> createBudgetYear(@Valid @RequestBody RewardBudgetYearCreateReqVO reqVO) {
+        return success(rewardPoolService.createBudgetYear(reqVO));
+    }
+
+    @PutMapping("/budget/year/update")
+    @Operation(summary = "更新年度预算")
+    @PreAuthorize("@ss.hasPermission('edu:reward-pool:update')")
+    public CommonResult<Boolean> updateBudgetYear(@Valid @RequestBody RewardBudgetYearUpdateReqVO reqVO) {
+        rewardPoolService.updateBudgetYear(reqVO);
         return success(true);
     }
 
-    @PutMapping("/update-status")
-    @Operation(summary = "启停奖金池")
+    @PutMapping("/budget/period/update")
+    @Operation(summary = "更新时段预算")
     @PreAuthorize("@ss.hasPermission('edu:reward-pool:update')")
-    public CommonResult<Boolean> updateRewardPoolStatus(@Valid @RequestBody RewardPoolUpdateStatusReqVO reqVO) {
-        rewardPoolService.updateRewardPoolStatus(reqVO);
+    public CommonResult<Boolean> updateBudgetPeriod(@Valid @RequestBody RewardBudgetPeriodUpdateReqVO reqVO) {
+        rewardPoolService.updateBudgetPeriod(reqVO);
         return success(true);
     }
 
-    @PostMapping("/adjust")
-    @Operation(summary = "奖金池充值/调减")
-    @PreAuthorize("@ss.hasPermission('edu:reward-pool:update')")
-    public CommonResult<Boolean> adjustRewardPool(@Valid @RequestBody RewardPoolAdjustReqVO reqVO) {
-        rewardPoolService.adjustRewardPool(reqVO);
-        return success(true);
-    }
-
-    @GetMapping("/txn/page")
-    @Operation(summary = "获得奖金池流水分页")
+    @GetMapping("/budget/execution")
+    @Operation(summary = "获得年度预算执行率")
+    @Parameter(name = "budgetYear", description = "预算年度", required = true, example = "2026")
     @PreAuthorize("@ss.hasPermission('edu:reward-pool:query')")
-    public CommonResult<PageResult<RewardPoolTxnRespVO>> getRewardPoolTxnPage(@Valid RewardPoolTxnPageReqVO pageReqVO) {
-        return success(rewardPoolService.getRewardPoolTxnPage(pageReqVO));
+    public CommonResult<RewardBudgetExecutionRespVO> getBudgetExecution(
+            @RequestParam("budgetYear") @NotNull Integer budgetYear) {
+        return success(rewardPoolService.getBudgetExecution(budgetYear));
+    }
+
+    @GetMapping("/budget/execution/detail")
+    @Operation(summary = "获得预算执行明细（分页）")
+    @PreAuthorize("@ss.hasPermission('edu:reward-pool:query')")
+    public CommonResult<RewardBudgetExecutionDetailPageRespVO> getBudgetExecutionDetail(
+            @Valid RewardBudgetExecutionDetailPageReqVO reqVO) {
+        return success(rewardPoolService.getBudgetExecutionDetail(reqVO));
     }
 
 }

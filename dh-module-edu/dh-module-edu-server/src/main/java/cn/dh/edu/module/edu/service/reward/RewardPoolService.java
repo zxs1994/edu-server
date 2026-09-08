@@ -1,53 +1,42 @@
 package cn.dh.edu.module.edu.service.reward;
 
-import cn.dh.edu.framework.common.pojo.PageResult;
 import cn.dh.edu.module.edu.controller.admin.reward.vo.*;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 /**
- * 专项活动奖金池 Service
+ * 专项活动预算执行 Service（年度时段预算 + 执行率）
  */
 public interface RewardPoolService {
 
     /**
-     * 获取系统唯一奖金池；不存在则创建默认池
+     * 年度预算列表
      */
-    RewardPoolRespVO getRewardPool();
+    List<RewardBudgetYearRespVO> getBudgetYearList();
 
     /**
-     * 更新池名称、备注
+     * 创建年度预算（按模式生成时段）
      */
-    void updateRewardPool(RewardPoolUpdateReqVO reqVO);
+    Long createBudgetYear(RewardBudgetYearCreateReqVO reqVO);
 
     /**
-     * 启停
+     * 更新年度备注；CUSTOM 可整体替换时段
      */
-    void updateRewardPoolStatus(RewardPoolUpdateStatusReqVO reqVO);
+    void updateBudgetYear(RewardBudgetYearUpdateReqVO reqVO);
 
     /**
-     * 充值 / 调减总额
+     * 更新单段预算（非 CUSTOM 不可改日期）
      */
-    void adjustRewardPool(RewardPoolAdjustReqVO reqVO);
+    void updateBudgetPeriod(RewardBudgetPeriodUpdateReqVO reqVO);
 
     /**
-     * 流水分页
+     * 查询年度执行率
      */
-    PageResult<RewardPoolTxnRespVO> getRewardPoolTxnPage(RewardPoolTxnPageReqVO pageReqVO);
+    RewardBudgetExecutionRespVO getBudgetExecution(Integer budgetYear);
 
     /**
-     * 预留：活动审批通过时冻结预算
+     * 查询时段（或日期范围）预算执行明细（分页）
      */
-    void freeze(BigDecimal amount, String bizType, Long bizId, String remark);
-
-    /**
-     * 预留：活动取消/驳回时解冻
-     */
-    void unfreeze(BigDecimal amount, String bizType, Long bizId, String remark);
-
-    /**
-     * 预留：付款完成时扣减冻结并计入实发
-     */
-    void pay(BigDecimal amount, String bizType, Long bizId, String remark);
+    RewardBudgetExecutionDetailPageRespVO getBudgetExecutionDetail(RewardBudgetExecutionDetailPageReqVO reqVO);
 
 }

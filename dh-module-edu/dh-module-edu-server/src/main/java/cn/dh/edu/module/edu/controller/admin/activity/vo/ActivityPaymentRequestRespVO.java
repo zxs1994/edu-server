@@ -47,6 +47,15 @@ public class ActivityPaymentRequestRespVO {
     @Schema(description = "流程状态")
     private Integer processStatus;
 
+    @Schema(description = "审批通过时间")
+    private LocalDateTime approveTime;
+
+    @Schema(description = "审批通过时锁定汇率")
+    private BigDecimal exchangeRate;
+
+    @Schema(description = "审批通过时锁定折合人民币金额")
+    private BigDecimal amountCny;
+
     @Schema(description = "申请人用户ID")
     private Long applicantUserId;
 

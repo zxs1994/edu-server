@@ -31,4 +31,16 @@ public interface ActivityPaymentRequestMapper extends BaseMapperX<ActivityPaymen
             + "FROM edu_activity_payment_request WHERE bill_code LIKE CONCAT(#{prefix}, '%')")
     Long selectMaxSequenceByPrefix(@Param("prefix") String prefix);
 
+    /**
+     * 查询审批通过且通过时间落在区间内的付款申请
+     */
+    default java.util.List<ActivityPaymentRequestDO> selectApprovedByApproveTimeBetween(
+            java.time.LocalDateTime startInclusive, java.time.LocalDateTime endInclusive) {
+        return selectList(new LambdaQueryWrapperX<ActivityPaymentRequestDO>()
+                .eq(ActivityPaymentRequestDO::getProcessStatus, 2)
+                .ge(ActivityPaymentRequestDO::getApproveTime, startInclusive)
+                .le(ActivityPaymentRequestDO::getApproveTime, endInclusive)
+                .orderByAsc(ActivityPaymentRequestDO::getApproveTime));
+    }
+
 }

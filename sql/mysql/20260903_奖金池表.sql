@@ -86,9 +86,9 @@ INSERT INTO `system_dict_data` (`id`, `sort`, `label`, `value`, `dict_type`, `st
 SELECT 22414, 5, '实发', 'PAY', 'edu_reward_pool_txn_type', 0, 'danger', '', '预留：付款完成扣减冻结并计入实发', '1', NOW(), '1', NOW(), b'0'
 FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `system_dict_data` WHERE `dict_type` = 'edu_reward_pool_txn_type' AND `value` = 'PAY');
 
--- 菜单：奖金池（挂在专项活动目录下）
+-- 菜单：预算配置（挂在专项活动目录下）
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `app_visible`, `managed`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 5550, '奖金池', '', 2, 5, parent.id, 'reward-pool', 'lucide:wallet',
+SELECT 5550, '预算配置', '', 2, 5, parent.id, 'reward-pool', 'lucide:wallet',
        'edu/reward-pool/index', 'EduRewardPool',
        0, b'1', b'1', b'1', b'1', b'1', '1', NOW(), '1', NOW(), b'0'
 FROM `system_menu` parent
@@ -98,13 +98,13 @@ WHERE parent.`path` = '/edu/activity'
   AND NOT EXISTS (SELECT 1 FROM `system_menu` WHERE `id` = 5550);
 
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `app_visible`, `managed`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 5551, '奖金池查询', 'edu:reward-pool:query', 3, 1, 5550, '', '#', NULL, NULL, 0, b'1', b'1', b'1', b'1', b'1', '1', NOW(), '1', NOW(), b'0'
+SELECT 5551, '预算配置查询', 'edu:reward-pool:query', 3, 1, 5550, '', '#', NULL, NULL, 0, b'1', b'1', b'1', b'1', b'1', '1', NOW(), '1', NOW(), b'0'
 FROM DUAL
 WHERE EXISTS (SELECT 1 FROM `system_menu` WHERE `id` = 5550 AND `deleted` = b'0')
   AND NOT EXISTS (SELECT 1 FROM `system_menu` WHERE `id` = 5551);
 
 INSERT INTO `system_menu` (`id`, `name`, `permission`, `type`, `sort`, `parent_id`, `path`, `icon`, `component`, `component_name`, `status`, `visible`, `keep_alive`, `always_show`, `app_visible`, `managed`, `creator`, `create_time`, `updater`, `update_time`, `deleted`)
-SELECT 5552, '奖金池更新', 'edu:reward-pool:update', 3, 2, 5550, '', '#', NULL, NULL, 0, b'1', b'1', b'1', b'1', b'1', '1', NOW(), '1', NOW(), b'0'
+SELECT 5552, '预算配置更新', 'edu:reward-pool:update', 3, 2, 5550, '', '#', NULL, NULL, 0, b'1', b'1', b'1', b'1', b'1', '1', NOW(), '1', NOW(), b'0'
 FROM DUAL
 WHERE EXISTS (SELECT 1 FROM `system_menu` WHERE `id` = 5550 AND `deleted` = b'0')
   AND NOT EXISTS (SELECT 1 FROM `system_menu` WHERE `id` = 5552);

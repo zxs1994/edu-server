@@ -52,7 +52,7 @@ SET `parent_id` = 5562,
     `update_time` = NOW()
 WHERE `id` = 5540 AND `deleted` = b'0';
 
--- 4) 费用管理下：费用明细 / 付款申请 / 详情 / 奖金池
+-- 4) 费用管理下：费用明细 / 付款申请 / 详情 / 预算配置
 UPDATE `system_menu`
 SET `parent_id` = 5563,
     `path` = '/edu/activity/fee-item/list',

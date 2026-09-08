@@ -74,15 +74,15 @@ public interface ErrorCodeConstants {
     ErrorCode ACTIVITY_INSTANCE_ADMIN_FEEDBACK_OWNER_ONLY = new ErrorCode(1_051_003_042, "仅活动负责人可提交班务评价");
     ErrorCode ACTIVITY_INSTANCE_FEEDBACK_ALREADY_SUBMITTED = new ErrorCode(1_051_003_043, "反馈已提交，不可重复填写");
 
-    // ========== 奖金池 1-051-004-000 ==========
-    ErrorCode REWARD_POOL_NOT_EXISTS = new ErrorCode(1_051_004_001, "奖金池不存在");
-    ErrorCode REWARD_POOL_DISABLED = new ErrorCode(1_051_004_002, "奖金池已停用，不可调账");
-    ErrorCode REWARD_POOL_ADJUST_AMOUNT_INVALID = new ErrorCode(1_051_004_003, "调账金额必须大于0");
-    ErrorCode REWARD_POOL_ADJUST_EXCEED = new ErrorCode(1_051_004_004, "调减后总额不能低于已冻结与已实发之和");
-    ErrorCode REWARD_POOL_ADJUST_DIRECTION_INVALID = new ErrorCode(1_051_004_005, "调账方向无效");
-    ErrorCode REWARD_POOL_STATUS_INVALID = new ErrorCode(1_051_004_006, "奖金池状态无效");
-    ErrorCode REWARD_POOL_AVAILABLE_NOT_ENOUGH = new ErrorCode(1_051_004_007, "奖金池可用余额不足");
-    ErrorCode REWARD_POOL_FROZEN_NOT_ENOUGH = new ErrorCode(1_051_004_008, "奖金池冻结金额不足");
+    // ========== 年度预算执行 1-051-004-000 ==========
+    ErrorCode REWARD_BUDGET_YEAR_EXISTS = new ErrorCode(1_051_004_009, "该年度预算已存在");
+    ErrorCode REWARD_BUDGET_YEAR_NOT_EXISTS = new ErrorCode(1_051_004_010, "年度预算不存在");
+    ErrorCode REWARD_BUDGET_PERIOD_MODE_INVALID = new ErrorCode(1_051_004_011, "时段模式无效");
+    ErrorCode REWARD_BUDGET_PERIOD_NOT_EXISTS = new ErrorCode(1_051_004_012, "时段预算不存在");
+    ErrorCode REWARD_BUDGET_PERIOD_INVALID = new ErrorCode(1_051_004_013, "时段配置无效：请检查名称、日期与金额");
+    ErrorCode REWARD_BUDGET_PERIOD_OVERLAP = new ErrorCode(1_051_004_014, "时段日期存在重叠");
+    ErrorCode REWARD_BUDGET_PERIOD_NOT_EDITABLE = new ErrorCode(1_051_004_015, "当前时段模式不允许修改日期或增删时段");
+    ErrorCode REWARD_BUDGET_YEAR_INVALID = new ErrorCode(1_051_004_016, "预算年度无效");
 
     // ========== 专项活动付款申请 1-051-005-000 ==========
     ErrorCode ACTIVITY_PAYMENT_REQUEST_NOT_EXISTS = new ErrorCode(1_051_005_001, "付款申请不存在");

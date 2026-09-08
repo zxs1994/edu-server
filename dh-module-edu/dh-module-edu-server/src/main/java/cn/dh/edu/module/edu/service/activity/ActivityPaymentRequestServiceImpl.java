@@ -82,6 +82,8 @@ public class ActivityPaymentRequestServiceImpl
     private DeptApi deptApi;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private EduExchangeRateService exchangeRateService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -239,7 +241,25 @@ public class ActivityPaymentRequestServiceImpl
         ActivityPaymentRequestDO update = new ActivityPaymentRequestDO();
         update.setId(id);
         update.setProcessStatus(status);
-        paymentRequestMapper.updateById(update);
+        if (BpmProcessInstanceStatusEnum.APPROVE.getStatus().equals(status)) {
+            update.setApproveTime(LocalDateTime.now());
+            // 审批通过瞬间锁定汇率与折合人民币，后续预算执行不再随实时汇率漂移
+            BigDecimal rate = exchangeRateService.getCnyRate(request.getCurrency());
+            BigDecimal amountCny = exchangeRateService.toCny(request.getTotalAmount(), request.getCurrency());
+            update.setExchangeRate(rate);
+            update.setAmountCny(amountCny);
+            paymentRequestMapper.updateById(update);
+        } else if (BpmProcessInstanceStatusEnum.REJECT.getStatus().equals(status)
+                || BpmProcessInstanceStatusEnum.CANCEL.getStatus().equals(status)) {
+            paymentRequestMapper.update(null, new LambdaUpdateWrapper<ActivityPaymentRequestDO>()
+                    .eq(ActivityPaymentRequestDO::getId, id)
+                    .set(ActivityPaymentRequestDO::getProcessStatus, status)
+                    .set(ActivityPaymentRequestDO::getApproveTime, null)
+                    .set(ActivityPaymentRequestDO::getExchangeRate, null)
+                    .set(ActivityPaymentRequestDO::getAmountCny, null));
+        } else {
+            paymentRequestMapper.updateById(update);
+        }
 
         List<ActivityInstanceFeeItemDO> feeItems = feeItemMapper.selectListByPaymentRequestId(id);
         if (CollUtil.isEmpty(feeItems) && CollUtil.isNotEmpty(request.getFeeItemIds())) {

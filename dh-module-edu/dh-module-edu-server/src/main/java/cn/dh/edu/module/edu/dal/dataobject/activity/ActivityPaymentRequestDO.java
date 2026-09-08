@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -35,6 +36,12 @@ public class ActivityPaymentRequestDO extends TenantBaseDO {
     private String currency;
     private String processInstanceId;
     private Integer processStatus;
+    /** 审批通过时间 */
+    private LocalDateTime approveTime;
+    /** 审批通过时锁定汇率（1 外币 = X 人民币） */
+    private BigDecimal exchangeRate;
+    /** 审批通过时锁定折合人民币金额 */
+    private BigDecimal amountCny;
     private Long applicantUserId;
     private String remark;
     /**
